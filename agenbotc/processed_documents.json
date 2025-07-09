@@ -1,0 +1,78 @@
+{
+  "32661ad6-4621-4a18-86a8-799a2eda7ed2": {
+    "source": "https://docs.pingidentity.com/pingfederate/12.2/release_notes/pf_release_notes.html",
+    "type": "website",
+    "processed_at": "e42f57e1-8012-4613-bc78-0070c5d1df98",
+    "filename": null,
+    "content_hash": "b24e98047e247134fa8aa6b5a8f73d78"
+  },
+  "0abd14c1-c33f-4a6f-80c5-1571b60d3abe": {
+    "source": "C:\\Users\\meswe\\Desktop\\EduServIT\\vega_ai\\AI-MVP\\agenbotc\\uploads\\PF-300-BVP_StudentWorkbook_FINAL (Watermarked for Instructor).pdf",
+    "type": "pdf",
+    "processed_at": "1b0dcf80-2b68-40c4-a89a-c44b1a8197ce",
+    "filename": "PF-300-BVP_StudentWorkbook_FINAL (Watermarked for Instructor).pdf",
+    "file_hash": "a5b89ea47a10637b96dfad9b2d79d96b",
+    "content_hash": "17b28f0b623d832bf107ec64f9916f73"
+  },
+  "3144c03d-b191-444e-bb6c-8a8d36e79386": {
+    "source": "C:\\Users\\meswe\\Desktop\\EduServIT\\vega_ai\\AI-MVP\\agenbotc\\uploads\\AtlassianCloudSSO.docx",
+    "type": "docx",
+    "processed_at": "1ef9d4c6-a3ef-4932-826c-a6212955afa0",
+    "filename": "AtlassianCloudSSO.docx",
+    "file_hash": "8660791b75365fc30d2c1cb6ba68130f",
+    "content_hash": "307a02919cc749facbb0ac1219e7e2eb"
+  },
+  "45bd6dc8-4c44-425a-9d18-e28d6bda2888": {
+    "source": "C:\\Users\\meswe\\Desktop\\EduServIT\\vega_ai\\AI-MVP\\agenbotc\\uploads\\OWASP-LLM_GenAI-Security-Solutions-Reference-Guide-v1.1.25.pdf",
+    "type": "pdf",
+    "processed_at": "b3b66c6c-b02a-4c80-b7ba-935cc527632c",
+    "filename": "OWASP-LLM_GenAI-Security-Solutions-Reference-Guide-v1.1.25.pdf",
+    "file_hash": "e7b74b53e2aba9156a77bcacb9e39caa",
+    "content_hash": "02eb71785baac59a7c7756812e2b4f97"
+  },
+  "50123542-0b11-4ff6-bef1-c6a83021f8f0": {
+    "source": "C:\\Users\\meswe\\Desktop\\EduServIT\\vega_ai\\AI-MVP\\agenbotc\\uploads\\DockerDesktopSSO.docx",
+    "type": "docx",
+    "processed_at": "8145522f-6c6f-487b-bd2d-fe0d30ec6c53",
+    "filename": "DockerDesktopSSO.docx",
+    "file_hash": "0e6552b4b352ef2eb9546841639938f2",
+    "content_hash": "9059af92342926061ca2785238e40706"
+  },
+  "c60103d4-db5a-4b8e-80b2-63011f85a164": {
+    "source": "C:\\Users\\meswe\\Desktop\\EduServIT\\vega_ai\\AI-MVP\\agenbotc\\uploads\\02-Intro_to_Federation.pptx",
+    "type": "ppt",
+    "processed_at": "b4241603-3b7b-4a76-9a62-940182264a5e",
+    "filename": "02-Intro_to_Federation.pptx",
+    "file_hash": "d8d219c3f63f20f16814957ace51db76",
+    "content_hash": "1ea8062960b55edf0ebbaef8ddf7f883"
+  },
+  "e724526e-3824-4d96-ad5a-eeb89bac744c": {
+    "source": "https://docs.pingidentity.com/pingone/release_notes/index.html",
+    "type": "website",
+    "processed_at": "be79bd1e-c651-42eb-9f5a-95f2e835adcb",
+    "filename": null,
+    "content_hash": "d980abd2ef9689c120dd2716089b3127"
+  },
+  "74d4015c-47eb-44eb-b911-0a57a2e5d661": {
+    "source": "C:\\Users\\meswe\\Desktop\\EduServIT\\vega_ai\\AI-MVP\\agenbotc\\uploads\\jamfcloudSAASSSO.docx",
+    "type": "docx",
+    "processed_at": "df91f928-16d2-48f0-bdbe-0bba9af25e63",
+    "filename": "jamfcloudSAASSSO.docx",
+    "file_hash": "ea80c8a3641675c0ec98ef4b9429443b",
+    "content_hash": "7ea3ed25ce42a5ec423e557aa1d95b96"
+  },
+  "6d25cfae-c3a0-4a5c-b407-69cda6e78596": {
+    "source": "https://docs.pingidentity.com/pingfederate/12.3/introduction_to_pingfederate/pf_intro_to_pf.html",
+    "type": "website",
+    "processed_at": "e1ece674-efa0-4c80-8abc-0a30ed457408",
+    "filename": null,
+    "content_hash": "83cd181917aace55c1e198149caa91b2"
+  },
+  "97cdb957-d071-4c5e-bc19-8f7dfa7b4939": {
+    "source": "https://docs.pingidentity.com/pingoneaic/latest/release-notes/release-notes.html",
+    "type": "website",
+    "processed_at": "03f57919-26b5-4065-99d3-77b4899b9684",
+    "filename": null,
+    "content_hash": "2c05a369afd89a740cc1413dcad495ca"
+  }
+}

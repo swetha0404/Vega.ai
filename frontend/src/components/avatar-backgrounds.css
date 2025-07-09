@@ -1,0 +1,71 @@
+.avatar-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  z-index: 1;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+/* Office background images */
+.avatar-background.office-bg-1 {
+  background-image: url('/backgrounds/Office_Background.gif');
+}
+
+.avatar-background.office-bg-2 {
+  background-image: url('/backgrounds/office_window.gif');
+}
+
+.avatar-background.office-bg-3 {
+  background-image: url('/backgrounds/Office_work_background.gif');
+}
+
+/* Styles for the video with transparency */
+.avatar-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  z-index: 2;
+  background-color: transparent;
+}
+
+/* Chroma key effect for the video */
+.avatar-video.chroma-key {
+  background-color: transparent !important;
+  mix-blend-mode: screen;
+}
+
+/* Background selector thumbnails */
+.bg-thumbnail {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-thumbnail.active {
+  border-color: #1de9b6;
+  transform: scale(1.1);
+}
+
+.bg-selector-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  padding: 5px;
+  background-color: rgba(72, 132, 200, 0.5);
+  border-radius: 20px;
+}

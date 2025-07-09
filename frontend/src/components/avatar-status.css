@@ -1,0 +1,68 @@
+.avatar-status {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(72, 132, 200, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.avatar-status.visible {
+  opacity: 1;
+}
+
+.avatar-status.error {
+  background-color: rgba(220, 53, 69, 0.8);
+}
+
+.avatar-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  overflow: visible;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.avatar-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 5;
+}
+
+.avatar-loading.hidden {
+  display: none;
+}
+
+.avatar-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid rgba(72, 132, 200, 0.3);
+  border-top-color: #1de9b6;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

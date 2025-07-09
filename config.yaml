@@ -1,0 +1,13 @@
+ldap:
+  host: "your-pingdirectory-host"
+  port: 1389
+  bind_dn: "cn=Directory Manager"
+  bind_password: "your-password"
+  base_dn: "dc=example,dc=com" 
+users:
+  - username: "test"
+    password: "Testformvp"
+    role: "user"
+  - username: "admin"
+    password: "Testingadminformvp"
+    role: "admin"
