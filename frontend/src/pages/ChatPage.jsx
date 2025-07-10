@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import ReactMarkdown from 'react-markdown';
 import VoiceToText from '../components/voicetotext';
 import Avatar from '../components/avatar'; // Import Avatar component
 import ChatSuggestions from '../components/ChatSuggestions'; // Import ChatSuggestions component
-import './ChatPage.css';
-import '../components/chat-suggestions.css';
-import Topbar from '../components/top_bar';
-import Sidebar from '../components/sidebar';
+import './chatPageLayout.css';
+import '../components/chatSuggestionsLayout.css';
+import Topbar from '../components/topBar';
+import Sidebar from '../components/sideBar';
 
 function ChatPage() {
   const [messages, setMessages] = useState([

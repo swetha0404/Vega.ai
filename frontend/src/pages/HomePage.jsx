@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './MainLayout.css';
-import Sidebar from '../components/sidebar';
-import Topbar from '../components/top_bar';
+import { useState, useEffect } from 'react';
+import { useNavigate} from 'react-router-dom';
+import './homeLayout.css';
+import Sidebar from '../components/sideBar';
+import Topbar from '../components/topBar';
 
 
 function MainLayout() {
@@ -30,30 +30,99 @@ function MainLayout() {
             </div> 
             <section className="applications-section">
               <div className="cards-row">
+                {/* -------------All cards----------------- */}
+                {/* card for PingFederate */}
                 <div 
                   className={`app-card-home ${isLoaded ? 'bounce-in-top' : ''}`} 
-                  onClick={() => navigate('/services')} 
+                  // title="PingFederate"
                   style={{ 
                     cursor: 'pointer',
                     visibility: isLoaded ? 'visible' : 'hidden',
-                    animationDelay: '0.5s'
+                    animationDelay: '0.3s'
                   }}
                 >
-                  <div className="card-title-home" style={{ fontFamily: 'ExpansivaBold' }}>SP Connections</div>
-                  <img src="/SP-Connections.png" alt="SP Connections" className="card-img" />
+                  <div className="card-content">
+                    <img src="/PF-Logo.png" alt="PingFederate" className="card-img" />
+                  </div>
+                  <div className="dropdown-menu">
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingFederate SP-Connections'>
+                      <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon" />
+                    </div>
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingFederate OAuth'>
+                      <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon" />
+                    </div>
+                  </div>
                 </div>
+
+                {/* card for PingOne */}
                 <div 
                   className={`app-card-home ${isLoaded ? 'bounce-in-top' : ''}`} 
-                  onClick={() => navigate('/services')} 
+                  // title="PingOne"
                   style={{ 
                     cursor: 'pointer',
                     visibility: isLoaded ? 'visible' : 'hidden',
-                    animationDelay: '1.5s'
+                    animationDelay: '0.6s'
                   }}
                 >
-                  <div className="card-title-home" style={{ fontFamily: 'ExpansivaBold' }}>OAuth Clients</div>
-                  <img src="/OAUTH.png" alt="OAuth Clients" className="card-img" />
+                  <div className="card-content">
+                    <img src="/PO-Logo.png" alt="PingOne" className="card-img" />
+                  </div>
+                  <div className="dropdown-menu">
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingOne SP-Connections'>
+                      <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon" />
+                    </div>
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingOne OAuth'>
+                      <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon" />
+                    </div>
+                  </div>
                 </div>
+                
+                {/* card for PingDirectory */}
+                <div 
+                  className={`app-card-home ${isLoaded ? 'bounce-in-top' : ''}`} 
+                  // title="PingDirectory"
+                  style={{ 
+                    cursor: 'pointer',
+                    visibility: isLoaded ? 'visible' : 'hidden',
+                    animationDelay: '0.9s'
+                  }}
+                >
+                  <div className="card-content">
+                    <img src="/PD-Logo.png" alt="PingDirectory" className="card-img" />
+                  </div>
+                  <div className="dropdown-menu">
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingDirectory SP-Connections'>
+                      <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon"/>
+                    </div>
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingDirectory OAuth'>
+                      <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon"/>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* card for PingIDM */}
+                <div 
+                  className={`app-card-home ${isLoaded ? 'bounce-in-top' : ''}`} 
+                  // title="PingIDM"
+                  style={{ 
+                    cursor: 'pointer',
+                    visibility: isLoaded ? 'visible' : 'hidden',
+                    animationDelay: '1.2s'
+                  }}
+                >
+                  <div className="card-content">
+                    <img src="/PI-Logo.png" alt="PingIDM" className="card-img" />
+                  </div>
+                  <div className="dropdown-menu">
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingIDM SP-Connections'>
+                      <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon" />
+                    </div>
+                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingIDM OAuth'>
+                      <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon" />
+                    </div>
+                  </div>
+                </div>
+                {/* ---------------------------------------------------------------------------------- */}
               </div>
             </section>
       </main>

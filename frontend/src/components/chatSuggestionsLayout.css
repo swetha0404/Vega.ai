@@ -1,0 +1,88 @@
+/* Suggestions dropdown styles */
+.suggestions-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  background: #3a6491;
+  border-radius: 8px;
+  border: 1px solid rgba(72, 132, 200, 0.5);
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  z-index: 20; /* Higher than suggestions-animation */
+  margin-bottom: 8px;
+}
+
+.suggestions-dropdown.active {
+  display: block;
+  animation: slideUp 0.3s ease-out;
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(72, 132, 200, 0.3);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: linear-gradient(90deg, #4884c8, #1de9b6);
+}
+
+/* Scrollbar styling for suggestions dropdown */
+.suggestions-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+  background: #1de9b6;
+  border-radius: 3px;
+}
+
+/* Suggestion heading style */
+.suggestion-heading {
+  padding: 10px 15px;
+  font-weight: bold;
+  color: #1de9b6;
+  border-bottom: 1px solid rgba(72, 132, 200, 0.5);
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9em;
+}
+
+/* Input wrapper */
+.chat-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Custom placeholder styling */
+.chat-input-area input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  animation: changePlaceholder 5s ease-in-out infinite;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+  .suggestions-animation {
+    max-width: 90%;
+    font-size: 0.9rem;
+  }
+  
+  .suggestion-item {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}

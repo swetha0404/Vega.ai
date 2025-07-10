@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import './avatar.css';
-import './avatar-status.css';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import './avatarLayout.css';
 
 function Avatar({ isActive = false, textToSpeak = '' }) {
   // HeyGen API configuration - in a production app, this would be fetched securely from backend
@@ -83,7 +82,7 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
 
 
   // State management
-  const [status, setStatus] = useState('Initializing avatar...');
+  // const [status, setStatus] = useState('Initializing avatar...');
   const [sessionInfo, setSessionInfo] = useState(null);
   const [peerConnection, setPeerConnection] = useState(null);
   const [mediaCanPlay, setMediaCanPlay] = useState(false);
@@ -107,7 +106,7 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
         message.includes('Closing')) {
       console.log(`Avatar: ${message}`);
     }
-    setStatus(message);
+    // setStatus(message);
   };
   
   // Simplified helper function to speak a message - defined early to avoid reference errors
@@ -327,6 +326,7 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
           mediaElement.srcObject = null;
         } catch (e) {
           // Ignore errors during cleanup
+          console.warn('Avatar: Error during media cleanup:', e.message);
         }
       }
     };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './chat-suggestions.css';
+import './chatSuggestionsLayout.css';
 
 // List of suggestion queries that will be shown
 const SUGGESTION_QUERIES = [

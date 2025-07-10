@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { BiReset } from "react-icons/bi";
 import { FaMicrophone, FaStop } from "react-icons/fa";
-import '../pages/ChatPage.css';
+import '../components/voiceToTextLayout.css';
 
 const VoiceToText = ({ onTranscript }) => {
   const [recording, setRecording] = useState(false);
@@ -54,33 +54,9 @@ const VoiceToText = ({ onTranscript }) => {
   };
 
   return (
-    <div style={{ 
-        color: 'black', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        padding: '0.5rem', 
-        width: '100%', 
-        marginTop: '5px',
-        maxWidth: '349px', // Match avatar width
-        margin: '5px auto 0'
-      }}>
-      <h3 style={{ 
-        color: 'white', 
-        fontSize: '1.2rem', 
-        fontWeight: '600', 
-        marginBottom: '0.5rem', 
-        textAlign: 'center', 
-        borderBottom: '2px solid #4884c8', 
-        paddingBottom: '0.4rem', 
-        fontFamily: "'Orbitron', sans-serif", 
-        width: '100%', 
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-      }}>Talk with Vega</h3>
-      <div className="chat-icon-buttons" style={{ marginTop: '8px', gap: '12px' }}>
+    <div className="voice-to-text-container">
+      <h3 className="voice-to-text-title">Talk with Vega</h3>
+      <div className="chat-icon-buttons voice-to-text-buttons">
         <button
           className="round-button"
           onClick={startListening}
@@ -106,17 +82,11 @@ const VoiceToText = ({ onTranscript }) => {
           <BiReset />
         </button>
       </div>
-      <p style={{ 
-        fontFamily: 'Orbitron, sans-serif', 
-        fontSize: '0.9rem', 
-        margin: '8px 0 0',
-        textAlign: 'center',
-        color: 'white'
-      }}>
+      <p className="voice-to-text-mic-status">
         Microphone: {recording ? <span style={{ color: "lightgreen" }}>on</span> : <span style={{ color: "lightgray" }}>off</span>}
       </p>
       {error && (
-        <div style={{ color: "red", marginTop: 10 }}>{error}</div>
+        <div className="voice-to-text-error">{error}</div>
       )}
       {/* <p>Transcript: {transcript}</p> */}
     </div>

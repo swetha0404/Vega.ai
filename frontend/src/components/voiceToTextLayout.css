@@ -1,0 +1,77 @@
+/* --- VoiceToText container and elements --- */
+.voice-to-text-container {
+  color: black;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  width: 100%;
+  margin-top: 5px;
+  max-width: 349px;
+  margin: 5px auto 0;
+}
+
+.voice-to-text-title {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  border-bottom: 2px solid #4884c8;
+  padding-bottom: 0.4rem;
+  font-family: 'Orbitron', sans-serif;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-to-text-buttons {
+  margin-top: 8px;
+  gap: 12px;
+}
+
+.voice-to-text-mic-status {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  margin: 8px 0 0;
+  text-align: center;
+  color: white;
+}
+
+.voice-to-text-error {
+  color: red;
+  margin-top: 10px;
+}
+/* --- VoiceToText styles (copied from chatPageLayout.css) --- */
+.chat-icon-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.round-button {
+  padding: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(90deg, #1de9b6, #4884c8);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.round-button:hover {
+  background: linear-gradient(90deg, #4884c8, #1de9b6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(72, 132, 200, 0.3);
+}

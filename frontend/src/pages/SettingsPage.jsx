@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './SettingsPage.css';
-import Topbar from '../components/top_bar';
-import Sidebar from '../components/sidebar';
+import './SettingsPageLayout.css';
+import Topbar from '../components/topBar';
+import Sidebar from '../components/sideBar';
 
 
 function SettingsPage() {
