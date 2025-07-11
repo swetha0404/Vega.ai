@@ -1,7 +1,7 @@
 .sidebar {
-  width: fit-content; /* Dynamically adjust width */
-  background: linear-gradient(180deg, #2a4a6d, #3a6491, #4884c8);
-  color: #fff;
+  width: fit-content; 
+  background: linear-gradient(180deg, #244D52, #1A3A3F, #0F2426); 
+  color: #FFFFFF; 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,12 +10,12 @@
   padding-right: 2%;
   box-shadow: 2px 0 8px rgba(0,0,0,0.03);
   position: fixed;
-  top: 0px; /* Align with the top bar */
+  top: 0px; 
   left: 0;
   height: 100vh;
   z-index: 900;
   border-right: 2px solid;
-  border-image: radial-gradient(circle, #4884c8, #1de9b6) 1;
+  border-image: radial-gradient(circle, #53C1DE, #00C2FF) 1; 
 }
 
 .sidebar-item{
@@ -34,58 +34,58 @@
 }
 
 .sidebar-item.active, .sidebar-item:hover {
-  background-color: rgba(29, 233, 182, 0.15);
-  color: #1de9b6;
+  background-color: rgba(83, 193, 222, 0.15); /* Light blue with transparency */
+  color: #53C1DE; /* Light blue text */
   transition: 0.5s
 }
 
 .sidebar-item span{
-  color: #e0f7fa;
+  color: #FFFFFF; /* White text */
   text-decoration: none;
   transition: 0.5s;
 }
 
 .sidebar-item span:hover {
-  color: #1de9b6;
-  text-decoration: dashed ;
+  color: #53C1DE; /* Light blue on hover */
+  text-decoration: dashed;
 }
 
 
-/* Ensure the sidebar width adjusts dynamically based on the top bar */
-@media (max-width: 768px) {
+/* ###########################Responsive Styles#################################### */
+/* @media (max-width: 768px) {
   .sidebar {
-    width: fit-content; /* Dynamically adjust width */
-    padding-top: 4%; /* Adjust padding */
-    top: 0px; /* Adjust alignment with smaller top bar */
-    height: 100vh; /* Fix height alignment */
+    width: fit-content;
+    padding-top: 4%;
+    top: 0px; 
+    height: 100vh;
   }
 
   .sidebar-item {
-    font-size: 1em; /* Adjust font size */
-    width: fit-content; /* Dynamically adjust item width */
-    padding: 4% 6%; /* Adjust padding */
+    font-size: 1em;
+    width: fit-content; 
+    padding: 4% 6%; 
   }
 }
 
 @media (max-width: 480px) {
   .sidebar {
-    width: fit-content; /* Dynamically adjust width */
-    padding-top: 3%; /* Adjust padding */
-    top: 0px; /* Adjust alignment with smaller top bar */
-    height: 100vh; /* Fix height alignment */
+    width: fit-content; 
+    padding-top: 3%; 
+    top: 0px; 
+    height: 100vh; 
   }
 
   .sidebar-item {
-    font-size: 0.9em; /* Adjust font size */
-    width: fit-content; /* Dynamically adjust item width */
-    padding: 3% 4%; /* Adjust padding */
+    font-size: 0.9em;
+    width: fit-content;
+    padding: 3% 4%; 
   }
 }
 
 @media (min-width: 1024px) {
   .sidebar {
-    width: fit-content; /* Dynamically adjust width */
-    top: 0px; /* Ensure alignment with top bar */
-    height: 100vh; /* Fix height alignment */
+    width: fit-content;
+    top: 0px;
+    height: 100vh;
   }
-}
+} */

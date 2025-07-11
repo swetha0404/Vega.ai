@@ -1,19 +1,12 @@
 .chat-page {
+  display: flex;
   top: 0;
   left: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
   position: absolute;
-  background: #111827; /* Dark background matching MainLayout */
+  width: 100vw;
+  height: 100vh;
 }
 
-/* Global font family for the chat page */
-/* .chat-page * {
-  font-family: 'Orbitron', sans-serif;
-} */
 
 /* Exclude chat messages from the global font rule */
 .chat-bubble {
@@ -27,10 +20,10 @@
 
 .chat-container {
   position: relative;
-  top: 60px; /* Match the height of the top bar (60px) */
-  left: 284px; /* Match the sidebar width (160px + 4% padding + 2px border) */
-  height: calc(100vh - 60px);
-  width: calc(100vw - 184px);
+  top: 5vh;
+  left: 22vh;
+  height: calc(100vh - 5vh);
+  width: calc(100vw - 22vh);
   display: flex;
   padding: 1.5rem;
   gap: 1.5rem;
@@ -48,10 +41,10 @@
   justify-content: center; /* Changed to align content at the top */
   padding: 1rem;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(72, 132, 200, 0.1);
-  border: 1px solid rgba(72, 132, 200, 0.15);
-  background: linear-gradient(180deg, #2a4a6d, #3a6491, #4884c8); /* Matching sidebar gradient */
-  color: #ffffff; /* Ensuring all text is white */
+  box-shadow: 0 10px 30px rgba(36, 77, 82, 0.3);
+  border: 1px solid rgba(36, 77, 82, 0.3);
+  background: #E8F6F8; /* Light teal background like settings panels */
+  color: #4E4E4E; /* Steel gray text */
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   perspective: 1000px; /* Ensures proper 3D animation */
@@ -60,7 +53,6 @@
 /* Avatar takes fixed height to maintain consistency */
 .avatar-full-rectangle {
   width: fit-content; /* Match the exact width of avatar */
-  /* height: 324px; Video height (254px) + controls height (~70px) */
   min-height: fit-content;
   max-width: 100%; /* Ensure it doesn't overflow its container */
   border-radius: 16px;
@@ -69,8 +61,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px dashed rgba(72, 132, 200, 0.3);
-  background: linear-gradient(145deg, #2a4a6d, rgba(72, 132, 200, 0.2));
+  border: 2px dashed #53C1DE; /* Light blue dashed border */
+  background: #a9c0c3; 
   transition: all 0.3s ease;
 }
 
@@ -84,29 +76,6 @@
   margin-top: 10px;
 }
 
-.round-button {
-  padding: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(90deg, #1de9b6, #4884c8);
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.round-button:hover {
-  background: linear-gradient(90deg, #4884c8, #1de9b6);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(72, 132, 200, 0.3);
-}
-
 /* RIGHT PANEL */
 .chat-right {
   flex: 1;
@@ -117,9 +86,9 @@
   max-height: 100%;
   box-sizing: border-box;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(72, 132, 200, 0.1);
-  border: 1px solid rgba(72, 132, 200, 0.15);
-  background: linear-gradient(180deg, #2a4a6d, #3a6491, #4884c8); /* Matching sidebar gradient */
+  box-shadow: 0 10px 30px rgba(36, 77, 82, 0.3);
+  border: 1px solid rgba(36, 77, 82, 0.3);
+  background: #E8F6F8; /* Light teal background like settings panels */
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   perspective: 1000px; /* Ensures proper 3D animation */
@@ -128,17 +97,17 @@
 
 .chat-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(72, 132, 200, 0.2);
+  border-bottom: 1px solid rgba(36, 77, 82, 0.3);
   flex: 0 0 auto;
 }
 
 .chat-header h2 {
   margin: 0;
   font-size: 1.3rem;
-  color: #ffffff;
+  color: #244D52; /* Teal green heading */
   font-weight: 600;
   text-align: center;
-  border-bottom: 2px solid #1de9b6;
+  border-bottom: 2px solid #53C1DE; /* Light blue accent */
   padding-bottom: 0.5rem;
   font-family: 'Orbitron', sans-serif;
 }
@@ -146,7 +115,7 @@
 .chat-header p {
   margin: 5px 0 0;
   font-size: 0.95rem;
-  color: #e2e8f0;
+  color: #4E4E4E; /* Steel gray text */
   font-family: 'Orbitron', sans-serif;
   text-align: center;
 }
@@ -164,7 +133,7 @@
   box-sizing: border-box;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  background: linear-gradient(to bottom, #111827, #1a202c, #2a4a6d); /* Dark to blue gradient */
+  background: linear-gradient(145deg, #244D52, #1A3A3F, #0F2426); /* Teal green gradient */
 }
 
 .chat-bubble {
@@ -177,16 +146,16 @@
 
 .chat-bubble.user {
   align-self: flex-end;
-  background: linear-gradient(90deg, #3a6491, #4884c8);
+  background: linear-gradient(90deg, #244D52, #53C1DE); /* Teal to light blue gradient */
   color: white;
   border-bottom-right-radius: 4px;
 }
 
 .chat-bubble.bot {
   align-self: flex-start;
-  background-color: #f0f4f8;
-  border: 3px solid rgba(29, 233, 182, 0.3);
-  color: #111827;
+  background-color: #E8F6F8; /* Light teal background */
+  border: 3px solid rgba(83, 193, 222, 0.3); /* Light blue border */
+  color: #4E4E4E; /* Steel gray text */
   border-bottom-left-radius: 4px;
 }
 
@@ -206,7 +175,7 @@
 .typing-indicator span {
   height: 6px;
   width: 6px;
-  background: #1de9b6;
+  background: #53C1DE; /* Light blue dots */
   border-radius: 50%;
   display: inline-block;
   margin-right: 2px;
@@ -229,7 +198,7 @@
 /* Markdown styling within bot chat bubbles */
 .chat-bubble.bot h1, .chat-bubble.bot h2, .chat-bubble.bot h3 {
   margin: 0.5rem 0;
-  color: #111827;
+  color: #244D52; /* Teal green headings */
 }
 
 .chat-bubble.bot h1 { font-size: 1.25rem; }
@@ -253,11 +222,11 @@
 
 .chat-bubble.bot strong {
   font-weight: 600;
-  color: #111827;
+  color: #244D52; /* Teal green for emphasis */
 }
 
 .chat-bubble.bot code {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(83, 193, 222, 0.2); /* Light blue background */
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
   font-family: 'Courier New', monospace;
@@ -265,7 +234,7 @@
 }
 
 .chat-bubble.bot pre {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(78, 78, 78, 0.1); /* Light steel gray background */
   padding: 0.75rem;
   border-radius: 6px;
   overflow-x: auto;
@@ -278,11 +247,11 @@
 }
 
 .chat-bubble.bot blockquote {
-  border-left: 8px solid #4884c8;
+  border-left: 8px solid #53C1DE; /* Light blue accent */
   padding-left: 1rem;
   margin: 0.5rem 0;
   font-style: italic;
-  color: #4b5563;
+  color: #4E4E4E; /* Steel gray text */
 }
 
 /* Disabled input and button states */
@@ -293,7 +262,7 @@
 }
 
 .chat-input-area button:disabled {
-  background: #213854; /* Darker disabled state */
+  background: #497c83; /* Darker disabled state */
   color: #a0aec0;
   cursor: not-allowed;
 }
@@ -305,8 +274,8 @@
 .chat-input-area {
   display: flex;
   padding: 16px 30px;
-  border-top: 1px solid rgba(72, 132, 200, 0.2);
-  background-color: #2a4a6d; /* Updated to match sidebar gradient */
+  border-top: 1px solid rgba(36, 77, 82, 0.3);
+  background: #a9c0c3; /* Teal green gradient */
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   flex: 0 0 auto;
@@ -325,15 +294,15 @@
   padding: 10px 15px;
   font-size: 1rem;
   border-radius: 20px;
-  border: 1px solid rgba(72, 132, 200, 0.5);
+  border: 1px solid #53C1DE; /* Light blue border */
   margin-right: 10px;
-  background-color: #3a6491; /* Updated to match sidebar gradient */
-  color: #ffffff; /* Light text for dark background */
+  background-color: #FFFFFF; /* White background */
+  color: #4E4E4E; /* Steel gray text */
   font-family: sans-serif;
 }
 
 .chat-input-area input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: #9CA3AF; /* Light steel gray placeholder */
   font-style: italic;
   transition: opacity 0.3s ease;
 }
@@ -343,19 +312,19 @@
 /* Apply animation to placeholder */
 .chat-input-area input:not(:focus)::placeholder {
   animation: fadeInOut 3s infinite;
-  color: rgba(29, 233, 182, 0.8); /* Teal color to stand out */
+  color: rgba(83, 193, 222, 0.8); /* Light blue color to stand out */
 }
 
 .chat-input-area input:focus {
   outline: none;
-  border: 1px solid #1de9b6;
-  box-shadow: 0 0 0 2px rgba(29, 233, 182, 0.3);
-  background-color: #2a4a6d; /* Slightly darker when focused */
+  border: 1px solid #00C2FF; /* Electric blue focus */
+  box-shadow: 0 0 0 2px rgba(0, 194, 255, 0.3);
+  background-color: #FFFFFF; /* Keep white when focused */
 }
 
 .chat-input-area button {
   padding: 10px 18px;
-  background: linear-gradient(90deg, #4884c8, #1de9b6);
+  background: linear-gradient(90deg, #244D52, #53C1DE); /* Teal to light blue gradient */
   color: white;
   font-size: 1rem;
   border-radius: 20px;
@@ -368,7 +337,7 @@
 }
 
 .chat-input-area button:hover {
-  background: linear-gradient(90deg, #4884c8, #1de9b6);
+  background: linear-gradient(90deg, #53C1DE, #00C2FF); /* Light blue to electric blue */
   transition: 0.3s;
 }
 
@@ -384,13 +353,13 @@
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: #4884c8;
+  background: #53C1DE; /* Light blue scrollbar */
   border-radius: 3px;
   transition: all 0.3s;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #1de9b6;
+  background: #00C2FF; /* Electric blue on hover */
   transition: all 0.3s;
 }
 
@@ -415,8 +384,8 @@
 .chat-back-button {
   background: none;
   border: none;
-  font-size: 1.2rem;
-  color: #ffffff;
+  font-size: 1.5rem;
+  color: #244D52;
   cursor: pointer;
   padding: 4px 8px;
   flex: 0 0 auto;
@@ -424,12 +393,12 @@
 }
 
 .chat-back-button:hover {
-  color: #1de9b6; /* Teal accent on hover */
+  color: #53C1DE; /* Teal accent on hover */
 }
 
 .chat-back-label {
   font-size: 1.5rem;
-  color: #ffffff;
+  color: #244D52;
   font-weight: 500;
   font-family: 'Orbitron', sans-serif;
   white-space: nowrap;
@@ -442,7 +411,8 @@ html {
   font-size: 16px;
 }
 
-@media screen and (max-width: 1400px) {
+/* ###########################Responsive Styles################################### */
+/* @media screen and (max-width: 1400px) {
   html {
     font-size: 15px;
   }
@@ -453,7 +423,6 @@ html {
     font-size: 14px;
   }
   
-  /* Adjust flex properties for better stacking */
   .chat-right {
     flex: 1 1 auto;
     min-height: 60vh;
@@ -464,7 +433,6 @@ html {
   }
 }
 
-/* Responsive styles */
 @media screen and (max-width: 1200px) {
   .chat-container {
     padding: 1rem;
@@ -472,14 +440,10 @@ html {
   }
   
   .chat-left {
-    flex: 0 0 369px; /* Maintain fixed avatar width */
+    flex: 0 0 369px;
   }
   
-  .round-button {
-    width: 36px;
-    height: 36px;
-    font-size: 0.9rem;
-  }
+  
 }
 
 @media screen and (max-width: 992px) {
@@ -488,7 +452,7 @@ html {
     height: auto;
     min-height: calc(100vh - 60px);
     padding: 1rem;
-    left: 184px; /* Match the sidebar width */
+    left: 184px; 
     width: calc(100vw - 184px);
   }
   
@@ -532,14 +496,12 @@ html {
 }
 
 
-/* Performance optimization for animations on mobile */
 @media screen and (max-width: 768px) {
   .chat-left,
   .chat-right {
-    animation-duration: 0.4s; /* Faster animations on mobile */
+    animation-duration: 0.4s;
   }
   
-  /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
     .chat-left,
     .chat-right {
@@ -552,7 +514,7 @@ html {
   .chat-container {
     padding: 0.5rem;
     gap: 0.75rem;
-    left: 160px; /* Match sidebar width at this breakpoint */
+    left: 160px;
     width: calc(100vw - 178px);
   }
   
@@ -569,10 +531,7 @@ html {
     min-height: fit-content;
   }
   
-  .round-button {
-    width: 32px;
-    height: 32px;
-  }
+  
   
   .chat-header {
     padding: 0.75rem 1rem;
@@ -595,20 +554,11 @@ html {
   }
 }
 
-/* Fix for mobile view with sidebar */
 @media screen and (max-width: 768px) {
-  /* body {
-    overflow-x: hidden;
-  }
-  
-  .chat-page {
-    overflow-x: hidden;
-  } */
-  
-  /* Improve mobile layout */
+
   .chat-container {
     flex-direction: column;
-    left: 144px; /* Match sidebar width */
+    left: 144px;
     width: calc(100vw - 164px);
     padding: 1rem 0.5rem;
     gap: 1rem;
@@ -639,7 +589,6 @@ html {
   }
 }
 
-/* Ensure content doesn't overflow on very small screens */
 @media screen and (max-width: 400px) {
   .chat-header h2 {
     font-size: 1rem;
@@ -657,19 +606,12 @@ html {
   .chat-icon-buttons {
     gap: 10px;
   }
-  
-  .round-button {
-    width: 30px;
-    height: 30px;
-    font-size: 0.8rem;
-  }
 }
 
-/* Fix for height and scrolling issues */
 @media screen and (max-height: 700px) {
   .avatar-full-rectangle {
     width: 349px;
-    height: 254px; /* Reduce to just the video height without controls for very small screens */
+    height: 254px;
     max-width: 100%;
     min-height: fit-content;
   }
@@ -679,17 +621,16 @@ html {
   }
 }
 
-/* Add specific fix for ~800px width where back button/label issues occur */
 @media screen and (max-width: 830px) and (min-width: 768px) {
   .chat-container {
-    left: 174px; /* Match the sidebar width at this breakpoint */
-    width: calc(100vw - 174px - 30px); /* Account for sidebar and padding */
+    left: 174px;
+    width: calc(100vw - 174px - 30px);
     padding: 1rem;
     margin: 0 15px;
   }
   
   .chat-left {
-    flex: 0 0 320px; /* Slightly smaller for better fit */
+    flex: 0 0 320px;
     height: fit-content
   }
   
@@ -703,7 +644,6 @@ html {
   }
 }
 
-/* Ensure chat container is always accessible */
 @media screen and (max-width: 768px) and (max-height: 600px) {
   .chat-container {
     height: auto;
@@ -711,17 +651,16 @@ html {
   }
 }
 
-/* Media query for very small screens */
 @media screen and (max-width: 480px) {
   .chat-container {
-    left: 164px; /* Sidebar is smaller on very small screens */
+    left: 164px;
     width: calc(100vw - 164px);
     padding: 0.5rem;
   }
   
   .avatar-full-rectangle {
     width: 349px;
-    height: 254px; /* Reduce height for very small screens */
+    height: 254px;
     max-width: 100%;
     min-height: fit-content;
   }
@@ -731,10 +670,9 @@ html {
   }
 }
 
-/* Align with sidebar for larger screens */
 @media screen and (min-width: 1024px) {
   .chat-container {
-    left: 245px; /* Match the sidebar width at larger screens */
+    left: 245px;
     width: calc(100vw - 245px);
     padding: 2rem;
   }
@@ -745,5 +683,4 @@ html {
     height: fit-content;
   }
 
-
-}
+} */

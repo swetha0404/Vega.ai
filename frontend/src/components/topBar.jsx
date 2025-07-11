@@ -49,7 +49,7 @@ function Topbar() {
     <div className="top-header">
       <div className="header-logo" onClick={() => navigate('/applications')} style={{ cursor: 'pointer' }}>
         <img 
-          src="/Vega_Neon.png" 
+          src="/Vega_latest.png" 
           alt="Vega Logo" 
           // className={logoLoaded ? 'flicker-in-1' : ''} 
           // style={{ visibility: logoLoaded ? 'visible' : 'hidden' }}

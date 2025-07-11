@@ -1,14 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import './SettingsPageLayout.css';
+import './SettingsLayout.css';
 import Topbar from '../components/topBar';
 import Sidebar from '../components/sideBar';
 
 
 function SettingsPage() {
-  // Upload state
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
   const [uploadStatus, setUploadStatus] = useState('');
-  const [uploadStatusType, setUploadStatusType] = useState(''); // 'success', 'error', 'duplicate', 'processing'
+  const [uploadStatusType, setUploadStatusType] = useState('');
   const [showNotification, setShowNotification] = useState(false);
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [selectedPdfFile, setSelectedPdfFile] = useState(null);
@@ -94,10 +94,11 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('url', websiteUrl);
 
-      const response = await fetch('http://localhost:8000/process/website', {
+      const response = await fetch(`${API_BASE}/process/website`, {
         method: 'POST',
         body: formData
-      });      const result = await response.json();
+      });      
+      const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`Website processed successfully! Doc ID: ${result.doc_id}`, 'success');
         setWebsiteUrl(''); // Clear the input
@@ -123,10 +124,11 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('file', selectedPdfFile);
 
-      const response = await fetch('http://localhost:8000/upload/pdf', {
+      const response = await fetch(`${API_BASE}/upload/pdf`, {
         method: 'POST',
         body: formData
-      });      const result = await response.json();
+      });      
+      const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`PDF uploaded successfully! Doc ID: ${result.doc_id}`, 'success');
         setSelectedPdfFile(null); // Clear selected file
@@ -152,10 +154,11 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('file', selectedDocxFile);
 
-      const response = await fetch('http://localhost:8000/upload/docx', {
+      const response = await fetch(`${API_BASE}/upload/docx`, {
         method: 'POST',
         body: formData
-      });      const result = await response.json();
+      });      
+      const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`DOCX uploaded successfully! Doc ID: ${result.doc_id}`, 'success');
         setSelectedDocxFile(null); // Clear selected file
@@ -181,10 +184,11 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('file', selectedPptFile);
 
-      const response = await fetch('http://localhost:8000/upload/ppt', {
+      const response = await fetch(`${API_BASE}/upload/ppt`, {
         method: 'POST',
         body: formData
-      });      const result = await response.json();
+      });      
+      const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`PPT uploaded successfully! Doc ID: ${result.doc_id}`, 'success');
         setSelectedPptFile(null); // Clear selected file
@@ -230,7 +234,7 @@ function SettingsPage() {
         }))
         .filter(exchange => exchange.question || exchange.answer);
 
-      const response = await fetch('http://localhost:8000/Agentchat', {
+      const response = await fetch(`${API_BASE}/Agentchat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -285,7 +289,8 @@ return (
             </div>
           )}
           <form>
-            <div>
+        
+            <div className='website-input'>
               <input 
                 type="text" 
                 placeholder="https://example.com" 
@@ -293,7 +298,9 @@ return (
                 onChange={(e) => setWebsiteUrl(e.target.value)}
               />
               <button type="button" onClick={handleProcessWebsite}>Process Website</button>
-            </div>          <div>
+            </div>          
+            
+            <div>
               <input 
                 type="file" 
                 accept=".pdf" 
@@ -309,7 +316,9 @@ return (
                 textAlign: 'center',
                 cursor: 'pointer',
                 marginBottom: '0.5rem',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                color: 'white',
+                opacity: 0.8
               }}>
                 {selectedPdfFile ? selectedPdfFile.name : 'Choose PDF file...'}
               </label>
@@ -317,6 +326,7 @@ return (
                 Upload PDF
               </button>
             </div>
+            
             <div>
               <input 
                 type="file" 
@@ -333,13 +343,17 @@ return (
                 textAlign: 'center',
                 cursor: 'pointer',
                 marginBottom: '0.5rem',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                color: 'white',
+                opacity: 0.8
               }}>
                 {selectedDocxFile ? selectedDocxFile.name : 'Choose DOCX file...'}
               </label>
               <button type="button" title="First choose file to upload" onClick={handleDocxUpload} disabled={!selectedDocxFile}>
                 Upload DOCX
-              </button>          </div>
+              </button>          
+            </div>
+            
             <div>
               <input 
                 type="file" 
@@ -356,7 +370,9 @@ return (
                 textAlign: 'center',
                 cursor: 'pointer',
                 marginBottom: '0.5rem',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                color: 'white',
+                opacity: 0.8
               }}>
                 {selectedPptFile ? selectedPptFile.name : 'Choose PPT file...'}
               </label>
@@ -364,6 +380,7 @@ return (
                 Upload PPT
               </button>
             </div>
+
           </form>
         </div>
 

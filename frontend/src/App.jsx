@@ -4,11 +4,11 @@ import {
   Route,
   Navigate
 } from 'react-router-dom';
-import Login from './pages/Login';
-import HomePage from './pages/HomePage';
+import Login from './pages/LoginPage';
+import Home from './pages/HomePage';
 import Services from './pages/ServicesPage';
-import SettingsPage from './pages/SettingsPage';
-import ChatPage from './pages/ChatPage';
+import Settings from './pages/SettingsPage';
+import Chat from './pages/ChatPage';
 
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
 
         <Route
           path="/applications"
-          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
         />
 
         <Route
@@ -34,7 +34,7 @@ function App() {
 
         <Route
           path = "/chatpage"
-          element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Chat /> : <Navigate to="/login" />}
         />
 
         <Route
@@ -46,7 +46,7 @@ function App() {
         path="/settings"
         element={
           role === 'admin'
-            ? <SettingsPage />
+            ? <Settings />
             : <Navigate to={role === 'user' ? "/applications" : "/login"} />
         }
         />

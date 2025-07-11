@@ -4,7 +4,7 @@
   bottom: 100%;
   left: 0;
   width: 100%;
-  background: #3a6491;
+  background: #397077;
   border-radius: 8px;
   border: 1px solid rgba(72, 132, 200, 0.5);
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.15);
@@ -33,7 +33,7 @@
 }
 
 .suggestion-item:hover {
-  background: linear-gradient(90deg, #4884c8, #1de9b6);
+  background: linear-gradient(90deg, #53C1DE, #00C2FF);
 }
 
 /* Scrollbar styling for suggestions dropdown */
@@ -47,7 +47,7 @@
 }
 
 .suggestions-dropdown::-webkit-scrollbar-thumb {
-  background: #1de9b6;
+  background: #53C1DE;
   border-radius: 3px;
 }
 
@@ -55,11 +55,12 @@
 .suggestion-heading {
   padding: 10px 15px;
   font-weight: bold;
-  color: #1de9b6;
+  color: #53C1DE;
   border-bottom: 1px solid rgba(72, 132, 200, 0.5);
   text-align: center;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9em;
+  text-shadow: 0 0 3px #00C2FF; 
 }
 
 /* Input wrapper */

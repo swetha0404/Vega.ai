@@ -10,6 +10,7 @@ import Topbar from '../components/topBar';
 import Sidebar from '../components/sideBar';
 
 function ChatPage() {
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
   const [messages, setMessages] = useState([
     { type: 'bot', text: "Hello! I'm your AI Copilot. Ask me questions about PingFederate, get help, or receive step-by-step guidance." }
   ]);
@@ -56,7 +57,7 @@ function ChatPage() {
         }))
         .filter(exchange => exchange.question || exchange.answer);
 
-      const response = await fetch('http://localhost:8000/Agentchat', {
+      const response = await fetch(`${API_BASE}/Agentchat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +138,7 @@ function ChatPage() {
         setMessages(newMessages);
         
         // Make the API call directly here instead of using handleSendMessage
-        fetch('http://localhost:8000/Agentchat', {
+        fetch(`${API_BASE}/Agentchat`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -83,7 +83,7 @@ const VoiceToText = ({ onTranscript }) => {
         </button>
       </div>
       <p className="voice-to-text-mic-status">
-        Microphone: {recording ? <span style={{ color: "lightgreen" }}>on</span> : <span style={{ color: "lightgray" }}>off</span>}
+        Microphone: {recording ? <span style={{ color: "#53C1DE" }}>on</span> : <span style={{ color: "gray" }}>off</span>}
       </p>
       {error && (
         <div className="voice-to-text-error">{error}</div>

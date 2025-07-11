@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import './avatarLayout.css';
 
 function Avatar({ isActive = false, textToSpeak = '' }) {
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
   // HeyGen API configuration - in a production app, this would be fetched securely from backend
   const heygen_API = {
     apiKey: '',
@@ -30,8 +31,8 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
     apiPromiseRef.current = (async () => {
       try {
         console.log('Avatar: Fetching HeyGen API configuration from backend');
-        
-        const response = await fetch('http://localhost:8000/heygenAPI', {
+
+        const response = await fetch(`${API_BASE}/heygenAPI`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -366,15 +367,15 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
             color: 'white',
             padding: '15px',
             textAlign: 'center',
-            background: 'linear-gradient(-55deg, #0f2027, #2a4a6d, #4884c8)',
+            background: 'linear-gradient(180deg, #244D52, #1A3A3F, #0F2426)',
             borderRadius: '8px',
             alignSelf: 'center',
           }}>
             <div style={{ 
-              backgroundColor: 'rgb(91, 154, 226)', 
+              backgroundColor: '#53C1DE', 
               borderRadius: '50%', 
-              width: '70px', 
-              height: '70px',
+              minWidth: '70px', 
+              minHeight: '70px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -383,10 +384,9 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
             }}>
               <img src='/tea-logo.png' style={{width: '40px', height: '60px'}}/>
             </div>
-            <h3 style={{ marginBottom: '8px', color:'snow', fontSize: '16px' }}>AI Copilot</h3>
+            <h3 style={{ marginBottom: '8px', color:'snow', fontSize: '16px', whiteSpace: 'nowrap' }}>Vega has gone on a tea break.</h3>
             <p style={{ marginBottom: '10px', opacity: 0.8, fontSize: '14px', color:'snow' }}>
-              Vega has gone on a tea break. <br />
-              Please chat with the copilot for assistance.
+              Please chat with the copilot <br/> for assistance. <br/> (You can still use the mic to talk)
             </p>
           </div>
         </div>
