@@ -7,67 +7,63 @@
   height: 100vh;
 }
 
-
-/* Exclude chat messages from the global font rule */
 .chat-bubble {
   font-family: sans-serif;
 }
 
-/* Ensure code blocks in chat bubbles use a monospace font */
 .chat-bubble code, .chat-bubble pre {
   font-family: 'Courier New', monospace;
 }
 
 .chat-container {
   position: relative;
-  top: 5vh;
-  left: 22vh;
-  height: calc(100vh - 5vh);
-  width: calc(100vw - 22vh);
+  top: 8vh;
+  left: 30vh;
+  height: calc(100vh - 8vh);
+  width: calc(100vw - 32vh);
   display: flex;
   padding: 1.5rem;
   gap: 1.5rem;
   justify-content: space-between;
 }
 
-/* Avatar and mic panel */
 .chat-left {
-  flex: 0 0 349px; /* Exact width of avatar */
-  min-height: 100%; /* Match the height of chat-right */
+  flex: 0 0 349px;
+  min-height: 100%;
   max-height: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Changed to align content at the top */
+  justify-content: center;
   padding: 1rem;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(36, 77, 82, 0.3);
   border: 1px solid rgba(36, 77, 82, 0.3);
-  background: #E8F6F8; /* Light teal background like settings panels */
-  color: #4E4E4E; /* Steel gray text */
+  background: #E8F6F8;
+  color: #4E4E4E;
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-  perspective: 1000px; /* Ensures proper 3D animation */
+  perspective: 1000px;
 }
 
-/* Avatar takes fixed height to maintain consistency */
 .avatar-full-rectangle {
-  width: fit-content; /* Match the exact width of avatar */
-  min-height: fit-content;
-  max-width: 100%; /* Ensure it doesn't overflow its container */
+  position: relative;
+  max-width: fit-content;
+  min-height: 400px;
+  max-width: 100%;
   border-radius: 16px;
-  margin-bottom: 10px;
-  padding-top: 15px;
+  margin-bottom: -10px;
+  padding-top: 75px;
+  padding-left: 20px;
+  padding-right: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px dashed #53C1DE; /* Light blue dashed border */
+  border: 2px dashed #53C1DE;
   background: #a9c0c3; 
   transition: all 0.3s ease;
 }
 
-/* Circular icon buttons */
-/* --- VoiceToText styles --- */
 .chat-icon-buttons {
   display: flex;
   gap: 16px;
@@ -76,23 +72,22 @@
   margin-top: 10px;
 }
 
-/* RIGHT PANEL */
 .chat-right {
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 400px; /* Ensure minimum height for content */
+  min-height: 400px;
   max-height: 100%;
   box-sizing: border-box;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(36, 77, 82, 0.3);
   border: 1px solid rgba(36, 77, 82, 0.3);
-  background: #E8F6F8; /* Light teal background like settings panels */
+  background: #E8F6F8;
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-  perspective: 1000px; /* Ensures proper 3D animation */
-  justify-content: flex-start; /* Allow content to fill from top */
+  perspective: 1000px;
+  justify-content: flex-start;
 }
 
 .chat-header {
@@ -104,10 +99,10 @@
 .chat-header h2 {
   margin: 0;
   font-size: 1.3rem;
-  color: #244D52; /* Teal green heading */
+  color: #244D52;
   font-weight: 600;
   text-align: center;
-  border-bottom: 2px solid #53C1DE; /* Light blue accent */
+  border-bottom: 2px solid #53C1DE;
   padding-bottom: 0.5rem;
   font-family: 'Orbitron', sans-serif;
 }
@@ -115,7 +110,7 @@
 .chat-header p {
   margin: 5px 0 0;
   font-size: 0.95rem;
-  color: #4E4E4E; /* Steel gray text */
+  color: #4E4E4E;
   font-family: 'Orbitron', sans-serif;
   text-align: center;
 }
@@ -133,7 +128,7 @@
   box-sizing: border-box;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  background: linear-gradient(145deg, #244D52, #1A3A3F, #0F2426); /* Teal green gradient */
+  background: linear-gradient(145deg, #244D52, #1A3A3F, #0F2426);
 }
 
 .chat-bubble {
@@ -146,26 +141,24 @@
 
 .chat-bubble.user {
   align-self: flex-end;
-  background: linear-gradient(90deg, #244D52, #53C1DE); /* Teal to light blue gradient */
+  background: linear-gradient(90deg, #244D52, #53C1DE);
   color: white;
   border-bottom-right-radius: 4px;
 }
 
 .chat-bubble.bot {
   align-self: flex-start;
-  background-color: #E8F6F8; /* Light teal background */
-  border: 3px solid rgba(83, 193, 222, 0.3); /* Light blue border */
-  color: #4E4E4E; /* Steel gray text */
+  background-color: #E8F6F8;
+  border: 3px solid rgba(83, 193, 222, 0.3);
+  color: #4E4E4E;
   border-bottom-left-radius: 4px;
 }
 
-/* Loading and Typing Indicator Styles */
 .chat-bubble.loading {
   opacity: 0.7;
   font-style: italic;
 }
 
-/* Typing indicator animation */
 .typing-indicator {
   display: inline-flex;
   align-items: center;
@@ -175,7 +168,7 @@
 .typing-indicator span {
   height: 6px;
   width: 6px;
-  background: #53C1DE; /* Light blue dots */
+  background: #53C1DE;
   border-radius: 50%;
   display: inline-block;
   margin-right: 2px;
@@ -195,10 +188,9 @@
   margin-right: 0;
 }
 
-/* Markdown styling within bot chat bubbles */
 .chat-bubble.bot h1, .chat-bubble.bot h2, .chat-bubble.bot h3 {
   margin: 0.5rem 0;
-  color: #244D52; /* Teal green headings */
+  color: #244D52;
 }
 
 .chat-bubble.bot h1 { font-size: 1.25rem; }
@@ -222,11 +214,11 @@
 
 .chat-bubble.bot strong {
   font-weight: 600;
-  color: #244D52; /* Teal green for emphasis */
+  color: #244D52; 
 }
 
 .chat-bubble.bot code {
-  background: rgba(83, 193, 222, 0.2); /* Light blue background */
+  background: rgba(83, 193, 222, 0.2);
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
   font-family: 'Courier New', monospace;
@@ -234,7 +226,7 @@
 }
 
 .chat-bubble.bot pre {
-  background: rgba(78, 78, 78, 0.1); /* Light steel gray background */
+  background: rgba(78, 78, 78, 0.1);
   padding: 0.75rem;
   border-radius: 6px;
   overflow-x: auto;
@@ -247,40 +239,39 @@
 }
 
 .chat-bubble.bot blockquote {
-  border-left: 8px solid #53C1DE; /* Light blue accent */
+  border-left: 8px solid #53C1DE;
   padding-left: 1rem;
   margin: 0.5rem 0;
   font-style: italic;
-  color: #4E4E4E; /* Steel gray text */
+  color: #4E4E4E;
 }
 
-/* Disabled input and button states */
 .chat-input-area input:disabled {
-  background: #213854; /* Darker disabled state */
+  background: #497c83;
   color: #a0aec0;
   cursor: not-allowed;
 }
 
 .chat-input-area button:disabled {
-  background: #497c83; /* Darker disabled state */
+  background: #497c83;
   color: #a0aec0;
   cursor: not-allowed;
 }
 
 .chat-input-area button:disabled:hover {
-  background: #213854; /* Darker disabled state */
+  background: #213854; 
 }
 
 .chat-input-area {
   display: flex;
   padding: 16px 30px;
   border-top: 1px solid rgba(36, 77, 82, 0.3);
-  background: #a9c0c3; /* Teal green gradient */
+  background: #a9c0c3;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   flex: 0 0 auto;
-  position: relative; /* Ensure it stays in position */
-  z-index: 5; /* Keep it above other elements */
+  position: relative;
+  z-index: 5; 
 }
 
 .chat-input-wrapper {
@@ -294,37 +285,34 @@
   padding: 10px 15px;
   font-size: 1rem;
   border-radius: 20px;
-  border: 1px solid #53C1DE; /* Light blue border */
+  border: 1px solid #53C1DE; 
   margin-right: 10px;
-  background-color: #FFFFFF; /* White background */
-  color: #4E4E4E; /* Steel gray text */
+  background-color: #FFFFFF; 
+  color: #4E4E4E;
   font-family: sans-serif;
 }
 
 .chat-input-area input::placeholder {
-  color: #9CA3AF; /* Light steel gray placeholder */
+  color: #9CA3AF; 
   font-style: italic;
   transition: opacity 0.3s ease;
 }
 
-
-
-/* Apply animation to placeholder */
 .chat-input-area input:not(:focus)::placeholder {
   animation: fadeInOut 3s infinite;
-  color: rgba(83, 193, 222, 0.8); /* Light blue color to stand out */
+  color: rgba(83, 193, 222, 0.8);
 }
 
 .chat-input-area input:focus {
   outline: none;
-  border: 1px solid #00C2FF; /* Electric blue focus */
+  border: 1px solid #00C2FF;
   box-shadow: 0 0 0 2px rgba(0, 194, 255, 0.3);
-  background-color: #FFFFFF; /* Keep white when focused */
+  background-color: #FFFFFF;
 }
 
 .chat-input-area button {
   padding: 10px 18px;
-  background: linear-gradient(90deg, #244D52, #53C1DE); /* Teal to light blue gradient */
+  background: linear-gradient(90deg, #244D52, #53C1DE);
   color: white;
   font-size: 1rem;
   border-radius: 20px;
@@ -337,11 +325,10 @@
 }
 
 .chat-input-area button:hover {
-  background: linear-gradient(90deg, #53C1DE, #00C2FF); /* Light blue to electric blue */
+  background: linear-gradient(90deg, #53C1DE, #00C2FF);
   transition: 0.3s;
 }
 
-/* Scrollbar Styling */
 .chat-messages::-webkit-scrollbar {
   width: 6px;
 }
@@ -353,13 +340,13 @@
 }
 
 .chat-messages::-webkit-scrollbar-thumb {
-  background: #53C1DE; /* Light blue scrollbar */
+  background: #53C1DE;
   border-radius: 3px;
   transition: all 0.3s;
 }
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #00C2FF; /* Electric blue on hover */
+  background: #00C2FF;
   transition: all 0.3s;
 }
 
@@ -393,7 +380,7 @@
 }
 
 .chat-back-button:hover {
-  color: #53C1DE; /* Teal accent on hover */
+  color: #53C1DE;
 }
 
 .chat-back-label {
@@ -403,7 +390,7 @@
   font-family: 'Orbitron', sans-serif;
   white-space: nowrap;
   text-overflow: ellipsis;
-  max-width: calc(100% - 40px); /* Allow space for the back button */
+  max-width: calc(100% - 40px);
 }
 
 /* Font scaling for better readability on different screens */

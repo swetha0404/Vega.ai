@@ -9,11 +9,14 @@ import Home from './pages/HomePage';
 import Services from './pages/ServicesPage';
 import Settings from './pages/SettingsPage';
 import Chat from './pages/ChatPage';
+import UserManagement from './components/UserManagement';
+import auth from './utils/auth.js';
 
 
 function App() {
-  const role = sessionStorage.getItem('role');
-  const isAuthenticated = !!sessionStorage.getItem('role');
+  // Updated to use the new auth system
+  const isAuthenticated = auth.isAuthenticated();
+  const isAdmin = auth.isAdmin();
 
   return (
     <Router>
@@ -38,18 +41,28 @@ function App() {
         />
 
         <Route
+          path="/settings"
+          element={
+            isAdmin
+              ? <Settings />
+              : <Navigate to={isAuthenticated ? "/applications" : "/login"} />
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            isAdmin
+              ? <UserManagement />
+              : <Navigate to={isAuthenticated ? "/applications" : "/login"} />
+          }
+        />
+
+        <Route
           path="/*"
           element={<Navigate to={isAuthenticated ? "/applications" : "/login"} />}
         />
-        
-        <Route
-        path="/settings"
-        element={
-          role === 'admin'
-            ? <Settings />
-            : <Navigate to={role === 'user' ? "/applications" : "/login"} />
-        }
-        />
+
       </Routes>
     </Router>
   );

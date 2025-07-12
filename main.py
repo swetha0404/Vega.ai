@@ -10,11 +10,13 @@ agenbotc_dir = (os.path.join(os.path.dirname(__file__),".", "agenbotc"))
 sys.path.append(os.path.abspath(agenbotc_dir))
 env_path = os.path.join(agenbotc_dir, ".env")
 
-from fastapi import FastAPI, HTTPException, Request, File, Response, UploadFile, Form
+from fastapi import FastAPI, HTTPException, Request, File, Response, UploadFile, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 import yaml
 from typing import List, Optional
+from datetime import timedelta
 
 # === Load credentials from .env file (place it with content - OPENAI_API_KEY=<your-api-key> within the agenbotc folder)===
 print(f"Loading .env file from: {env_path}")
@@ -38,6 +40,19 @@ from ingestion import process_pdf, process_docx, process_ppt, process_website
 from chatbot import get_chatbot_response
 from llm_agent import LLMAgent
 from tomcat_monitor import TomcatMonitor
+from auth import (
+    user_manager, 
+    create_access_token, 
+    get_current_user, 
+    get_current_active_user,
+    require_admin,
+    require_role,
+    User, 
+    UserLogin, 
+    UserCreate, 
+    Token,
+    ACCESS_TOKEN_EXPIRE_MINUTES
+)
 
 llm_agent = LLMAgent()
 tomcat_monitor = TomcatMonitor()   
@@ -107,17 +122,87 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
-# new login with two users - test and admin. Passwords are in config.yaml
-@app.post("/login")
-def login(data: LoginRequest):
-       config = load_config()
-       users = config.get("users", [])
-       print("Loaded users:", users)
-       print("Login attempt:", data.username, data.password)
-       for user in users:
-           if data.username == user["username"] and data.password == user["password"]:
-               return {"success": True, "message": "Login successful", "role": user.get("role", "user")}
-       raise HTTPException(status_code=401, detail="Invalid credentials")
+# Enhanced authentication system with JWT tokens and secure password hashing
+@app.post("/login", response_model=Token)
+async def login(login_data: UserLogin):
+    """Authenticate user and return JWT token"""
+    user = user_manager.authenticate_user(login_data.username, login_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password"
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, 
+        expires_delta=access_token_expires
+    )
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=User(
+            username=user.username,
+            email=user.email,
+            role=user.role,
+            is_active=user.is_active,
+            created_at=user.created_at,
+            last_login=user.last_login
+        )
+    )
+
+# Get current user profile
+@app.get("/profile", response_model=User)
+async def get_profile(current_user: User = Depends(get_current_active_user)):
+    """Get current user profile"""
+    return current_user
+
+# Create new user (admin only)
+@app.post("/users", response_model=User)
+async def create_user(
+    user_data: UserCreate, 
+    current_user: User = Depends(require_admin)
+):
+    """Create a new user (admin only)"""
+    new_user = user_manager.create_user(user_data)
+    return User(
+        username=new_user.username,
+        email=new_user.email,
+        role=new_user.role,
+        is_active=new_user.is_active,
+        created_at=new_user.created_at,
+        last_login=new_user.last_login
+    )
+
+# List all users (admin only)
+@app.get("/users", response_model=List[User])
+async def list_users(current_user: User = Depends(require_admin)):
+    """List all users (admin only)"""
+    return user_manager.list_users()
+
+# Delete user (admin only)
+@app.delete("/users/{username}")
+async def delete_user(
+    username: str,
+    current_user: User = Depends(require_admin)
+):
+    """Delete a user (admin only)"""
+    if username == current_user.username:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete your own account"
+        )
+    
+    success = user_manager.delete_user(username)
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+    
+    return {"message": "User deleted successfully"}
 
 # -------------------------------------------------------------------------------------------------------------
 # api to test recording and transcription and saves it in recordings folder
@@ -149,7 +234,12 @@ async def save_recording(
 # -------------------------------------------------------------------------------------------------------------
 # api to handle file upload (pdf type) for RAG training and vector storing
 @app.post("/upload/pdf")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Upload PDF file for RAG training (requires authentication)"""
+    print(f"PDF upload by user: {current_user.username}")
     # Ensure uploads go to agenbotc folder
     agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
     uploads_dir = os.path.join(agenbotc_dir, "uploads")
@@ -161,7 +251,9 @@ async def upload_pdf(file: UploadFile = File(...)):
     try:
         result = process_pdf(file_location)
         if isinstance(result, dict):
-            if result.get("is_duplicate"):
+            if result.get("error"):
+                return {"status": "error", "message": result["message"], "doc_id": None}
+            elif result.get("is_duplicate"):
                 return {"status": "duplicate", "message": result["message"], "doc_id": result["doc_id"]}
             else:
                 return {"status": "success", "message": result["message"], "doc_id": result["doc_id"]}
@@ -169,12 +261,17 @@ async def upload_pdf(file: UploadFile = File(...)):
             # Backward compatibility for old return format
             return {"status": "success", "message": f"PDF processed successfully", "doc_id": result}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(e), "doc_id": None}
     
 # -------------------------------------------------------------------------------------------------------------
 # api to handle docx file upload for RAG training and vector storing
 @app.post("/upload/docx")
-async def upload_docx(file: UploadFile = File(...)):
+async def upload_docx(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Upload DOCX file for RAG training (requires authentication)"""
+    print(f"DOCX upload by user: {current_user.username}")
     # Ensure uploads go to agenbotc folder
     agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
     uploads_dir = os.path.join(agenbotc_dir, "uploads")
@@ -186,7 +283,9 @@ async def upload_docx(file: UploadFile = File(...)):
     try:
         result = process_docx(file_location)
         if isinstance(result, dict):
-            if result.get("is_duplicate"):
+            if result.get("error"):
+                return {"status": "error", "message": result["message"], "doc_id": None}
+            elif result.get("is_duplicate"):
                 return {"status": "duplicate", "message": result["message"], "doc_id": result["doc_id"]}
             else:
                 return {"status": "success", "message": result["message"], "doc_id": result["doc_id"]}
@@ -194,12 +293,17 @@ async def upload_docx(file: UploadFile = File(...)):
             # Backward compatibility for old return format
             return {"status": "success", "message": f"DOCX processed successfully", "doc_id": result}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(e), "doc_id": None}
     
 # -------------------------------------------------------------------------------------------------------------
 # api to handle ppt file upload for RAG training and vector storing
 @app.post("/upload/ppt")
-async def upload_ppt(file: UploadFile = File(...)):
+async def upload_ppt(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Upload PPT file for RAG training (requires authentication)"""
+    print(f"PPT upload by user: {current_user.username}")
     # Ensure uploads go to agenbotc folder
     agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
     uploads_dir = os.path.join(agenbotc_dir, "uploads")
@@ -211,7 +315,9 @@ async def upload_ppt(file: UploadFile = File(...)):
     try:
         result = process_ppt(file_location)
         if isinstance(result, dict):
-            if result.get("is_duplicate"):
+            if result.get("error"):
+                return {"status": "error", "message": result["message"], "doc_id": None}
+            elif result.get("is_duplicate"):
                 return {"status": "duplicate", "message": result["message"], "doc_id": result["doc_id"]}
             else:
                 return {"status": "success", "message": result["message"], "doc_id": result["doc_id"]}
@@ -219,7 +325,7 @@ async def upload_ppt(file: UploadFile = File(...)):
             # Backward compatibility for old return format
             return {"status": "success", "message": f"PPT processed successfully", "doc_id": result}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(e), "doc_id": None}
 
 # -------------------------------------------------------------------------------------------------------------
 # api to handle website content processing by URL for RAG training and vector storing
@@ -228,7 +334,9 @@ async def process_web(url: str = Form(...)):
     try:
         result = process_website(url)
         if isinstance(result, dict):
-            if result.get("is_duplicate"):
+            if result.get("error"):
+                return {"status": "error", "message": result["message"], "doc_id": None}
+            elif result.get("is_duplicate"):
                 return {"status": "duplicate", "message": result["message"], "doc_id": result["doc_id"]}
             else:
                 return {"status": "success", "message": result["message"], "doc_id": result["doc_id"]}
@@ -236,7 +344,7 @@ async def process_web(url: str = Form(...)):
             # Backward compatibility for old return format
             return {"status": "success", "message": f"Website processed successfully", "doc_id": result}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(e), "doc_id": None}
 
 # -------------------------------------------------------------------------------------------------------------
 class ChatMessage(BaseModel):
@@ -248,7 +356,11 @@ class ChatRequest(BaseModel):
     history: List[ChatMessage] = []
 
 @app.post("/chat")
-async def chat(request: ChatRequest):
+async def chat(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Chat endpoint with authentication"""
     # Convert history to the format expected by chatbot
     history_list = []
     for msg in request.history:
@@ -256,22 +368,51 @@ async def chat(request: ChatRequest):
             history_list.append({"question": msg.question, "answer": msg.answer})
     
     response = get_chatbot_response(request.question, history_list)
-    return {"response": response}
+    
+    # Handle the new response format that includes avatar text
+    if isinstance(response, dict):
+        return {
+            "response": response.get("answer", str(response)),
+            "avatarText": response.get("avatar", response.get("answer", str(response)))
+        }
+    else:
+        return {"response": response, "avatarText": str(response)}
 
 # -------------------------------------------------------------------------------------------------------------
 # Handles advanced chat interactions using the LLM agent for more sophisticated query processing
 @app.post("/Agentchat")
-async def Agentchat(request: ChatRequest):
-    """Main chat endpoint that routes queries through LLM agent"""
-    print("Processing query through LLM agent" + str(request))
-    #try:
-    response = await llm_agent.process_query(request.question)
-    print(f"LLM Agent response: {response}")
-    if not isinstance(response, (str, dict)):
-        response = str(response)
-    return {"response": response}
-    # except Exception as e:
-    #    return {"response": f"Error processing query: {str(e)}", "status": "error"}
+async def Agentchat(
+    request: ChatRequest,
+    current_user: User = Depends(get_current_active_user)
+):
+    """Main chat endpoint that routes queries through LLM agent with authentication"""
+    print(f"Processing query through LLM agent for user: {current_user.username}")
+    try:
+        # Process query and get both verbose and avatar responses
+        response_data = await llm_agent.process_query(request.question)
+        print(f"LLM Agent response: {response_data}")
+        
+        # Handle different response formats
+        if isinstance(response_data, dict):
+            # If response is already a dict with verbose and avatar text
+            return {
+                "response": response_data.get("verbose", str(response_data)),
+                "avatarText": response_data.get("avatar", str(response_data))
+            }
+        else:
+            # If response is a string, use it as both verbose and avatar text
+            response_str = str(response_data)
+            return {
+                "response": response_str,
+                "avatarText": response_str
+            }
+    except Exception as e:
+        error_message = f"Error processing query: {str(e)}"
+        return {
+            "response": error_message,
+            "avatarText": "I encountered an error while processing your question. Please try again.",
+            "status": "error"
+        }
 
 # -------------------------------------------------------------------------------------------------------------
 # Get Heygen API key from env

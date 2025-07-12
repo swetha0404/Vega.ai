@@ -112,9 +112,13 @@ def get_chatbot_response(question: str, history: List[Dict] = None):
                 filename = source.split('/')[-1].split('\\')[-1]
                 answer += f"{i}. {filename}\n"
         
+        # Create avatar-friendly version
+        avatar_text = _create_avatar_text(result["answer"].strip())
+        
         response = {
             "answer": answer,
-            #"sources": sources
+            "sources": sources,
+            "avatar": avatar_text
         }
         
         print(f"Chatbot response: {response}")
@@ -124,5 +128,41 @@ def get_chatbot_response(question: str, history: List[Dict] = None):
         print(f"Error in chatbot response: {str(e)}")
         return {
             "answer": "I apologize, but I encountered an error while processing your question. Please try rephrasing your question or check if you have uploaded relevant documents to the knowledge base.",
-            "sources": []
+            "sources": [],
+            "avatar": "I'm sorry, I encountered an error while processing your question. Please try asking again."
         }
+
+def _create_avatar_text(answer_text: str) -> str:
+    """Create a simplified, avatar-friendly version of the answer"""
+    # Remove markdown formatting
+    import re
+    
+    # Remove bold markdown
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', answer_text)
+    text = re.sub(r'\*(.*?)\*', r'\1', text)
+    
+    # Remove links
+    text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)
+    
+    # Remove code blocks
+    text = re.sub(r'```[\s\S]*?```', 'Please check the detailed response for code examples.', text)
+    
+    # Convert bullet points to conversational format
+    text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
+    
+    # Remove section headers (markdown)
+    text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
+    
+    # Remove excessive whitespace
+    text = re.sub(r'\n\s*\n', '. ', text)
+    text = re.sub(r'\s+', ' ', text)
+    
+    # Limit length for avatar speech
+    if len(text) > 400:
+        sentences = text.split('. ')
+        truncated = '. '.join(sentences[:3])
+        if len(truncated) > 400:
+            truncated = truncated[:400] + "..."
+        text = truncated + ". Please check the detailed response for more information."
+    
+    return text.strip()

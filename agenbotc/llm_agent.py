@@ -71,14 +71,14 @@ class LLMAgent:
                 {
                     "role": "system",
                     "content": """You are an intelligent assistant that helps users with:
-1. Tomcat server status monitoring (use check_tomcat_status tool)
-2. General knowledge questions (use search_knowledge_base tool)
+                        1. Tomcat server status monitoring (use check_tomcat_status tool)
+                        2. General knowledge questions (use search_knowledge_base tool)
 
-Analyze the user's query and decide which tool to use:
-- If the query is about Tomcat server status, health, monitoring, or performance, use check_tomcat_status
-- For all other questions, use search_knowledge_base
+                        Analyze the user's query and decide which tool to use:
+                        - If the query is about Tomcat server status, health, monitoring, or performance, use check_tomcat_status
+                        - For all other questions, use search_knowledge_base
 
-Always use the appropriate tool to get information before responding."""
+                        Always use the appropriate tool to get information before responding."""
                 },
                 {
                     "role": "user", 
@@ -121,21 +121,88 @@ Always use the appropriate tool to get information before responding."""
                         "tool_call_id": tool_call.id
                     }
                 ]
+                
+                # Get verbose response
                 final_messages.insert(0, {
-    "role": "system",
-    "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
-})
-                final_response = await self.client.chat.completions.create(
+                    "role": "system",
+                    "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
+                })
+                
+                verbose_response = await self.client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=final_messages
                 )
+                
+                # Get avatar-friendly response
+                avatar_messages = final_messages.copy()
+                avatar_messages[0] = {
+                    "role": "system",
+                    "content": """You are a helpful assistant. Create a clear, concise, and conversational response suitable for text-to-speech.
 
-                return final_response.choices[0].message.content
+                    Guidelines for avatar speech:
+                    - Use natural, conversational language
+                    - Keep sentences short and easy to understand
+                    - Avoid complex markdown formatting, code blocks, or bullet points
+                    - Focus on the key information the user needs
+                    - Make it sound human and friendly
+                    - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
+                    - Keep the response under 3-4 sentences when possible
+                    - If the information is complex, summarize the main points clearly
+                    """
+                }
+                
+                avatar_response = await self.client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=avatar_messages
+                )
+
+                return {
+                    "verbose": verbose_response.choices[0].message.content,
+                    "avatar": avatar_response.choices[0].message.content
+                }
             else:
-                return response.choices[0].message.content
+                # No tools called, generate both verbose and avatar responses
+                verbose_content = response.choices[0].message.content
+                
+                # Generate avatar-friendly version
+                avatar_messages = [
+                    {
+                        "role": "system",
+                        "content": """You are a helpful assistant. Convert the following response into a clear, concise, and conversational format suitable for text-to-speech.
+
+                        Guidelines for avatar speech:
+                        - Use natural, conversational language
+                        - Keep sentences short and easy to understand
+                        - Avoid complex markdown formatting, code blocks, or bullet points
+                        - Focus on the key information the user needs
+                        - Make it sound human and friendly
+                        - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
+                        - Keep the response under 3-4 sentences when possible
+                        - If the information is complex, summarize the main points clearly
+                        """
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Convert this response for text-to-speech: {verbose_content}"
+                    }
+                ]
+                
+                avatar_response = await self.client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=avatar_messages
+                )
+                
+                return {
+                    "verbose": verbose_content,
+                    "avatar": avatar_response.choices[0].message.content
+                }
 
         except Exception as e:
-            return f"Error processing query: {str(e)}"
+            error_message = f"Error processing query: {str(e)}"
+            return {
+                "verbose": error_message,
+                "avatar": "I encountered an error while processing your question. Please try again."
+            }
 
     async def _check_tomcat_status(self, detailed: bool = False) -> Dict[str, Any]:
         """Tool function to check Tomcat status"""
@@ -144,9 +211,11 @@ Always use the appropriate tool to get information before responding."""
 
     async def _search_knowledge_base(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """Tool function to search knowledge base"""
-        #return await self.knowledge_base.search(query, limit)
         print(f"Agent Searching knowledge base with query: {query}, limit: {limit}")
-        result= chatbot.get_chatbot_response(query, history=[])
+        result = chatbot.get_chatbot_response(query, history=[])
         print(f"Agent Knowledge base search result: {result}")
-        return result
-    #return await chatbot.get_chatbot_response(query, history=[])
+        
+        # Extract the answer from the result
+        if isinstance(result, dict) and "answer" in result:
+            return result["answer"]
+        return str(result)

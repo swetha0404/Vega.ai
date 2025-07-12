@@ -12,10 +12,10 @@
 .settings-split-container {
   position: relative;
   display: flex;
-  top: 5vh;
-  left: 20vh; 
-  height: calc(100vh - 5vh);
-  width: calc(100vw - 20vh); /* Sidebar width plus margin for right side */
+  top: 7vh;
+  left: 30vh; 
+  height: calc(100vh - 7vh);
+  width: calc(100vw - 30vh); /* Sidebar width plus margin for right side */
   gap: 1.5rem;
   padding: 1.5rem;
   justify-content: space-between; /* Equal spacing between panels */
@@ -90,9 +90,15 @@
 }
 
 .upload-status.show {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1em 1.5rem ;
   transform: translateY(0);
   opacity: 1;
-  max-height: fit-content;
+  min-height: fit-content;
+  min-width: fit-content;
+  z-index: 1000;
 }
 
 .upload-status.success {
@@ -121,6 +127,10 @@
   color: #004085;
   border: 1px solid #b3d9ff;
   box-shadow: 0 2px 8px rgba(0, 64, 133, 0.1);
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1em 1.5rem;
 }
 
 /* Progress bar for processing state */

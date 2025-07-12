@@ -20,22 +20,37 @@ function Login() {
         body: JSON.stringify({ username, password })
       });
       console.log('Login response:', res);
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.detail || 'Login failed');
+      }
+      
       const data = await res.json();
       console.log('Login data:', data);
-      if (data.success) {
-        sessionStorage.setItem('username', username);
-        sessionStorage.setItem('role', data.role);
-        console.log('Set role in sessionStorage:', data.role);
-        if (data.role === 'admin') {
+      
+      if (data.access_token) {
+        // Store JWT token and user information
+        localStorage.setItem('authToken', data.access_token);
+        localStorage.setItem('tokenType', data.token_type);
+        localStorage.setItem('username', data.user.username);
+        localStorage.setItem('userRole', data.user.role);
+        localStorage.setItem('userEmail', data.user.email || '');
+        localStorage.setItem('tokenExpiry', new Date(Date.now() + (data.expires_in * 1000)).toISOString());
+        
+        console.log('Set user data in localStorage:', data.user);
+        
+        // Redirect based on role
+        if (data.user.role === 'admin') {
           window.location.href = '/settings';
         } else {
           window.location.href = '/applications';
         }
       } else {
-        setError('Invalid credentials');
+        setError('Invalid response from server');
       }
     } catch (err) {
-      setError('Server error');
+      setError(err.message || 'Server error');
       console.log('Login error:', err);
     }
   };
@@ -51,7 +66,7 @@ function Login() {
         <h2>Your personal
           <span>Your personal</span>
           <span>Your personal</span>
-          <span>AI Assistant</span>
+          <span>IAM Assistant</span>
         </h2>
         <input
           type="text"

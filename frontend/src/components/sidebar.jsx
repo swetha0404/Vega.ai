@@ -1,31 +1,30 @@
 import { useNavigate } from "react-router-dom";
+import auth from '../utils/auth.js';
 import './sideBarLayout.css'; 
 
 function Sidebar() {
     const navigate = useNavigate();
-    const role = sessionStorage.getItem('role');
+    const isAdmin = auth.isAdmin();
 
-    if (role === 'admin') {
+    if (isAdmin) {
         return (
           <aside className="sidebar">
           <nav>
-            {/* <div className="sidebar-item" style={{ cursor: 'not-allowed', opacity: 0.6 }}>*/}
             <div className="sidebar-item" onClick={() => navigate('/applications')} style={{ cursor: 'pointer' }}>
               <span>Applications</span>
             </div>
-            {/* <div className="sidebar-item" style={{ cursor: 'not-allowed', opacity: 0.6 }}> */}
             <div className="sidebar-item">
               <span>IAM-GPT</span>
             </div>
-            {/* <div className="sidebar-item active" onClick={() => navigate('/settings')} style={{ cursor: 'pointer' }}> */}
             <div className="sidebar-item" onClick={() => navigate('/settings')} style={{ cursor: 'pointer' }}>
-              <span>Knowledge Base</span>
+              <span>Neural Archive</span>
             </div>
-            {/* <div className="sidebar-item" style={{ cursor: 'not-allowed', opacity: 0.6 }}> */}
+            <div className="sidebar-item" onClick={() => navigate('/users')} style={{ cursor: 'pointer' }}>
+              <span>User Management</span>
+            </div>
             <div className="sidebar-item">
               <span>Support</span>
             </div>
-            {/* <div className="sidebar-item" style={{ cursor: 'not-allowed', opacity: 0.6 }}> */}
             <div className="sidebar-item">
               <span>About Us</span>
             </div>

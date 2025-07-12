@@ -356,6 +356,7 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
         <div className="avatar-container">
           <div style={{ 
             position: 'relative',
+            marginTop: '13%',
             display: 'flex', 
             flexDirection: 'column',
             alignItems: 'center',
@@ -363,7 +364,7 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
             maxWidth: '90%',
             minWidth: '230px',
             maxHeight: '90%',
-            minHeight: '515px',
+            minHeight: '400px',
             color: 'white',
             padding: '15px',
             textAlign: 'center',
@@ -401,7 +402,7 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
         {/* Video container */}
         <div className="avatar-video-container">
           {/* Loading overlay */}
-          <div className={`avatar-loading ${!isInitializing ? 'hidden' : ''}`} style={{ alignSelf: 'center', minHeight: '515px', borderRadius: '8px', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white' }}>
+          <div className={`avatar-loading ${!isInitializing ? 'hidden' : ''}`} style={{ alignSelf: 'center', minHeight: '300px', borderRadius: '8px', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white' }}>
             <div className="avatar-spinner"></div>
             <div style={{color: 'snow'}}>Initializing Avatar...</div>
           </div>

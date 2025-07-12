@@ -4,13 +4,24 @@ import ReactMarkdown from 'react-markdown';
 import VoiceToText from '../components/voicetotext';
 import Avatar from '../components/avatar'; // Import Avatar component
 import ChatSuggestions from '../components/ChatSuggestions'; // Import ChatSuggestions component
+import auth from '../utils/auth.js'; // Import auth utility
 import './chatPageLayout.css';
 import '../components/chatSuggestionsLayout.css';
 import Topbar from '../components/topBar';
 import Sidebar from '../components/sideBar';
+// import { auth } from '../utils/auth';
 
 function ChatPage() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
+  
+  // Check authentication on component mount
+  useEffect(() => {
+    if (!auth.isAuthenticated()) {
+      navigate('/');
+      return;
+    }
+  }, []);
+  
   const [messages, setMessages] = useState([
     { type: 'bot', text: "Hello! I'm your AI Copilot. Ask me questions about PingFederate, get help, or receive step-by-step guidance." }
   ]);
@@ -61,6 +72,7 @@ function ChatPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...auth.getAuthHeader()
         },
         body: JSON.stringify({
           question: userMessage,
@@ -74,6 +86,7 @@ function ChatPage() {
 
       const result = await response.json();
       const botResponse = result.response || 'Sorry, I couldn\'t generate a response.';
+      const avatarText = result.avatarText || botResponse;
       
       // Add bot response to chat
       setMessages(prev => [...prev, { 
@@ -81,20 +94,21 @@ function ChatPage() {
         text: botResponse 
       }]);
 
-      // Send the text to the avatar to speak - prepare it for speech
-      setAvatarTextToSpeak(prepareTextForSpeech(botResponse));
+      // Send the avatar-specific text to the avatar to speak
+      setAvatarTextToSpeak(avatarText);
 
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage = 'Sorry, I encountered an error while processing your question. Please try again.';
+      const avatarErrorMessage = 'I encountered an error while processing your question. Please try again.';
       
       setMessages(prev => [...prev, { 
         type: 'bot', 
         text: errorMessage 
       }]);
       
-      // Send the error message to the avatar to speak
-      setAvatarTextToSpeak(prepareTextForSpeech(errorMessage));
+      // Send the avatar-specific error message
+      setAvatarTextToSpeak(avatarErrorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -142,6 +156,7 @@ function ChatPage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            ...auth.getAuthHeader()
           },
           body: JSON.stringify({
             question: userMessage,
@@ -162,6 +177,7 @@ function ChatPage() {
         })
         .then(result => {
           const botResponse = result.response || 'Sorry, I couldn\'t generate a response.';
+          const avatarText = result.avatarText || botResponse;
           
           // Add bot response to chat
           setMessages(prev => [...prev, { 
@@ -169,19 +185,20 @@ function ChatPage() {
             text: botResponse 
           }]);
           
-          // Send the text to the avatar to speak
-          setAvatarTextToSpeak(prepareTextForSpeech(botResponse));
+          // Send the avatar-specific text to the avatar to speak
+          setAvatarTextToSpeak(avatarText);
         })
         .catch(error => {
           console.error('Chat error:', error);
           const errorMessage = 'Sorry, I encountered an error while processing your question. Please try again.';
+          const avatarErrorMessage = 'I encountered an error while processing your question. Please try again.';
           
           setMessages(prev => [...prev, { 
             type: 'bot', 
             text: errorMessage 
           }]);
           
-          setAvatarTextToSpeak(prepareTextForSpeech(errorMessage));
+          setAvatarTextToSpeak(avatarErrorMessage);
         })
         .finally(() => {
           setIsLoading(false);
@@ -191,8 +208,9 @@ function ChatPage() {
     }
   };
 
-  // Function to prepare text for speech
+  // Function to prepare text for speech (fallback function)
   const prepareTextForSpeech = (text) => {
+    // This function is now mainly used as a fallback when backend doesn't provide avatarText
     // Remove code blocks that aren't suitable for speech
     let speechText = text.replace(/```[\s\S]*?```/g, 'I\'ve included some code in my response. Please check the chat for details.');
     

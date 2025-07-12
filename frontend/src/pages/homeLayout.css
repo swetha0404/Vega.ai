@@ -16,10 +16,10 @@
 
 .main-content {
   position: absolute;
-  top: 5vh; /* Height of the top bar */
-  left: 12vh; /* Width of the sidebar */
-  width: calc(100vw - 12vh);
-  height: calc(100vh - 5vh);
+  top: 7vh; /* Height of the top bar */
+  left: 21vh; /* Width of the sidebar */
+  width: calc(100vw - 21vh);
+  height: calc(100vh - 7vh);
   padding-left: 3%;
   display: flex;
   flex-direction: column;
@@ -34,6 +34,7 @@
   margin-bottom: 16px;
   display: flex;
   align-items: center;
+  
 }
 .page-title {
   font-size: 2.5em;
@@ -42,6 +43,7 @@
   color: #53C1DE;
   margin: 0;
   font-family: 'Orbitron', 'sans-serif';
+  text-decoration: underline;
 }
 .page-title-container h3 {
   font-size: 1.35em;
@@ -79,7 +81,7 @@
 }
 .cards-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 60px;
   width: calc(100% - 32px);
   padding: 16px 16px 32px 0;

@@ -1,0 +1,20 @@
+{
+  "test": {
+    "username": "test",
+    "email": null,
+    "role": "user",
+    "is_active": true,
+    "created_at": "2025-07-12T15:46:52.300020",
+    "last_login": "2025-07-12T16:04:28.570548",
+    "hashed_password": "$2b$12$C4DJDIM33F0BDbisjrAHj.CxfCohicBlWWpnjiAFex4qcaG0Y31iO"
+  },
+  "admin": {
+    "username": "admin",
+    "email": null,
+    "role": "admin",
+    "is_active": true,
+    "created_at": "2025-07-12T15:46:52.498151",
+    "last_login": "2025-07-12T16:04:34.869867",
+    "hashed_password": "$2b$12$egRc4WkkPg6tvQxpDvuv/u7EUk5QbZrAL0Z6iHNVRTHW2p6Bqllg6"
+  }
+}
