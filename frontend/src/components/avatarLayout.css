@@ -48,7 +48,192 @@
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  min-height: 300px;
+  max-height: 500px;
+}
+
+.avatar-canvas {
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Avatar Controls - Below Video */
+.avatar-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.volume-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.volume-control label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.volume-slider {
+  width: 100px;
+  height: 4px;
+  background: #1de9b6;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-track {
+  width: 100%;
+  height: 4px;
+  background: #1de9b6;
+  border-radius: 2px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  background: #1de9b6;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #1de9b6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.volume-slider::-moz-range-track {
+  height: 4px;
+  background: #1de9b6;
+  border-radius: 2px;
+  border: none;
+}
+
+.interrupt-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.interrupt-button:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.interrupt-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Session Controls - Manual Mode */
+.session-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.start-button, .stop-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-button:hover:not(:disabled), .stop-button:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.start-button:disabled, .stop-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Text Input Section - Manual Mode */
+.text-input-section {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
+  align-items: center;
+}
+
+.text-input-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.speak-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.speak-button:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.speak-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Status Section */
+.status-section {
+  margin-top: 12px;
 }
 
 .avatar-container button {
@@ -316,10 +501,21 @@
 .avatar-volume-control input[type="range"] {
   flex: 1;
   height: 5px;
-  background: transparent;
+  background: #1de9b6;
   border-radius: 3px;
   outline: none;
   margin-right: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.avatar-volume-control input[type="range"]::-webkit-slider-track {
+  width: 100%;
+  height: 5px;
+  background: #1de9b6;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .avatar-volume-control input[type="range"]::-webkit-slider-thumb {
@@ -337,6 +533,7 @@
   height: 5px;
   background: #1de9b6;
   border-radius: 3px;
+  border: none;
 }
 
 .avatar-volume-control input[type="range"]::-moz-range-thumb {
@@ -344,7 +541,7 @@
   height: 14px;
   border: none;
   border-radius: 50%;
-  color: #1de9b6;
+  background: #1de9b6;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }

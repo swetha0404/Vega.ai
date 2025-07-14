@@ -11,6 +11,7 @@ import Settings from './pages/SettingsPage';
 import Chat from './pages/ChatPage';
 import UserManagement from './components/UserManagement';
 import auth from './utils/auth.js';
+import Interface from './pages/Interface.jsx';
 
 
 function App() {
@@ -47,6 +48,11 @@ function App() {
               ? <Settings />
               : <Navigate to={isAuthenticated ? "/applications" : "/login"} />
           }
+        />
+
+        <Route
+          path="/avatartest"
+          element={isAuthenticated ? <Interface /> : <Navigate to="/login" />}
         />
 
         <Route

@@ -2,19 +2,32 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import './avatarLayout.css';
 
 function Avatar({ isActive = false, textToSpeak = '' }) {
+
+  const [sessionInfo, setSessionInfo] = useState(null);
+  const [peerConnection, setPeerConnection] = useState(null);
+  const [mediaCanPlay, setMediaCanPlay] = useState(false);
+  const [renderID, setRenderID] = useState(0);
+  const [initializationFailed, setInitializationFailed] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isClosingSession, setIsClosingSession] = useState(false);
+  const [volume, setVolume] = useState(1.0); // Default volume at 100%
+  const [isInterrupting, setIsInterrupting] = useState(false); // Track if interruption is in progress
+  const apiPromiseRef = useRef(null);
+  const previousTextRef = useRef('');
+  const sessionIdRef = useRef(null);
+  const mediaElementRef = useRef(null);
+  const cleanupAttemptedRef = useRef(false);
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
-  // HeyGen API configuration - in a production app, this would be fetched securely from backend
+
   const heygen_API = {
     apiKey: '',
     serverUrl: 'https://api.heygen.com', // Default URL until actual value is fetched
     isConfigured: false
   };
-  
-  // Store API fetch promise to prevent multiple simultaneous calls
-  // Using useRef for apiPromise to persist across renders and prevent issues with StrictMode
-  const apiPromiseRef = useRef(null);
-  const previousTextRef = useRef('');
-  const sessionIdRef = useRef(null);
+
+  const updateStatus = (message) => {
+    console.log(`Avatar: ${message}`);
+  }
   
   const getAPI = async () => {
     // If already configured, return immediately
@@ -81,34 +94,6 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
     return apiPromiseRef.current;
   };
 
-
-  // State management
-  // const [status, setStatus] = useState('Initializing avatar...');
-  const [sessionInfo, setSessionInfo] = useState(null);
-  const [peerConnection, setPeerConnection] = useState(null);
-  const [mediaCanPlay, setMediaCanPlay] = useState(false);
-  const [renderID, setRenderID] = useState(0);
-  const [initializationFailed, setInitializationFailed] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [isClosingSession, setIsClosingSession] = useState(false);
-  const [volume, setVolume] = useState(1.0); // Default volume at 100%
-  const [isInterrupting, setIsInterrupting] = useState(false); // Track if interruption is in progress
-
-  const mediaElementRef = useRef(null);
-  const cleanupAttemptedRef = useRef(false);
-
-  // More controlled status updates with less logging
-  const updateStatus = (message) => {
-    // Only log significant state changes
-    if (message.includes('Creating session') || 
-        message.includes('Session created') || 
-        message.includes('Speaking') ||
-        message.includes('Error') ||
-        message.includes('Closing')) {
-      console.log(`Avatar: ${message}`);
-    }
-    // setStatus(message);
-  };
   
   // Simplified helper function to speak a message - defined early to avoid reference errors
   const speakMessage = useCallback((message) => {
