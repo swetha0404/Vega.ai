@@ -107,95 +107,110 @@ class LLMAgent:
                 if function_name == "check_tomcat_status":
                     print(f"Calling tool: {function_name} with args: {function_args}")
                     tool_result = await self._check_tomcat_status(**function_args)
+                    
+                    # Generate both verbose and avatar responses in one pass
+                    final_messages = messages + [
+                        response.choices[0].message,
+                        {
+                            "role": "tool",
+                            "content": str(tool_result),
+                            "tool_call_id": tool_call.id
+                        }
+                    ]
+                    
+                    final_messages.insert(0, {
+                        "role": "system",
+                        "content": """You are a helpful assistant. Provide your response in the following JSON format:
+
+{
+  "verbose": "A detailed, well-formatted response in Markdown with bullet points, bold headers, and code blocks where helpful",
+  "avatar": "A clear, concise, conversational response suitable for text-to-speech (2-3 sentences, natural language, no markdown)"
+}
+
+Make sure the verbose response is comprehensive and well-formatted, while the avatar response is conversational and easy to speak."""
+                    })
+                    
+                    combined_response = await self.client.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=final_messages
+                    )
+
+                    try:
+                        # Parse the JSON response
+                        response_content = combined_response.choices[0].message.content
+                        parsed_response = json.loads(response_content)
+                        return {
+                            "verbose": parsed_response.get("verbose", response_content),
+                            "avatar": parsed_response.get("avatar", "Check the detailed response for information.")
+                        }
+                    except json.JSONDecodeError:
+                        # Fallback if JSON parsing fails
+                        return {
+                            "verbose": response_content,
+                            "avatar": "I have information about the Tomcat status. Please check the detailed response."
+                        }
+                    
                 elif function_name == "search_knowledge_base":
                     tool_result = await self._search_knowledge_base(**function_args)
+                    
+                    # For knowledge base searches, use the pre-formatted response from chatbot
+                    if isinstance(tool_result, dict) and "answer" in tool_result and "avatar" in tool_result:
+                        return {
+                            "verbose": tool_result["answer"],
+                            "avatar": tool_result["avatar"]
+                        }
+                    else:
+                        # Fallback if the result format is unexpected
+                        response_str = str(tool_result)
+                        return {
+                            "verbose": response_str,
+                            "avatar": response_str
+                        }
                 else:
                     tool_result = "Unknown function called"
-
-                # LLm responds with Final Result
-                final_messages = messages + [
-                    response.choices[0].message,
-                    {
-                        "role": "tool",
-                        "content": str(tool_result),
-                        "tool_call_id": tool_call.id
+                    return {
+                        "verbose": tool_result,
+                        "avatar": "I couldn't understand that request. Please try again."
                     }
-                ]
-                
-                # Get verbose response
-                final_messages.insert(0, {
-                    "role": "system",
-                    "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
-                })
-                
-                verbose_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=final_messages
-                )
-                
-                # Get avatar-friendly response
-                avatar_messages = final_messages.copy()
-                avatar_messages[0] = {
-                    "role": "system",
-                    "content": """You are a helpful assistant. Create a clear, concise, and conversational response suitable for text-to-speech.
-
-                    Guidelines for avatar speech:
-                    - Use natural, conversational language
-                    - Keep sentences short and easy to understand
-                    - Avoid complex markdown formatting, code blocks, or bullet points
-                    - Focus on the key information the user needs
-                    - Make it sound human and friendly
-                    - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
-                    - Keep the response under 3-4 sentences when possible
-                    - If the information is complex, summarize the main points clearly
-                    """
-                }
-                
-                avatar_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=avatar_messages
-                )
-
-                return {
-                    "verbose": verbose_response.choices[0].message.content,
-                    "avatar": avatar_response.choices[0].message.content
-                }
             else:
-                # No tools called, generate both verbose and avatar responses
-                verbose_content = response.choices[0].message.content
-                
-                # Generate avatar-friendly version
-                avatar_messages = [
+                # No tools called, generate both verbose and avatar responses in one pass
+                single_pass_messages = [
                     {
                         "role": "system",
-                        "content": """You are a helpful assistant. Convert the following response into a clear, concise, and conversational format suitable for text-to-speech.
+                        "content": """You are a helpful assistant. Provide your response in the following JSON format:
 
-                        Guidelines for avatar speech:
-                        - Use natural, conversational language
-                        - Keep sentences short and easy to understand
-                        - Avoid complex markdown formatting, code blocks, or bullet points
-                        - Focus on the key information the user needs
-                        - Make it sound human and friendly
-                        - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
-                        - Keep the response under 3-4 sentences when possible
-                        - If the information is complex, summarize the main points clearly
-                        """
+{
+  "verbose": "A detailed, well-formatted response in Markdown with bullet points, bold headers, and code blocks where helpful",
+  "avatar": "A clear, concise, conversational response suitable for text-to-speech (2-3 sentences, natural language, no markdown)"
+}
+
+Make sure the verbose response is comprehensive and well-formatted, while the avatar response is conversational and easy to speak."""
                     },
                     {
-                        "role": "user",
-                        "content": f"Convert this response for text-to-speech: {verbose_content}"
+                        "role": "user", 
+                        "content": user_query
                     }
                 ]
                 
-                avatar_response = await self.client.chat.completions.create(
+                combined_response = await self.client.chat.completions.create(
                     model="gpt-3.5-turbo",
-                    messages=avatar_messages
+                    messages=single_pass_messages
                 )
                 
-                return {
-                    "verbose": verbose_content,
-                    "avatar": avatar_response.choices[0].message.content
-                }
+                try:
+                    # Parse the JSON response
+                    response_content = combined_response.choices[0].message.content
+                    parsed_response = json.loads(response_content)
+                    return {
+                        "verbose": parsed_response.get("verbose", response_content),
+                        "avatar": parsed_response.get("avatar", "Please check the detailed response for more information.")
+                    }
+                except json.JSONDecodeError:
+                    # Fallback if JSON parsing fails
+                    return {
+                        "verbose": response_content,
+                        "avatar": "I have a response for you. Please check the detailed information."
+                    }
 
         except Exception as e:
             error_message = f"Error processing query: {str(e)}"
@@ -209,13 +224,13 @@ class LLMAgent:
         print(f"Checking Tomcat status with detailed={detailed}")
         return await self.tomcat_monitor.get_status(detailed)
 
-    async def _search_knowledge_base(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+    async def _search_knowledge_base(self, query: str, limit: int = 5) -> Dict[str, Any]:
         """Tool function to search knowledge base"""
         print(f"Agent Searching knowledge base with query: {query}, limit: {limit}")
         result = chatbot.get_chatbot_response(query, history=[])
         print(f"Agent Knowledge base search result: {result}")
         
-        # Extract the answer from the result
-        if isinstance(result, dict) and "answer" in result:
-            return result["answer"]
-        return str(result)
+        # Return the complete result dictionary 
+        if isinstance(result, dict):
+            return result
+        return {"answer": str(result), "sources": [], "avatar": str(result)}

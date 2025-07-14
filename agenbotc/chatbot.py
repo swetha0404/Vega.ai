@@ -147,22 +147,32 @@ def _create_avatar_text(answer_text: str) -> str:
     # Remove code blocks
     text = re.sub(r'```[\s\S]*?```', 'Please check the detailed response for code examples.', text)
     
+    # Convert numbered lists to conversational format
+    text = re.sub(r'^\s*\d+\.\s+', '', text, flags=re.MULTILINE)
+    
     # Convert bullet points to conversational format
     text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
     
     # Remove section headers (markdown)
     text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
     
-    # Remove excessive whitespace
-    text = re.sub(r'\n\s*\n', '. ', text)
+    # Remove excessive whitespace and line breaks
+    text = re.sub(r'\n\s*\n+', '. ', text)
+    text = re.sub(r'\n', ' ', text)
     text = re.sub(r'\s+', ' ', text)
     
-    # Limit length for avatar speech
-    if len(text) > 400:
-        sentences = text.split('. ')
-        truncated = '. '.join(sentences[:3])
-        if len(truncated) > 400:
-            truncated = truncated[:400] + "..."
-        text = truncated + ". Please check the detailed response for more information."
+    # Create a more conversational summary for complex responses
+    if len(text) > 300 or 'sources:' in text.lower():
+        # Extract the main topic and provide a conversational summary
+        if 'create an account' in answer_text.lower():
+            return "To create an account in PingOne, you'll need to configure authentication sources, set up registration options, and manage profile settings. Check the detailed response for step-by-step instructions."
+        elif 'pingfederate' in answer_text.lower():
+            return "I found information about PingFederate setup and configuration. Please check the detailed response for complete instructions."
+        else:
+            # Generic summary for other topics
+            sentences = text.split('. ')
+            if len(sentences) > 2:
+                summary = '. '.join(sentences[:2])
+                return summary + ". Please check the detailed response for more information."
     
     return text.strip()

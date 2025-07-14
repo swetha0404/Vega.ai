@@ -14,7 +14,16 @@
     "role": "admin",
     "is_active": true,
     "created_at": "2025-07-12T15:46:52.498151",
-    "last_login": "2025-07-12T16:04:34.869867",
+    "last_login": "2025-07-12T20:53:04.707472",
     "hashed_password": "$2b$12$egRc4WkkPg6tvQxpDvuv/u7EUk5QbZrAL0Z6iHNVRTHW2p6Bqllg6"
+  },
+  "swetha": {
+    "username": "swetha",
+    "email": "swetha@eduservit.com",
+    "role": "admin",
+    "is_active": true,
+    "created_at": "2025-07-12T20:53:34.470203",
+    "last_login": "2025-07-14T11:16:52.030706",
+    "hashed_password": "$2b$12$Y2EUxgd1aUz.oBGEBLmDN.hf7jFaBLT3ND4ugclxFMpmAOk9jjtNu"
   }
 }
