@@ -14,7 +14,7 @@
     "role": "admin",
     "is_active": true,
     "created_at": "2025-07-12T15:46:52.498151",
-    "last_login": "2025-07-12T20:53:04.707472",
+    "last_login": "2025-07-15T13:37:33.840239",
     "hashed_password": "$2b$12$egRc4WkkPg6tvQxpDvuv/u7EUk5QbZrAL0Z6iHNVRTHW2p6Bqllg6"
   },
   "swetha": {
@@ -22,8 +22,8 @@
     "email": "swetha@eduservit.com",
     "role": "admin",
     "is_active": true,
-    "created_at": "2025-07-12T20:53:34.470203",
-    "last_login": "2025-07-14T11:16:52.030706",
-    "hashed_password": "$2b$12$Y2EUxgd1aUz.oBGEBLmDN.hf7jFaBLT3ND4ugclxFMpmAOk9jjtNu"
+    "created_at": "2025-07-15T13:38:02.024074",
+    "last_login": "2025-07-15T13:39:53.177914",
+    "hashed_password": "$2b$12$30v2M6L5qp09YxV86gHRoeJbVSaUp0wk..UhNa/jWPp.0fhnTlx6."
   }
 }

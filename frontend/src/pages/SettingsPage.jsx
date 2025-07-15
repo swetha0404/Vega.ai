@@ -124,10 +124,27 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('file', selectedPdfFile);
 
+      const authToken = localStorage.getItem('authToken');
+      const tokenType = localStorage.getItem('tokenType') || 'Bearer';
+
       const response = await fetch(`${API_BASE}/upload/pdf`, {
         method: 'POST',
+        headers: {
+          'Authorization': `${tokenType} ${authToken}`
+        },
         body: formData
-      });      
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // Authentication error - redirect to login
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`PDF uploaded successfully! Doc ID: ${result.doc_id}`, 'success');
@@ -154,10 +171,27 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('file', selectedDocxFile);
 
+      const authToken = localStorage.getItem('authToken');
+      const tokenType = localStorage.getItem('tokenType') || 'Bearer';
+
       const response = await fetch(`${API_BASE}/upload/docx`, {
         method: 'POST',
+        headers: {
+          'Authorization': `${tokenType} ${authToken}`
+        },
         body: formData
-      });      
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // Authentication error - redirect to login
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`DOCX uploaded successfully! Doc ID: ${result.doc_id}`, 'success');
@@ -184,10 +218,27 @@ function SettingsPage() {
       const formData = new FormData();
       formData.append('file', selectedPptFile);
 
+      const authToken = localStorage.getItem('authToken');
+      const tokenType = localStorage.getItem('tokenType') || 'Bearer';
+
       const response = await fetch(`${API_BASE}/upload/ppt`, {
         method: 'POST',
+        headers: {
+          'Authorization': `${tokenType} ${authToken}`
+        },
         body: formData
-      });      
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // Authentication error - redirect to login
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
         if (result.status === 'success') {
         showUploadNotification(`PPT uploaded successfully! Doc ID: ${result.doc_id}`, 'success');
@@ -234,10 +285,14 @@ function SettingsPage() {
         }))
         .filter(exchange => exchange.question || exchange.answer);
 
+      const authToken = localStorage.getItem('authToken');
+      const tokenType = localStorage.getItem('tokenType') || 'Bearer';
+      
       const response = await fetch(`${API_BASE}/Agentchat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `${tokenType} ${authToken}`
         },
         body: JSON.stringify({
           question: userMessage,
@@ -246,6 +301,12 @@ function SettingsPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // Authentication error - redirect to login
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
