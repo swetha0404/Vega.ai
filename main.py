@@ -355,28 +355,28 @@ class ChatRequest(BaseModel):
     question: str
     history: List[ChatMessage] = []
 
-@app.post("/chat")
-async def chat(
-    request: ChatRequest,
-    current_user: User = Depends(get_current_active_user)
-):
-    """Chat endpoint with authentication"""
-    # Convert history to the format expected by chatbot
-    history_list = []
-    for msg in request.history:
-        if msg.question and msg.answer:
-            history_list.append({"question": msg.question, "answer": msg.answer})
+# @app.post("/chat")
+# async def chat(
+#     request: ChatRequest,
+#     current_user: User = Depends(get_current_active_user)
+# ):
+#     """Chat endpoint with authentication"""
+#     # Convert history to the format expected by chatbot
+#     history_list = []
+#     for msg in request.history:
+#         if msg.question and msg.answer:
+#             history_list.append({"question": msg.question, "answer": msg.answer})
     
-    response = get_chatbot_response(request.question, history_list)
+#     response = get_chatbot_response(request.question, history_list)
     
-    # Handle the new response format that includes avatar text
-    if isinstance(response, dict):
-        return {
-            "response": response.get("answer", str(response)),
-            "avatarText": response.get("avatar", response.get("answer", str(response)))
-        }
-    else:
-        return {"response": response, "avatarText": str(response)}
+#     # Handle the new response format that includes avatar text
+#     if isinstance(response, dict):
+#         return {
+#             "response": response.get("answer", str(response)),
+#             "avatarText": response.get("avatar", response.get("answer", str(response)))
+#         }
+#     else:
+#         return {"response": response, "avatarText": str(response)}
 
 # -------------------------------------------------------------------------------------------------------------
 # Handles advanced chat interactions using the LLM agent for more sophisticated query processing
@@ -386,11 +386,11 @@ async def Agentchat(
     current_user: User = Depends(get_current_active_user)
 ):
     """Main chat endpoint that routes queries through LLM agent with authentication"""
-    print(f"Processing query through LLM agent for user: {current_user.username}")
+    print(f"@@@@@@@@@@@@@Processing query through LLM agent for user: {current_user.username}")
     try:
         # Process query and get both verbose and avatar responses
         response_data = await llm_agent.process_query(request.question)
-        print(f"LLM Agent response: {response_data}")
+        print(f"@@@@@@@@@@@@@LLM Agent response: {response_data}")
         
         # Handle different response formats
         if isinstance(response_data, dict):

@@ -64,7 +64,7 @@ class LLMAgent:
 
     async def process_query(self, user_query: str) -> str:
         """Process user query and route to appropriate tool"""
-        print (f"Processing user query: {user_query}")
+        print (f"###############################Processing user query: {user_query}")
         try:
             #  LLM decides which tool to use
             messages = [
@@ -105,7 +105,7 @@ class LLMAgent:
                 
                 # Execute the appropriate tool
                 if function_name == "check_tomcat_status":
-                    print(f"Calling tool: {function_name} with args: {function_args}")
+                    print(f"\n#################Calling tool: {function_name} with args: {function_args}")
                     tool_result = await self._check_tomcat_status(**function_args)
                 elif function_name == "search_knowledge_base":
                     tool_result = await self._search_knowledge_base(**function_args)
@@ -122,16 +122,16 @@ class LLMAgent:
                     }
                 ]
                 
-                # Get verbose response
-                final_messages.insert(0, {
-                    "role": "system",
-                    "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
-                })
+                # # Get verbose response
+                # final_messages.insert(0, {
+                #     "role": "system",
+                #     "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
+                # })
                 
-                verbose_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=final_messages
-                )
+                # verbose_response = await self.client.chat.completions.create(
+                #     model="gpt-3.5-turbo",
+                #     messages=final_messages
+                # )
                 
                 # Get avatar-friendly response
                 avatar_messages = final_messages.copy()
@@ -157,7 +157,7 @@ class LLMAgent:
                 )
 
                 return {
-                    "verbose": verbose_response.choices[0].message.content,
+                    "verbose": tool_result,
                     "avatar": avatar_response.choices[0].message.content
                 }
             else:
@@ -206,15 +206,15 @@ class LLMAgent:
 
     async def _check_tomcat_status(self, detailed: bool = False) -> Dict[str, Any]:
         """Tool function to check Tomcat status"""
-        print(f"Checking Tomcat status with detailed={detailed}")
+        print(f"\n########################Checking Tomcat status with detailed={detailed}")
         return await self.tomcat_monitor.get_status(detailed)
 
     async def _search_knowledge_base(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """Tool function to search knowledge base"""
-        print(f"Agent Searching knowledge base with query: {query}, limit: {limit}")
+        print(f"\n#########################Agent Searching knowledge base with query: {query}, limit: {limit}")
         result = chatbot.get_chatbot_response(query, history=[])
-        print(f"Agent Knowledge base search result: {result}")
-        
+        # print(f"\n#########################Agent Knowledge base search result: {result}")
+
         # Extract the answer from the result
         if isinstance(result, dict) and "answer" in result:
             return result["answer"]
