@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import ReactMarkdown from 'react-markdown';
-import VoiceToText from '../components/voicetotext';
-import ChatSuggestions from '../components/ChatSuggestions'; // Import ChatSuggestions component
+import VoiceToText from '../components/voicetotext.jsx';
+import Avatar from '../components/avatar.jsx'; // Import Avatar component
+import ChatSuggestions from '../components/ChatSuggestions.jsx'; // Import ChatSuggestions component
 import auth from '../utils/auth.js'; // Import auth utility
 import './chatPageLayout.css';
 import '../components/chatSuggestionsLayout.css';
-import Topbar from '../components/topBar';
-import Sidebar from '../components/sideBar';
-import Avatar2 from '../components/avatar2.jsx';
+import Topbar from '../components/topBar.jsx';
+import Sidebar from '../components/sideBar.jsx';
 
-function Interface() {
+function ChatPageOld() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
   
   // Check authentication on component mount
@@ -259,18 +259,22 @@ function Interface() {
   
   // Effect to manage avatar session lifecycle
   useEffect(() => {
-    console.log('Interface: Activating avatar...');
+    console.log('ChatPage: Activating avatar...');
     setIsAvatarActive(true);
     
-    // No welcome message - just activate the avatar
+    // Add a slight delay before speaking welcome message to allow avatar to initialize
+    const timer = setTimeout(() => {
+      setAvatarTextToSpeak("Hi there! I'm your AI Copilot. How can I assist you today?");
+    }, 2000);
     
     return () => {
-      console.log('Interface: Unmounting - deactivating avatar...');
+      console.log('ChatPage: Unmounting - deactivating avatar...');
+      clearTimeout(timer);
       setIsAvatarActive(false);
       
       // Log after a short delay to confirm state change propagation
       setTimeout(() => {
-        console.log('Interface: Avatar deactivation complete, session should be closing...');
+        console.log('ChatPage: Avatar deactivation complete, session should be closing...');
       }, 100);
     };
   }, []);
@@ -282,7 +286,7 @@ function Interface() {
     <div className="chat-container">
       <div className="chat-left" >
         <div className="avatar-full-rectangle">
-          <Avatar2 
+          <Avatar 
             isActive={isAvatarActive}
             textToSpeak={avatarTextToSpeak}
           />
@@ -381,4 +385,4 @@ function Interface() {
     </div>
   );
 };
-export default Interface;
+export default ChatPageOld;

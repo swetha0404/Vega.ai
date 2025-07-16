@@ -3,11 +3,11 @@ import './avatarLayout.css';
 
 const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
   // State variables
-  const [message, setMessage] = useState('');
   const [sessionInfo, setSessionInfo] = useState(null);
   const [mediaCanPlay, setMediaCanPlay] = useState(false);
   const [isSessionActive, setIsSessionActive] = useState(false);
-  const [isInterrupted, setIsInterrupted] = useState(false);
+  const [initializationFailed, setInitializationFailed] = useState(false);
+  const [userStoppedManually, setUserStoppedManually] = useState(false); // Track manual stops
   const [volume, setVolume] = useState(1.0); // Default volume at 100%
   const [isInterrupting, setIsInterrupting] = useState(false); // Track if interruption is in progress
 
@@ -25,14 +25,12 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
   const defaultVoiceId = null; // Use null to let avatar use its default voice
 
   // API configuration
-  const API_BASE = 'http://localhost:8000'; // Backend server URL
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Backend server URL
   const heygen_API = {
     apiKey: '',
     serverUrl: 'https://api.heygen.com',
     isConfigured: false
   };
-
-
 
   // Background image from public/backgrounds folder
   const defaultBackground = 'url("backgrounds/office_window.gif") center / cover no-repeat';
@@ -128,6 +126,7 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
       const apiConfigured = await getAPI();
       if (!apiConfigured) {
         updateStatus('❌ Failed to configure API');
+        setInitializationFailed(true);
         return;
       }
 
@@ -158,9 +157,14 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
       // When audio and video streams are received from HeyGen, display them in the video element
       peerConnectionRef.current.ontrack = (event) => {
         updateStatus('✅ Video track received');
+        console.log('Video track received:', event.track.kind, event.streams[0]);
         if (event.track.kind === 'audio' || event.track.kind === 'video') {
           if (mediaElementRef.current) {
             mediaElementRef.current.srcObject = event.streams[0];
+            // Trigger canvas rendering after a short delay to ensure video is ready
+            setTimeout(() => {
+              renderCanvas();
+            }, 100);
           }
         }
       };
@@ -209,6 +213,9 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
     } catch (error) {
       console.error('Error starting session:', error);
       updateStatus('❌ Error starting session: ' + error.message);
+      
+      // Mark initialization as failed
+      setInitializationFailed(true);
       
       // Clean up on error
       if (peerConnectionRef.current) {
@@ -276,21 +283,6 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
     }
   };
 
-  const repeatHandler = async () => {
-    if (!sessionInfo) {
-      updateStatus('Please create a connection first');
-      return;
-    }
-    
-    if (!message.trim()) {
-      updateStatus('Please enter a message');
-      return;
-    }
-
-    // Use speakMessage for consistency
-    speakMessage(message);
-  };
-
   /**
    * Interrupts the avatar's current speech
    */
@@ -319,7 +311,6 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
         });
 
         if (interruptResponse.ok) {
-          setIsInterrupted(true);
           updateStatus('Avatar interrupted successfully (using interrupt endpoint)');
           return;
         }
@@ -349,7 +340,7 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
       }
 
       if (success) {
-        setIsInterrupted(true);
+        updateStatus('Avatar interrupted successfully');
       } else {
         updateStatus('Failed to interrupt avatar - all methods failed');
       }
@@ -362,7 +353,7 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
   };
 
   /**
-   * Closes the WebRTC connection and terminates the session
+   * Closes the WebRTC connection and terminates the session (manual stop)
    */
   const stopSession = async () => {
     if (!sessionInfo) {
@@ -372,6 +363,39 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
 
     updateStatus('Stopping session... please wait');
     
+    // Set manual stop flag to prevent automatic restart
+    setUserStoppedManually(true);
+    
+    await terminateSessionInternal();
+  };
+
+  /**
+   * Closes the WebRTC connection and terminates the session (automatic stop)
+   */
+  const stopSessionAutomatic = async () => {
+    if (!sessionInfo) {
+      return;
+    }
+
+    updateStatus('Stopping session... please wait');
+    
+    // Don't set manual stop flag for automatic stops
+    await terminateSessionInternal();
+  };
+
+  /**
+   * Manually restarts the session (clears the manual stop flag)
+   */
+  const restartSession = async () => {
+    setUserStoppedManually(false);
+    setInitializationFailed(false); // Also reset initialization failure
+    // The useEffect will automatically start the session when userStoppedManually becomes false
+  };
+
+  /**
+   * Internal function to handle session termination
+   */
+  const terminateSessionInternal = async () => {
     try {
       const apiConfigured = await getAPI();
       if (!apiConfigured) return;
@@ -546,10 +570,18 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
    * Renders video frames to canvas with green screen removal
    */
   const renderCanvas = () => {
-    if (!canvasElementRef.current || !mediaElementRef.current) return;
+    if (!canvasElementRef.current || !mediaElementRef.current) {
+      console.log('renderCanvas: Missing canvas or media element');
+      return;
+    }
 
     const canvas = canvasElementRef.current;
     const mediaElement = mediaElementRef.current;
+    
+    console.log('renderCanvas: Starting canvas rendering');
+    
+    // Ensure canvas is visible
+    canvas.style.display = 'block';
     canvas.classList.add('show');
 
     // Generate unique ID to track this specific render process
@@ -569,10 +601,51 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
     const processFrame = () => {
       if (curRenderID !== renderIdRef.current) return; // Stop if another render started
 
-      canvas.width = mediaElement.videoWidth;
-      canvas.height = mediaElement.videoHeight;
+      // Check if video is ready
+      if (mediaElement.readyState < 2) {
+        requestAnimationFrame(processFrame);
+        return;
+      }
 
-      ctx.drawImage(mediaElement, 0, 0, canvas.width, canvas.height);
+      // Keep canvas dimensions to match avatar's actual width
+      const fixedWidth = 400;
+      const fixedHeight = 600;
+      
+      canvas.width = fixedWidth;
+      canvas.height = fixedHeight;
+
+      // Calculate scaling to fit video into canvas while maintaining aspect ratio
+      const videoWidth = mediaElement.videoWidth || fixedWidth;
+      const videoHeight = mediaElement.videoHeight || fixedHeight;
+      
+      // Skip if video dimensions are not available
+      if (videoWidth === 0 || videoHeight === 0) {
+        requestAnimationFrame(processFrame);
+        return;
+      }
+      
+      // Use a smaller scale to make the avatar appear smaller within the canvas
+      const scale = Math.max(fixedWidth / videoWidth, fixedHeight / videoHeight) * 0.93; // 93% of original size
+      const scaledWidth = videoWidth * scale;
+      const scaledHeight = videoHeight * scale;
+      
+      // Center the video in the canvas
+      const offsetX = (fixedWidth - scaledWidth) / 2;
+      const offsetY = (fixedHeight - scaledHeight) / 2;
+
+      // Clear canvas first
+      ctx.clearRect(0, 0, fixedWidth, fixedHeight);
+      
+      // Draw video frame
+      try {
+        ctx.drawImage(mediaElement, offsetX, offsetY, scaledWidth, scaledHeight);
+      } catch (error) {
+        console.log('Error drawing video frame:', error);
+        requestAnimationFrame(processFrame);
+        return;
+      }
+      
+      // Apply green screen removal
       ctx.getContextAttributes().willReadFrequently = true;
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
@@ -623,14 +696,23 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
 
   // Effect to manage avatar session lifecycle
   useEffect(() => {
-    if (isActive && !isSessionActive && !isStartingSessionRef.current) {
-      // Auto-start session when component becomes active
+    if (isActive && !isSessionActive && !isStartingSessionRef.current && !userStoppedManually) {
+      // Auto-start session when component becomes active (only if user hasn't manually stopped)
       startSession();
     } else if (!isActive && isSessionActive) {
-      // Auto-stop session when component becomes inactive
-      stopSession();
+      // Auto-stop session when component becomes inactive (but don't set manual stop flag)
+      stopSessionAutomatic();
     }
-  }, [isActive, isSessionActive]);
+  }, [isActive, isSessionActive, userStoppedManually]);
+
+  // Effect to reset manual stop flag when component becomes inactive then active again
+  useEffect(() => {
+    if (!isActive) {
+      // Reset manual stop flag when component becomes inactive
+      // This allows the session to restart when component becomes active again
+      setUserStoppedManually(false);
+    }
+  }, [isActive]);
 
   // Effect to handle volume changes
   useEffect(() => {
@@ -650,147 +732,307 @@ const Avatar2 = ({ isActive = false, textToSpeak = '' }) => {
         renderCanvas();
       };
 
+      const handleCanPlay = () => {
+        setMediaCanPlay(true);
+        // Also trigger canvas rendering when video can play
+        renderCanvas();
+      };
+
+      const handlePlaying = () => {
+        // Ensure canvas rendering starts when video is actually playing
+        renderCanvas();
+      };
+
       mediaElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+      mediaElement.addEventListener('canplay', handleCanPlay);
+      mediaElement.addEventListener('playing', handlePlaying);
+      
       return () => {
         mediaElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        mediaElement.removeEventListener('canplay', handleCanPlay);
+        mediaElement.removeEventListener('playing', handlePlaying);
       };
     }
-  }, []);
+  }, [sessionInfo]); // Add sessionInfo dependency to re-setup when session changes
+
+  // Prepare UI states
+  const isInitializing = !sessionInfo && isActive && !initializationFailed && !userStoppedManually;
+  const showFallbackUI = initializationFailed || userStoppedManually;
+  
+  // If not active, render nothing
+  if (!isActive) {
+    return null;
+  }
+  
+  // Fallback UI when avatar can't be initialized or user stopped manually
+  if (showFallbackUI) {
+    const fallbackMessage = userStoppedManually ? 
+      'You sent vega for tea.' : 
+      'Vega has gone on a tea break.';
+    
+    const fallbackSubtext = userStoppedManually ?
+      'Click Start to call her back.' :
+      'Please chat with the copilot for assistance. (You can still use the mic to talk)';
+
+    return (
+      <div className="Avatar-component">
+        <div className="avatar-container">
+          <div style={{ 
+            position: 'relative',
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            maxWidth: '300px', // Match the avatar section width
+            // height: 'fit-content',
+            // maxHeight: '420px',
+            minHeight: '560px',
+            color: 'white',
+            padding: '20px 15px',
+            textAlign: 'center',
+            background: 'linear-gradient(180deg, #244D52, #1A3A3F, #0F2426)',
+            borderRadius: '8px',
+            alignSelf: 'center',
+          }}>
+            <div style={{ 
+              backgroundColor: '#53C1DE', 
+              borderRadius: '50%', 
+              width: '70px', 
+              height: '70px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '15px',
+              flexShrink: 0
+            }}>
+              <img src={userStoppedManually ? '/tea-logo.png' : '/tea-logo.png'} style={{width: '50px', height: '70px'}}/>
+            </div>
+            <h3 style={{ marginBottom: '12px', color:'snow', fontSize: '16px', whiteSpace: 'nowrap' }}>
+              {fallbackMessage}
+            </h3>
+            <p style={{ marginBottom: '20px', opacity: 0.8, fontSize: '14px', color:'snow', textAlign: 'center' }}>
+              {fallbackSubtext}
+            </p>
+            
+            {/* Show Start button when user stopped manually */}
+            {userStoppedManually && (
+              <button
+                className="avatar-start-button"
+                onClick={restartSession}
+                disabled={isStartingSessionRef.current}
+                style={{ 
+                  marginTop: '10px',
+                  padding: '8px 20px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                {isStartingSessionRef.current ? 'Starting...' : 'Start'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="avatar-container">
-      <div className="avatar-section">
-        <div className="video-container">
-          <video
-            ref={mediaElementRef}
-            autoPlay
-            playsInline
-            style={{ display: 'none' }}
-          />
-          <canvas
-            ref={canvasElementRef}
-            className="avatar-canvas"
-            width={512}
-            height={512}
-            style={{ 
-              display: 'block',
-              width: '100%',
-              height: '100%',
-              maxWidth: '100%',
-              maxHeight: '100%',
-              objectFit: 'contain',
-              border: '2px solid #ddd',
-              borderRadius: '8px'
-            }}
-          />
-        </div>
-        
-        {/* Volume Control and Interrupt Button - Below Video - Using Avatar.jsx styling */}
-        <div className="avatar-controls">
-          <div className="avatar-volume-control">
-            <span className="volume-label">Volume:</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-            />
-            <span className="volume-value">{Math.round(volume * 100)}%</span>
-          </div>
-          
-          <button
-            className="avatar-interrupt-button"
-            onClick={interruptHandler}
-            disabled={!isSessionActive || isInterrupting}
-          >
-            {isInterrupting ? '...' : 'Stop'}
-          </button>
-        </div>
-        
-        {/* Manual Session Controls - Only show when not used as controlled component */}
-        {!isActive && (
-          <div className="session-controls">
-            <button 
-              className="start-button"
-              onClick={startSession} 
-              disabled={isSessionActive}
-              style={{ 
-                backgroundColor: isSessionActive ? '#ccc' : '#4CAF50',
+    <div className="Avatar-component">
+      <div className="avatar-container">
+        <div className="avatar-section" style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          maxWidth: '280px', // Reduced to match smaller canvas with some padding
+          maxHeight: '450px'
+        }}>
+          <div className="video-container" style={{
+            position: 'relative',
+            width: '100%',
+            height: 'fit-content',
+            maxHeight: '390px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden', // Hide overflow to prevent cut-off appearance
+            borderRadius: '8px'
+          }}>
+            {/* Loading overlay */}
+            {isInitializing && (
+              <div className="avatar-loading" style={{ 
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px', 
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', 
                 color: 'white',
-                padding: '10px 20px',
-                marginRight: '10px',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isSessionActive ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {isSessionActive ? '✅ Session Active' : '🎬 Start Session'}
-            </button>
+                zIndex: 10
+              }}>
+                <div className="avatar-spinner"></div>
+                <div style={{color: 'snow'}}>Initializing Avatar...</div>
+              </div>
+            )}
             
-            <button 
-              className="stop-button"
-              onClick={stopSession} 
-              disabled={!isSessionActive}
+            <video
+              ref={mediaElementRef}
+              autoPlay
+              playsInline
+              style={{ display: 'none' }}
+            />
+            <canvas
+              ref={canvasElementRef}
+              className="avatar-canvas"
+              width={400}
+              height={400}
               style={{ 
-                backgroundColor: !isSessionActive ? '#ccc' : '#f44336',
-                color: 'white',
-                padding: '10px 20px',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: !isSessionActive ? 'not-allowed' : 'pointer'
+                display: 'block',
+                width: '220px',
+                height: '350px',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'cover', // Use cover to fill the container and show full avatar
+                border: '2px solid #ddd',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(0, 0, 0, 0.1)'
               }}
-            >
-              🛑 Stop Session
-            </button>
-          </div>
-        )}
-        
-        {/* Manual Text Input - Only show when not used as controlled component */}
-        {!isActive && (
-          <div className="text-input-section">
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              Message:
+            />
+            
+            {/* Volume Control - Overlaid at bottom of avatar */}
+            <div className="avatar-volume-control" style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(0, 0, 0, 0.7)',
+              padding: '4px 12px',
+              borderRadius: '16px',
+              color: 'white',
+              fontSize: '12px',
+              zIndex: 5
+            }}>
+              <span className="volume-label">Volume:</span>
               <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Enter message for avatar"
-                disabled={!isSessionActive}
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={(e) => setVolume(parseFloat(e.target.value))}
                 style={{
-                  padding: '8px',
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  minWidth: '300px',
-                  backgroundColor: !isSessionActive ? '#f5f5f5' : 'white'
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && isSessionActive) {
-                    repeatHandler();
-                  }
+                  width: '80px',
+                  height: '4px',
+                  background: '#ddd',
+                  borderRadius: '2px',
+                  outline: 'none',
+                  cursor: 'pointer'
                 }}
               />
-            </label>
-            
-            <button
-              className="speak-button"
-              onClick={repeatHandler}
-              disabled={!isSessionActive || !message.trim()}
-              style={{ 
-                backgroundColor: (!isSessionActive || !message.trim()) ? '#ccc' : '#2196F3',
-                color: 'white',
-                padding: '8px 16px',
-                marginLeft: '10px',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: (!isSessionActive || !message.trim()) ? 'not-allowed' : 'pointer'
-              }}
-            >
-              🗣️ Repeat
-            </button>
+              <span className="volume-value">{Math.round(volume * 100)}%</span>
+            </div>
           </div>
-        )}
+          
+          {/* Buttons - Below Avatar */}
+          <div className="avatar-button-group" style={{
+            display: 'flex',
+            gap: '8px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            maxWidth: '260px', // Match the avatar section width
+            marginTop: '10px',
+            flexWrap: 'wrap'
+          }}>
+            {/* Show Interrupt button only when session is active */}
+            {isSessionActive && (
+              <button
+                className="avatar-interrupt-button"
+                onClick={interruptHandler}
+                disabled={isInterrupting}
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '80px',
+                  maxWidth: '100px',
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                {isInterrupting ? '...' : 'Interrupt'}
+              </button>
+            )}
+            
+            {/* Show Stop button when session is active */}
+            {isSessionActive && (
+              <button
+                className="avatar-stop-button"
+                onClick={stopSession}
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '80px',
+                  maxWidth: '100px',
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #dc3545 0%, #e91e63 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                Stop
+              </button>
+            )}
+            
+            {/* Show Start button when session is not active and not manually stopped */}
+            {!isSessionActive && !userStoppedManually && (
+              <button
+                className="avatar-start-button"
+                onClick={restartSession}
+                disabled={isStartingSessionRef.current}
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '100px',
+                  maxWidth: '140px',
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                {isStartingSessionRef.current ? 'Starting...' : 'Start'}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

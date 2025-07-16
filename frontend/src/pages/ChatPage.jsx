@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import ReactMarkdown from 'react-markdown';
-import VoiceToText from '../components/voicetotext';
-import Avatar from '../components/avatar'; // Import Avatar component
-import ChatSuggestions from '../components/ChatSuggestions'; // Import ChatSuggestions component
+import VoiceToText from '../components/voicetotext.jsx';
+import ChatSuggestions from '../components/ChatSuggestions.jsx'; // Import ChatSuggestions component
 import auth from '../utils/auth.js'; // Import auth utility
 import './chatPageLayout.css';
 import '../components/chatSuggestionsLayout.css';
-import Topbar from '../components/topBar';
-import Sidebar from '../components/sideBar';
+import Topbar from '../components/topBar.jsx';
+import Sidebar from '../components/sideBar.jsx';
+import Avatar2 from '../components/avatar2.jsx';
 
 function ChatPage() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
@@ -207,27 +207,27 @@ function ChatPage() {
     }
   };
 
-  // Function to prepare text for speech (fallback function)
-  const prepareTextForSpeech = (text) => {
-    // This function is now mainly used as a fallback when backend doesn't provide avatarText
-    // Remove code blocks that aren't suitable for speech
-    let speechText = text.replace(/```[\s\S]*?```/g, 'I\'ve included some code in my response. Please check the chat for details.');
+  // // Function to prepare text for speech (fallback function)
+  // const prepareTextForSpeech = (text) => {
+  //   // This function is now mainly used as a fallback when backend doesn't provide avatarText
+  //   // Remove code blocks that aren't suitable for speech
+  //   let speechText = text.replace(/```[\s\S]*?```/g, 'I\'ve included some code in my response. Please check the chat for details.');
     
-    // Remove markdown formatting that isn't suitable for speech
-    speechText = speechText.replace(/\*\*(.*?)\*\*/g, '$1'); // Bold
-    speechText = speechText.replace(/\*(.*?)\*/g, '$1');     // Italic
-    speechText = speechText.replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Links
+  //   // Remove markdown formatting that isn't suitable for speech
+  //   speechText = speechText.replace(/\*\*(.*?)\*\*/g, '$1'); // Bold
+  //   speechText = speechText.replace(/\*(.*?)\*/g, '$1');     // Italic
+  //   speechText = speechText.replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Links
     
-    // Convert bullet points to spoken sentences
-    speechText = speechText.replace(/- (.*?)(?:\n|$)/g, '$1. ');
+  //   // Convert bullet points to spoken sentences
+  //   speechText = speechText.replace(/- (.*?)(?:\n|$)/g, '$1. ');
     
-    // Limit length to avoid very long speeches
-    if (speechText.length > 500) {
-      speechText = speechText.substring(0, 500) + ". I've provided more details in the chat.";
-    }
+  //   // Limit length to avoid very long speeches
+  //   if (speechText.length > 500) {
+  //     speechText = speechText.substring(0, 500) + ". I've provided more details in the chat.";
+  //   }
     
-    return speechText;
-  };
+  //   return speechText;
+  // };
 
   // Effect to auto-scroll messages
   useEffect(() => {
@@ -262,14 +262,10 @@ function ChatPage() {
     console.log('ChatPage: Activating avatar...');
     setIsAvatarActive(true);
     
-    // Add a slight delay before speaking welcome message to allow avatar to initialize
-    const timer = setTimeout(() => {
-      setAvatarTextToSpeak("Hi there! I'm your AI Copilot. How can I assist you today?");
-    }, 2000);
+    // No welcome message - just activate the avatar
     
     return () => {
       console.log('ChatPage: Unmounting - deactivating avatar...');
-      clearTimeout(timer);
       setIsAvatarActive(false);
       
       // Log after a short delay to confirm state change propagation
@@ -286,7 +282,7 @@ function ChatPage() {
     <div className="chat-container">
       <div className="chat-left" >
         <div className="avatar-full-rectangle">
-          <Avatar 
+          <Avatar2 
             isActive={isAvatarActive}
             textToSpeak={avatarTextToSpeak}
           />
