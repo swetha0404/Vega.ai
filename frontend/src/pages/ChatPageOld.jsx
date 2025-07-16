@@ -11,7 +11,7 @@ import Topbar from '../components/topBar.jsx';
 import Sidebar from '../components/sideBar.jsx';
 
 function ChatPageOld() {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   
   // Check authentication on component mount
   useEffect(() => {

@@ -2,16 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import ReactMarkdown from 'react-markdown';
 import VoiceToText from '../components/voicetotext.jsx';
-import ChatSuggestions from '../components/ChatSuggestions.jsx'; // Import ChatSuggestions component
-import auth from '../utils/auth.js'; // Import auth utility
+import ChatSuggestions from '../components/ChatSuggestions.jsx'; 
+import auth from '../utils/auth.js';
 import './chatPageLayout.css';
 import '../components/chatSuggestionsLayout.css';
 import Topbar from '../components/topBar.jsx';
 import Sidebar from '../components/sideBar.jsx';
-import Avatar2 from '../components/avatar2.jsx';
+import Avatar from '../components/avatar.jsx';
 
 function ChatPage() {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   
   // Check authentication on component mount
   useEffect(() => {
@@ -282,7 +282,7 @@ function ChatPage() {
     <div className="chat-container">
       <div className="chat-left" >
         <div className="avatar-full-rectangle">
-          <Avatar2 
+          <Avatar
             isActive={isAvatarActive}
             textToSpeak={avatarTextToSpeak}
           />
