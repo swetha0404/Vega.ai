@@ -11,29 +11,18 @@
   color: black;
 }
 
-.main {
+/* =================
+   AVATAR COMPONENT
+   ================= */
+.Avatar-component {
+  width: 100%;
+  height: fit-content;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.actionRowsWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.actionRow {
-  display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.actionRow label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* =================
@@ -42,71 +31,50 @@
 .avatar-container {
   position: relative;
   width: 100%;
-  height: auto;
-  max-height: 420px;
-  overflow: visible;
+  height: fit-content;
+  max-height: 100%;
+  overflow: hidden;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
 }
 
-.avatar-container button {
-  margin-left: 8px;
-  display: inline-block;
-  padding: 0 12px;
-  height: 40px;
-  /* background: linear-gradient(180deg, #53C1DE, #00C2FF); */
-  border: none;
-  color: #fff;
-  text-align: center;
-  font-size: 0.8em;
-  transition-duration: 0.4s;
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  height: fit-content;
 }
 
-.avatar-container input {
-  height: 40px;
-  padding: 0 12px;
-  background-color: white;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.video-container {
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#status {
-  overflow: auto;
-  background-color: #fff;
-  height: 120px;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
+.avatar-canvas {
   border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.6;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 200px;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
-/* =================
-   AVATAR STATUS
-   ================= */
-.avatar-status {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background-color: rgba(72, 132, 200, 0.7);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.avatar-status.visible {
-  opacity: 1;
-}
-
-.avatar-status.error {
-  background-color: rgba(220, 53, 69, 0.8);
+.avatar-video-container {
+  position: relative;
+  border-radius: 8px;
+  height: 420px;
+  max-width: 95%;
+  margin: 0 auto;
 }
 
 /* =================
@@ -141,163 +109,34 @@
   margin-bottom: 10px;
 }
 
-
-/* =================
-   AVATAR BACKGROUNDS
-   ================= */
-.avatar-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  z-index: 1;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-}
-
-/* Office background images */
-.avatar-background.office-bg-1 {
-  background-image: url('/backgrounds/Office_Background.gif');
-}
-
-.avatar-background.office-bg-2 {
-  background-image: url('/backgrounds/office_window.gif');
-}
-
-.avatar-background.office-bg-3 {
-  background-image: url('/backgrounds/Office_work_background.gif');
-}
-
-/* Background selector */
-.bg-thumbnail {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s ease;
-  background-size: cover;
-  background-position: center;
-}
-
-.bg-thumbnail.active {
-  border-color: #1de9b6;
-  transform: scale(1.1);
-}
-
-.bg-selector-container {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 10;
-  display: flex;
-  gap: 8px;
-  padding: 5px;
-  background-color: rgba(72, 132, 200, 0.5);
-  border-radius: 20px;
-}
-
-/* =================
-   AVATAR VIDEO
-   ================= */
-.avatar-video {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-  z-index: 2;
-  background-color: transparent;
-}
-
-/* Chroma key effect for the video */
-.avatar-video.chroma-key {
-  background-color: transparent !important;
-  mix-blend-mode: screen;
-}
-
-.avatar-video-container {
-  /* width: 100%; */
-  position: relative;
-
-  border-radius: 8px;
-  height: 420px;
-  /* height: auto; */
-  max-width: 95%;
-  margin: 0 auto;
-}
-
-.videoSectionWrap {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.actionRow.switchRow {
-  width: 100%;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.switchRow > label {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.switchRow > label input {
-  flex: 1;
-  max-width: 400px;
-}
-
-.videoSectionWrap .videoWrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.videoWrap .videoEle {
-  width: 100%;
-  height: auto;
-  max-width: 100%;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* =================
    AVATAR CONTROLS
    ================= */
 .avatar-controls {
-  position: absolute;
-  top: 90%;
-  left: -28%;
+  position: relative;
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
   border-radius: 8px;
-  width: 100%;
-  max-width: 100%;
-  min-height: 70px;
-  margin: 0 auto;
-  flex-wrap: nowrap;
+  margin-top: 8px;
+  padding: 10px;
+  gap: 12px;
+  /* background-color: rgba(72, 132, 200, 0.1); */
 }
 
 /* Volume Control */
 .avatar-volume-control {
   display: flex;
   align-items: center;
-  width: 60%;
-  margin-right: 15px;
-}
-
-.avatar-volume-control span {
-  color: white;
-  font-size: 12px;
+  justify-content: center;
+  width: 90%;
+  gap: 10px;
 }
 
 .avatar-volume-control .volume-label {
@@ -305,21 +144,38 @@
   min-width: 45px;
   color: white;
   font-family: 'Orbitron', 'sans-serif';
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .avatar-volume-control .volume-value {
   margin-left: 6px;
   width: 30px;
   text-align: right;
+  color: lightgray;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .avatar-volume-control input[type="range"] {
   flex: 1;
   height: 5px;
-  background: transparent;
+  background: #1de9b6;
   border-radius: 3px;
   outline: none;
   margin-right: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.avatar-volume-control input[type="range"]::-webkit-slider-track {
+  width: 100%;
+  height: 5px;
+  background: #1de9b6;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .avatar-volume-control input[type="range"]::-webkit-slider-thumb {
@@ -337,6 +193,7 @@
   height: 5px;
   background: #1de9b6;
   border-radius: 3px;
+  border: none;
 }
 
 .avatar-volume-control input[type="range"]::-moz-range-thumb {
@@ -344,31 +201,38 @@
   height: 14px;
   border: none;
   border-radius: 50%;
-  color: #1de9b6;
+  background: #1de9b6;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Button Group */
+.avatar-button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 /* Interrupt Button */
 .avatar-interrupt-button {
-  position: absolute;
-  padding: 6px 12px;
-  min-width: 40px;
-  left: 109%;
+  padding: 8px 16px;
   background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
-  color: #000;
+  color: white;
   border: none;
   border-radius: 20px;
   font-weight: bold;
-  font-size: 0.3em;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  font-family: 'OrbitronBold', sans-serif;
+  font-family: 'Orbitron', sans-serif;
+  margin-left: 8px;
 }
 
-.avatar-interrupt-button:hover {
-  background-color: #4884c8 !important;
+.avatar-interrupt-button:hover:not(:disabled) {
+  background: #4884c8;
   transform: translateY(-1px);
   box-shadow: 0 3px 5px rgba(0,0,0,0.2);
   opacity: 0.9;
@@ -381,137 +245,152 @@
   transform: none;
 }
 
-/* Override for Avatar Controls */
-/* .avatar-container {
-  margin-left: 65px;
-  background: linear-gradient(145deg, #244D52, #fff, #53C1DE) !important; 
-  background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52) !important;
-  color: white !important;
-  font-family: 'OrbitronBold', sans-serif !important;
-} */
+/* Stop Session Button */
+.avatar-stop-button {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  font-family: 'Orbitron', sans-serif;
+  margin-left: 8px;
+}
 
-.avatar-container .avatar-controls button:disabled {
-  background-color: #666 !important;
+.avatar-stop-button:hover:not(:disabled) {
+  background: #4884c8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+  opacity: 0.9;
+}
+
+.avatar-stop-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Button Container */
+.avatar-button-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Start Button */
+.avatar-start-button {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4CAF50, #45A049, #2E7D32);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.avatar-start-button:hover:not(:disabled) {
+  background: #45A049;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+  opacity: 0.9;
+}
+
+.avatar-start-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 /* =================
-   SWITCHES
+   SESSION CONTROLS
    ================= */
-.switchWrap {
+.session-controls {
   display: flex;
   justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.start-button, .stop-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.start-button:hover:not(:disabled), .stop-button:hover:not(:disabled) {
+  opacity: 0.8;
+}
+
+.start-button:disabled, .stop-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* =================
+   TEXT INPUT SECTION
+   ================= */
+.text-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.text-input-section label {
+  display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: relative;
+.speak-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: transparent;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
+  transition: background-color 0.2s;
 }
 
-.slider:before {
-  position: relative;
-  content: '';
-  height: 20px;
-  width: 20px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
+.speak-button:hover:not(:disabled) {
+  opacity: 0.8;
 }
 
-input:checked + .slider {
-  background-color: #4884c8;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #4884c8;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
+.speak-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* =================
    UTILITY CLASSES
    ================= */
-.videoSectionWrap .hide, .hide {
+.hide {
   display: none;
 }
 
-.videoSectionWrap .show, .show {
+.show {
   display: flex;
 }
 
-.Avatar-component {
-  width: 90%;
-  min-height: 525px;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  max-width: 100%;
-}
-
-/* =================
-   RESPONSIVE STYLES
-   ================= */
-@media screen and (max-width: 400px) {
-  .avatar-video-container,
-  .avatar-controls,
-  .Avatar-component,
-  .videoWrap .videoEle {
-    width: 100%;
-    max-width: 349px;
-  }
-  
-  .videoWrap .videoEle {
-    height: auto;
-    aspect-ratio: 349 / 254;
-  }
-}
-
-@media screen and (max-width: 350px) {
-  .avatar-volume-control {
-    width: 50%;
-    margin-right: 5px;
-  }
-  
-  .avatar-volume-control .volume-label {
-    min-width: 30px;
-    margin-right: 5px;
-    font-size: 10px;
-    color: white;
-  }
+.hidden {
+  display: none;
 }

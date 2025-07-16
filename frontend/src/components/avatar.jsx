@@ -1,21 +1,44 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './avatarLayout.css';
 
-function Avatar({ isActive = false, textToSpeak = '' }) {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
-  // HeyGen API configuration - in a production app, this would be fetched securely from backend
-  const heygen_API = {
-    apiKey: '',
-    serverUrl: 'https://api.heygen.com', // Default URL until actual value is fetched
-    isConfigured: false
-  };
-  
-  // Store API fetch promise to prevent multiple simultaneous calls
-  // Using useRef for apiPromise to persist across renders and prevent issues with StrictMode
+const Avatar = ({ isActive = false, textToSpeak = '' }) => {
+  // State variables
+  const [sessionInfo, setSessionInfo] = useState(null);
+  const [mediaCanPlay, setMediaCanPlay] = useState(false);
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [initializationFailed, setInitializationFailed] = useState(false);
+  const [userStoppedManually, setUserStoppedManually] = useState(false); // Track manual stops
+  const [volume, setVolume] = useState(1.0); // Default volume at 100%
+  const [isInterrupting, setIsInterrupting] = useState(false); // Track if interruption is in progress
+
+  const mediaElementRef = useRef(null);
+  const canvasElementRef = useRef(null);
+  const peerConnectionRef = useRef(null);
+  const renderIdRef = useRef(0);
+  const dataChannelRef = useRef(null);
   const apiPromiseRef = useRef(null);
   const previousTextRef = useRef('');
-  const sessionIdRef = useRef(null);
-  
+  const isStartingSessionRef = useRef(false); // Prevent multiple session starts
+
+  // Default avatar and voice configuration
+  const defaultAvatarId = 'Alessandra_ProfessionalLook2_public';
+  const defaultVoiceId = null; // Use null to let avatar use its default voice
+
+  // API configuration
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Backend server URL
+  const heygen_API = {
+    apiKey: '',
+    serverUrl: 'https://api.heygen.com',
+    isConfigured: false
+  };
+
+  // Background image from public/backgrounds folder
+  const defaultBackground = 'url("backgrounds/office_window.gif") center / cover no-repeat';
+
+  const updateStatus = (message) => {
+    console.log(`Avatar: ${message}`);
+  };
+
   const getAPI = async () => {
     // If already configured, return immediately
     if (heygen_API.isConfigured) {
@@ -30,8 +53,6 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
     // Start a new fetch and store the promise
     apiPromiseRef.current = (async () => {
       try {
-        console.log('Avatar: Fetching HeyGen API configuration from backend');
-
         const response = await fetch(`${API_BASE}/heygenAPI`, {
           method: 'GET',
           headers: {
@@ -65,7 +86,6 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
         }
         
         heygen_API.isConfigured = true;
-        console.log('Avatar: HeyGen API configuration updated:', heygen_API.serverUrl);
         
         return true;
       } catch (error) {
@@ -81,40 +101,147 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
     return apiPromiseRef.current;
   };
 
-
-  // State management
-  // const [status, setStatus] = useState('Initializing avatar...');
-  const [sessionInfo, setSessionInfo] = useState(null);
-  const [peerConnection, setPeerConnection] = useState(null);
-  const [mediaCanPlay, setMediaCanPlay] = useState(false);
-  const [renderID, setRenderID] = useState(0);
-  const [initializationFailed, setInitializationFailed] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [isClosingSession, setIsClosingSession] = useState(false);
-  const [volume, setVolume] = useState(1.0); // Default volume at 100%
-  const [isInterrupting, setIsInterrupting] = useState(false); // Track if interruption is in progress
-
-  const mediaElementRef = useRef(null);
-  const cleanupAttemptedRef = useRef(false);
-
-  // More controlled status updates with less logging
-  const updateStatus = (message) => {
-    // Only log significant state changes
-    if (message.includes('Creating session') || 
-        message.includes('Session created') || 
-        message.includes('Speaking') ||
-        message.includes('Error') ||
-        message.includes('Closing')) {
-      console.log(`Avatar: ${message}`);
-    }
-    // setStatus(message);
+  /**
+   * Callback for handling data messages received through WebRTC data channel
+   */
+  const onMessage = (event) => {
+    // Silently handle data channel messages - no need to log them
   };
-  
-  // Simplified helper function to speak a message - defined early to avoid reference errors
-  const speakMessage = useCallback((message) => {
-    if (!sessionInfo?.session_id || isClosingSession) return;
+
+  /**
+   * Creates a new WebRTC session with HeyGen's streaming avatar service
+   * Now combines session creation and starting into one step
+   */
+  const startSession = async () => {
+    // Prevent multiple simultaneous session starts
+    if (isStartingSessionRef.current) {
+      console.log('Avatar: Session start already in progress, skipping');
+      return;
+    }
     
-    console.log(`Avatar: Speaking message (session ${sessionInfo.session_id})`);
+    isStartingSessionRef.current = true;
+    updateStatus('Starting session... please wait');
+
+    try {
+      const apiConfigured = await getAPI();
+      if (!apiConfigured) {
+        updateStatus('❌ Failed to configure API');
+        setInitializationFailed(true);
+        return;
+      }
+
+      updateStatus('✅ API configured successfully');
+      updateStatus(`Creating session with avatar: ${defaultAvatarId}`);
+
+      // Create session with default avatar and voice
+      const sessionData = await newSession('low', defaultAvatarId, defaultVoiceId);
+      
+      if (!sessionData) {
+        throw new Error('Failed to create session - no data returned');
+      }
+
+      setSessionInfo(sessionData);
+      updateStatus('✅ Session created successfully');
+      
+      // Check if we have the required properties
+      if (!sessionData.sdp || !sessionData.ice_servers2) {
+        console.error('Missing required session data:', sessionData);
+        throw new Error('Invalid session data structure');
+      }
+
+      const { sdp: serverSdp, ice_servers2: iceServers } = sessionData;
+
+      // Create a new WebRTC peer connection with ICE servers from HeyGen
+      peerConnectionRef.current = new RTCPeerConnection({ iceServers: iceServers });
+
+      // When audio and video streams are received from HeyGen, display them in the video element
+      peerConnectionRef.current.ontrack = (event) => {
+        updateStatus('✅ Video track received');
+        console.log('Video track received:', event.track.kind, event.streams[0]);
+        if (event.track.kind === 'audio' || event.track.kind === 'video') {
+          if (mediaElementRef.current) {
+            mediaElementRef.current.srcObject = event.streams[0];
+            // Trigger canvas rendering after a short delay to ensure video is ready
+            setTimeout(() => {
+              renderCanvas();
+            }, 100);
+          }
+        }
+      };
+
+      // When receiving a message, display it in the status element
+      peerConnectionRef.current.ondatachannel = (event) => {
+        const dataChannel = event.channel;
+        dataChannel.onmessage = onMessage;
+        dataChannelRef.current = dataChannel;
+      };
+
+      // Set server's SDP as remote description
+      const remoteDescription = new RTCSessionDescription(serverSdp);
+      await peerConnectionRef.current.setRemoteDescription(remoteDescription);
+      updateStatus('✅ Remote description set');
+
+      // Create and set local SDP description
+      const localDescription = await peerConnectionRef.current.createAnswer();
+      await peerConnectionRef.current.setLocalDescription(localDescription);
+      updateStatus('✅ Local description set');
+
+      // When ICE candidate is available, send to the server
+      peerConnectionRef.current.onicecandidate = ({ candidate }) => {
+        if (candidate) {
+          handleICE(sessionData.session_id, candidate.toJSON());
+        }
+      };
+
+      // When ICE connection state changes, display the new state
+      peerConnectionRef.current.oniceconnectionstatechange = () => {
+        updateStatus(`ICE connection state: ${peerConnectionRef.current.iceConnectionState}`);
+      };
+
+      // Start the streaming session with HeyGen
+      updateStatus('Starting streaming session...');
+      await startStreamingSession(sessionData.session_id, localDescription);
+
+      // Configure media receivers to adjust buffer size for smoother playback
+      const receivers = peerConnectionRef.current.getReceivers();
+      receivers.forEach((receiver) => {
+        receiver.jitterBufferTarget = 500; // Set buffer to 500ms to reduce stuttering
+      });
+
+      setIsSessionActive(true);
+      updateStatus('🎉 Session started successfully! You can now send messages to the avatar.');
+    } catch (error) {
+      console.error('Error starting session:', error);
+      updateStatus('❌ Error starting session: ' + error.message);
+      
+      // Mark initialization as failed
+      setInitializationFailed(true);
+      
+      // Clean up on error
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+      setSessionInfo(null);
+      setIsSessionActive(false);
+    } finally {
+      isStartingSessionRef.current = false;
+    }
+  };
+
+  // Simplified helper function to speak a message - defined early to avoid reference errors
+  const speakMessage = useCallback(async (message) => {
+    if (!sessionInfo?.session_id || !isSessionActive) {
+      return;
+    }
+    
+    // Ensure API is configured before speaking
+    const apiConfigured = await getAPI();
+    if (!apiConfigured || !heygen_API.apiKey) {
+      console.log('Avatar: Cannot speak - API not configured');
+      return;
+    }
+    
     updateStatus('Avatar speaking...');
     
     // Sanitize text to remove problematic characters
@@ -123,250 +250,546 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
       .trim()
       .substring(0, 900); // More conservative length limit
     
-    repeat(sessionInfo.session_id, sanitizedText)
-      .then(() => {
-        updateStatus('Avatar ready');
-      })
-      .catch(error => {
-        console.error(`Avatar: Speaking error:`, error.message);
-        updateStatus('Communication issue - please continue with text');
-      });
-  }, [sessionInfo, isClosingSession]);
+    try {
+      await repeat(sessionInfo.session_id, sanitizedText);
+      updateStatus('Avatar ready');
+    } catch (error) {
+      console.error(`Avatar: Speaking error:`, error.message);
+      updateStatus('Communication issue - please continue with text');
+    }
+  }, [sessionInfo, isSessionActive]);
 
-  // Cleanup session function - extracted for reuse
-  const cleanupSession = useCallback(async (sessionId = null) => {
-    const targetSessionId = sessionId || (sessionInfo && sessionInfo.session_id);
-    sessionIdRef.current = null;
-    
-    if (targetSessionId) {
-      setIsClosingSession(true);
-      updateStatus(`Closing avatar session ${targetSessionId}...`);
+  /**
+   * Interrupts current speech and speaks new text
+   */
+  const speakTextWithInterrupt = async (text) => {
+    if (!sessionInfo?.session_id || !text.trim()) {
+      console.log('Avatar: ❌ No session or empty text for speaking');
+      return;
+    }
+
+    try {
+      // First interrupt any current speech
+      console.log('Avatar: 🛑 Interrupting current speech for new message');
+      await interruptHandler();
       
-      // First close the peer connection
-      if (peerConnection) {
+      // Small delay to ensure interruption is processed, then speak
+      setTimeout(() => {
+        // console.log('Avatar: 🗣️ Speaking new text after interrupt:', text);
+        speakMessage(text);
+      }, 300); // Delay to ensure interrupt is processed
+    } catch (error) {
+      console.log(`Avatar: ❌ Error speaking text with interrupt: ${error.message}`);
+    }
+  };
+
+  /**
+   * Interrupts the avatar's current speech
+   */
+  const interruptHandler = async () => {
+    if (!sessionInfo) {
+      updateStatus('Please create a connection first');
+      return;
+    }
+
+    updateStatus('Interrupting avatar...');
+    setIsInterrupting(true);
+    
+    try {
+      const apiConfigured = await getAPI();
+      if (!apiConfigured) return;
+
+      // First try to use a dedicated interrupt endpoint if it exists
+      try {
+        const interruptResponse = await fetch(`${heygen_API.serverUrl}/v1/streaming.interrupt`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Key': heygen_API.apiKey,
+          },
+          body: JSON.stringify({ session_id: sessionInfo.session_id }),
+        });
+
+        if (interruptResponse.ok) {
+          updateStatus('Avatar interrupted successfully (using interrupt endpoint)');
+          return;
+        }
+      } catch (interruptError) {
+        console.log('Interrupt endpoint not available, trying alternative method');
+      }
+
+      // Fallback: Use task endpoint with minimal text
+      const interruptionMethods = [
+        ' ',           // Single space
+        '.',           // Single period
+        'stop',        // Stop command
+      ];
+
+      let success = false;
+      
+      for (const method of interruptionMethods) {
         try {
-          peerConnection.close();
-        } catch (err) {
-          console.error('Error closing WebRTC connection:', err);
+          await repeat(sessionInfo.session_id, method);
+          success = true;
+          updateStatus(`Avatar interrupted successfully (using text: "${method}")`);
+          break;
+        } catch (error) {
+          console.log(`Interrupt method "${method}" failed:`, error.message);
+          continue;
         }
       }
-      
-      // Reset UI state
-      setRenderID(prevID => prevID + 1);
-      setMediaCanPlay(false);
-      setPeerConnection(null);
-      setSessionInfo(null);
-      
-      // Ensure we close the session on the server
-      try {
-        console.log(`Avatar: Closing session ${targetSessionId}`);
-        await stopSession(targetSessionId);
-        console.log(`Avatar: Session ${targetSessionId} closed successfully`);
-      } catch (err) {
-        console.error(`Avatar: Failed to close session ${targetSessionId}:`, err.message);
-      } finally {
-        setIsClosingSession(false);
-        cleanupAttemptedRef.current = true;
-      }
-    }
-  }, [peerConnection, sessionInfo]);
-  
-  // Fetch API configuration when component mounts
-  useEffect(() => {
-    // Start fetching API config as soon as possible
-    if (isActive) {
-      getAPI().catch(err => {
-        console.error('Failed to pre-fetch HeyGen API configuration:', err);
-      });
-    }
-  }, [isActive]);
 
-  // Effect for handling session lifecycle based on isActive prop
-  useEffect(() => {
-    let isMounted = true;
-    cleanupAttemptedRef.current = false;
+      if (success) {
+        updateStatus('Avatar interrupted successfully');
+      } else {
+        updateStatus('Failed to interrupt avatar - all methods failed');
+      }
+    } catch (error) {
+      console.error('Error interrupting avatar:', error);
+      updateStatus('Error interrupting avatar: ' + error.message);
+    } finally {
+      setIsInterrupting(false);
+    }
+  };
+
+  /**
+   * Closes the WebRTC connection and terminates the session (manual stop)
+   */
+  const stopSession = async () => {
+    if (!sessionInfo) {
+      updateStatus('No active session to stop');
+      return;
+    }
+
+    updateStatus('Stopping session... please wait');
     
-    const setupSession = async () => {
-      // Don't attempt if already closing, failed too many times, or not active
-      if (!isActive || isClosingSession || (sessionInfo && sessionInfo.session_id) || 
-          initializationFailed || retryCount >= 2 || !isMounted) {
+    // Set manual stop flag to prevent automatic restart
+    setUserStoppedManually(true);
+    
+    await terminateSessionInternal();
+  };
+
+  /**
+   * Closes the WebRTC connection and terminates the session (automatic stop)
+   */
+  const stopSessionAutomatic = async () => {
+    if (!sessionInfo) {
+      return;
+    }
+
+    updateStatus('Stopping session... please wait');
+    
+    // Don't set manual stop flag for automatic stops
+    await terminateSessionInternal();
+  };
+
+  /**
+   * Manually restarts the session (clears the manual stop flag)
+   */
+  const restartSession = async () => {
+    setUserStoppedManually(false);
+    setInitializationFailed(false); // Also reset initialization failure
+    // The useEffect will automatically start the session when userStoppedManually becomes false
+  };
+
+  /**
+   * Internal function to handle session termination
+   */
+  const terminateSessionInternal = async () => {
+    try {
+      const apiConfigured = await getAPI();
+      if (!apiConfigured) return;
+
+      // Close local connection
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+      }
+      
+      // Call the close interface
+      await terminateSession(sessionInfo.session_id);
+      
+      // Reset state
+      setSessionInfo(null);
+      setIsSessionActive(false);
+      setMediaCanPlay(false);
+      renderIdRef.current++;
+      isStartingSessionRef.current = false; // Reset session starting flag
+      previousTextRef.current = ''; // Clear previous text
+      
+      updateStatus('Session stopped successfully');
+    } catch (error) {
+      console.error('Failed to stop the session:', error);
+      updateStatus('Error stopping session: ' + error.message);
+    }
+  };
+
+
+  /**
+   * Creates a new streaming session with HeyGen API
+   */
+  const newSession = async (quality, avatar_name, voice_id) => {
+    // Build the request body - only include voice if voice_id is provided
+    const requestBody = {
+      quality,
+      avatar_name,
+    };
+
+    // Only add voice configuration if voice_id is provided
+    if (voice_id) {
+      requestBody.voice = {
+        voice_id: voice_id,
+      };
+    }
+
+    console.log('Creating session with payload:', requestBody);
+
+    const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.new`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': heygen_API.apiKey,
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error:', response.status, errorText);
+      updateStatus(`Server Error (${response.status}): ${errorText}`);
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('newSession response:', data);
+    
+    if (!data || !data.data) {
+      throw new Error('Invalid response structure from HeyGen API');
+    }
+    
+    return data.data;
+  };
+
+  /**
+   * Starts a streaming session with HeyGen API
+   */
+  const startStreamingSession = async (session_id, sdp) => {
+    const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': heygen_API.apiKey,
+      },
+      body: JSON.stringify({ session_id, sdp }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('startStreamingSession error:', response.status, errorText);
+      updateStatus(`Start streaming error (${response.status}): ${errorText}`);
+      throw new Error(`Start streaming error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('startStreamingSession response:', data);
+    return data.data;
+  };
+
+  /**
+   * Sends ICE candidates to HeyGen's server for WebRTC connection
+   */
+  const handleICE = async (session_id, candidate) => {
+    const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.ice`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': heygen_API.apiKey,
+      },
+      body: JSON.stringify({ session_id, candidate }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('handleICE error:', response.status, errorText);
+      // Don't update status for ICE errors as they might be frequent
+      throw new Error(`ICE error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  };
+
+  /**
+   * Sends text for the avatar to speak
+   */
+  const repeat = async (session_id, text) => {
+    const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.task`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': heygen_API.apiKey,
+      },
+      body: JSON.stringify({ session_id, text }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('repeat error:', response.status, errorText);
+      updateStatus(`Repeat error (${response.status}): ${errorText}`);
+      throw new Error(`Repeat error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data;
+  };
+
+  /**
+   * Terminates a streaming session
+   */
+  const terminateSession = async (session_id) => {
+    const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.stop`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': heygen_API.apiKey,
+      },
+      body: JSON.stringify({ session_id }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('terminateSession error:', response.status, errorText);
+      updateStatus(`Stop session error (${response.status}): ${errorText}`);
+      throw new Error(`Stop session error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data;
+  };
+
+  /**
+   * Renders video frames to canvas with green screen removal
+   */
+  const renderCanvas = () => {
+    if (!canvasElementRef.current || !mediaElementRef.current) {
+      console.log('renderCanvas: Missing canvas or media element');
+      return;
+    }
+
+    const canvas = canvasElementRef.current;
+    const mediaElement = mediaElementRef.current;
+    
+    console.log('renderCanvas: Starting canvas rendering');
+    
+    // Ensure canvas is visible
+    canvas.style.display = 'block';
+    canvas.classList.add('show');
+
+    // Generate unique ID to track this specific render process
+    const curRenderID = Math.trunc(Math.random() * 1000000000);
+    renderIdRef.current = curRenderID;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    // Set background image
+    if (canvas.parentElement) {
+      canvas.parentElement.style.background = defaultBackground;
+    }
+
+    /**
+     * Process and render each video frame with background removal
+     */
+    const processFrame = () => {
+      if (curRenderID !== renderIdRef.current) return; // Stop if another render started
+
+      // Check if video is ready
+      if (mediaElement.readyState < 2) {
+        requestAnimationFrame(processFrame);
+        return;
+      }
+
+      // Keep canvas dimensions to match avatar's actual width
+      const fixedWidth = 400;
+      const fixedHeight = 600;
+      
+      canvas.width = fixedWidth;
+      canvas.height = fixedHeight;
+
+      // Calculate scaling to fit video into canvas while maintaining aspect ratio
+      const videoWidth = mediaElement.videoWidth || fixedWidth;
+      const videoHeight = mediaElement.videoHeight || fixedHeight;
+      
+      // Skip if video dimensions are not available
+      if (videoWidth === 0 || videoHeight === 0) {
+        requestAnimationFrame(processFrame);
         return;
       }
       
-      try {
-        updateStatus('Creating new session...');
-        setInitializationFailed(false);
-        
-        // First ensure API is configured
-        const apiConfigured = await getAPI();
-        if (!apiConfigured) {
-          throw new Error('Failed to initialize HeyGen API configuration');
-        }
-        
-        // Create session with hardcoded avatar (using default voice)
-        const avatar = 'Marianne_ProfessionalLook2_public';
-        const sessionData = await newSession('low', avatar);
-        
-        if (!isMounted) return;
-        setRetryCount(0); // Reset retry count on success
-        
-        // Store session ID for logging
-        sessionIdRef.current = sessionData.session_id;
-        console.log(`Avatar: New session created with ID: ${sessionData.session_id}`);
-        
-        const { sdp: serverSdp, ice_servers2: iceServers } = sessionData;
-        const connection = new RTCPeerConnection({ iceServers });
-
-        connection.ontrack = (event) => {
-          if (isMounted && mediaElementRef.current && event.streams[0]) {
-            mediaElementRef.current.srcObject = event.streams[0];
-          }
-        };
-
-        const remoteDescription = new RTCSessionDescription(serverSdp);
-        await connection.setRemoteDescription(remoteDescription);
-        
-        setPeerConnection(connection);
-        setSessionInfo(sessionData);
-        
-        updateStatus('Session created successfully');
-        
-        if (!isMounted) return;
-        
-        const localDescription = await connection.createAnswer();
-        await connection.setLocalDescription(localDescription);
-
-        connection.onicecandidate = ({ candidate }) => {
-          if (candidate && isMounted && sessionData.session_id) {
-            handleICE(sessionData.session_id, candidate.toJSON())
-              .catch(err => console.error('ICE candidate error:', err.message));
-          }
-        };
-
-        // Only log significant connection state changes to reduce noise
-        connection.oniceconnectionstatechange = () => {
-          if (isMounted && 
-             (connection.iceConnectionState === 'connected' || 
-              connection.iceConnectionState === 'disconnected' ||
-              connection.iceConnectionState === 'failed')) {
-            console.log(`Avatar: ICE connection state: ${connection.iceConnectionState}`);
-          }
-        };
-
-        await startSession(sessionData.session_id, localDescription);
-
-        updateStatus('Avatar ready');
-      } catch (error) {
-        if (!isMounted) return;
-        
-        // Simple error handling
-        updateStatus('Error initializing avatar');
-        console.error('Avatar initialization error:', error.message);
-        setRetryCount(prev => prev + 1);
-        
-        // Mark initialization as failed if this was our last retry
-        if (retryCount >= 1) {
-          setInitializationFailed(true);
-        }
-        
-        // Reset session state
-        setPeerConnection(null);
-        setSessionInfo(null);
-      }
-    };
-    
-    if (isActive) {
-      setupSession();
-    }
-
-    return () => {
-      isMounted = false;
+      // Use a smaller scale to make the avatar appear smaller within the canvas
+      const scale = Math.max(fixedWidth / videoWidth, fixedHeight / videoHeight) * 0.93; // 93% of original size
+      const scaledWidth = videoWidth * scale;
+      const scaledHeight = videoHeight * scale;
       
-      // Only attempt cleanup if we have a session and haven't already tried to clean up
-      if (sessionInfo && sessionInfo.session_id && !cleanupAttemptedRef.current) {
-        const sessionId = sessionInfo.session_id;
-        console.log(`Avatar component unmounting, cleaning up resources for session ${sessionId}...`);
-        cleanupSession(sessionId).catch(err => 
-          console.error(`Error during session ${sessionId} cleanup:`, err.message));
+      // Center the video in the canvas
+      const offsetX = (fixedWidth - scaledWidth) / 2;
+      const offsetY = (fixedHeight - scaledHeight) / 2;
+
+      // Clear canvas first
+      ctx.clearRect(0, 0, fixedWidth, fixedHeight);
+      
+      // Draw video frame
+      try {
+        ctx.drawImage(mediaElement, offsetX, offsetY, scaledWidth, scaledHeight);
+      } catch (error) {
+        console.log('Error drawing video frame:', error);
+        requestAnimationFrame(processFrame);
+        return;
       }
+      
+      // Apply green screen removal
+      ctx.getContextAttributes().willReadFrequently = true;
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const red = data[i];
+        const green = data[i + 1];
+        const blue = data[i + 2];
+
+        // Remove green screen
+        if (isCloseToGreen([red, green, blue])) {
+          data[i + 3] = 0;
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      requestAnimationFrame(processFrame);
     };
-  }, [isActive, sessionInfo, peerConnection, retryCount, initializationFailed, isClosingSession, cleanupSession]);
+
+    processFrame();
+  };
+
+  /**
+   * Determines if a pixel color is close to green (for green screen removal)
+   */
+  const isCloseToGreen = (color) => {
+    const [red, green, blue] = color;
+    return green > 90 && red < 90 && blue < 90;
+  };
 
   // Simplified effect for handling text to speak changes
   useEffect(() => {
     // Only speak if we have text, a valid session, and the component is active
-    if (textToSpeak && sessionInfo && sessionInfo.session_id && isActive && !isClosingSession) {
+    if (textToSpeak && sessionInfo && sessionInfo.session_id && isActive && isSessionActive) {
       const trimmedText = textToSpeak.trim();
       
-      // Check if this is the same text we just processed (to avoid duplicates in StrictMode)
+      // Check if this is the same text we just processed (to avoid duplicates)
       if (trimmedText && trimmedText !== previousTextRef.current) {
         previousTextRef.current = trimmedText;
         
-        // Just speak the message - no welcome message handling
-        speakMessage(trimmedText);
+        // Just speak the message - no complex queuing logic (now async)
+        speakMessage(trimmedText).catch(error => {
+          console.error('Avatar: Error in speakMessage:', error);
+        });
       }
     }
-  }, [textToSpeak, sessionInfo, isActive, isClosingSession, speakMessage]);
+  }, [textToSpeak, sessionInfo, isActive, isSessionActive, speakMessage]);
 
-  // Simple video element setup - no auto welcome message
+  // Effect to manage avatar session lifecycle
   useEffect(() => {
-    const mediaElement = mediaElementRef.current;
-    if (!mediaElement) return;
-    
-    // Simple handler just updates the state
-    mediaElement.onloadedmetadata = () => {
-      setMediaCanPlay(true);
-    };
-    
-    return () => {
-      mediaElement.onloadedmetadata = null;
-      if (mediaElement.srcObject) {
-        try {
-          const tracks = mediaElement.srcObject.getTracks();
-          tracks.forEach(track => track.stop());
-          mediaElement.srcObject = null;
-        } catch (e) {
-          // Ignore errors during cleanup
-          console.warn('Avatar: Error during media cleanup:', e.message);
-        }
-      }
-    };
-  }, [renderID]);
+    if (isActive && !isSessionActive && !isStartingSessionRef.current && !userStoppedManually) {
+      // Auto-start session when component becomes active (only if user hasn't manually stopped)
+      startSession();
+    } else if (!isActive && isSessionActive) {
+      // Auto-stop session when component becomes inactive (but don't set manual stop flag)
+      stopSessionAutomatic();
+    }
+  }, [isActive, isSessionActive, userStoppedManually]);
+
+  // Effect to reset manual stop flag when component becomes inactive then active again
+  useEffect(() => {
+    if (!isActive) {
+      // Reset manual stop flag when component becomes inactive
+      // This allows the session to restart when component becomes active again
+      setUserStoppedManually(false);
+    }
+  }, [isActive]);
 
   // Effect to handle volume changes
   useEffect(() => {
-    if (mediaElementRef.current) {
+    if (mediaElementRef.current && mediaCanPlay) {
       mediaElementRef.current.volume = volume;
     }
   }, [volume, mediaCanPlay]);
 
+  // Effect to start background removal when video loads
+  useEffect(() => {
+    const mediaElement = mediaElementRef.current;
+    if (mediaElement) {
+      const handleLoadedMetadata = () => {
+        setMediaCanPlay(true);
+        mediaElement.play();
+        // Start background removal immediately
+        renderCanvas();
+      };
+
+      const handleCanPlay = () => {
+        setMediaCanPlay(true);
+        // Also trigger canvas rendering when video can play
+        renderCanvas();
+      };
+
+      const handlePlaying = () => {
+        // Ensure canvas rendering starts when video is actually playing
+        renderCanvas();
+      };
+
+      mediaElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+      mediaElement.addEventListener('canplay', handleCanPlay);
+      mediaElement.addEventListener('playing', handlePlaying);
+      
+      return () => {
+        mediaElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        mediaElement.removeEventListener('canplay', handleCanPlay);
+        mediaElement.removeEventListener('playing', handlePlaying);
+      };
+    }
+  }, [sessionInfo]); // Add sessionInfo dependency to re-setup when session changes
+
   // Prepare UI states
-  const isInitializing = !sessionInfo && isActive && !initializationFailed;
-  const showFallbackUI = initializationFailed;
+  const isInitializing = !sessionInfo && isActive && !initializationFailed && !userStoppedManually;
+  const showFallbackUI = initializationFailed || userStoppedManually;
   
   // If not active, render nothing
   if (!isActive) {
     return null;
   }
   
-  // Fallback UI when avatar can't be initialized
+  // Fallback UI when avatar can't be initialized or user stopped manually
   if (showFallbackUI) {
+    const fallbackMessage = userStoppedManually ? 
+      'You sent vega for tea.' : 
+      'Vega has gone on a tea break.';
+    
+    const fallbackSubtext = userStoppedManually ?
+      'Click Start to call her back.' :
+      'Please chat with the copilot for assistance. (You can still use the mic to talk)';
+
     return (
       <div className="Avatar-component">
         <div className="avatar-container">
           <div style={{ 
             position: 'relative',
-            marginTop: '13%',
             display: 'flex', 
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            maxWidth: '90%',
-            minWidth: '230px',
-            maxHeight: '90%',
-            minHeight: '400px',
+            width: '100%',
+            maxWidth: '300px', // Match the avatar section width
+            // height: 'fit-content',
+            // maxHeight: '420px',
+            minHeight: '560px',
             color: 'white',
-            padding: '15px',
+            padding: '20px 15px',
             textAlign: 'center',
             background: 'linear-gradient(180deg, #244D52, #1A3A3F, #0F2426)',
             borderRadius: '8px',
@@ -375,70 +798,137 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
             <div style={{ 
               backgroundColor: '#53C1DE', 
               borderRadius: '50%', 
-              minWidth: '70px', 
-              minHeight: '70px',
+              width: '70px', 
+              height: '70px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginBottom: '10px',
-              fontSize: '30px'
+              marginBottom: '15px',
+              flexShrink: 0
             }}>
-              <img src='/tea-logo.png' style={{width: '40px', height: '60px'}}/>
+              <img src={userStoppedManually ? '/tea-logo.png' : '/tea-logo.png'} style={{width: '50px', height: '70px'}}/>
             </div>
-            <h3 style={{ marginBottom: '8px', color:'snow', fontSize: '16px', whiteSpace: 'nowrap' }}>Vega has gone on a tea break.</h3>
-            <p style={{ marginBottom: '10px', opacity: 0.8, fontSize: '14px', color:'snow' }}>
-              Please chat with the copilot <br/> for assistance. <br/> (You can still use the mic to talk)
+            <h3 style={{ marginBottom: '12px', color:'snow', fontSize: '16px', whiteSpace: 'nowrap' }}>
+              {fallbackMessage}
+            </h3>
+            <p style={{ marginBottom: '20px', opacity: 0.8, fontSize: '14px', color:'snow', textAlign: 'center' }}>
+              {fallbackSubtext}
             </p>
+            
+            {/* Show Start button when user stopped manually */}
+            {userStoppedManually && (
+              <button
+                className="avatar-start-button"
+                onClick={restartSession}
+                disabled={isStartingSessionRef.current}
+                style={{ 
+                  marginTop: '10px',
+                  padding: '8px 20px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                {isStartingSessionRef.current ? 'Starting...' : 'Start'}
+              </button>
+            )}
           </div>
         </div>
       </div>
     );
   }
-  
-  // Very simple avatar UI with video - no frills
-  return (
-    <div className="Avatar-component" style={{ top: '10px'}}>
-      <div className="avatar-container">
-        {/* Video container */}
-        <div className="avatar-video-container">
-          {/* Loading overlay */}
-          <div className={`avatar-loading ${!isInitializing ? 'hidden' : ''}`} style={{ alignSelf: 'center', minHeight: '300px', borderRadius: '8px', backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white' }}>
-            <div className="avatar-spinner"></div>
-            <div style={{color: 'snow'}}>Initializing Avatar...</div>
-          </div>
 
-          {/* Video element */}
-          <video 
-            key={`video-${renderID}`}
-            ref={mediaElementRef} 
-            style={{ 
-              width: '100%',
-              height: '100%',
-              // maxHeight: '650px',
-              objectFit: 'contain',
-              borderRadius: '8px',
-              backgroundColor: 'transparent',
-              opacity: mediaCanPlay ? 1 : 0
-            }}
-            autoPlay 
-            playsInline
-            muted={false}
-            onCanPlay={() => setMediaCanPlay(true)}
-          />
-          
-          {!mediaCanPlay && !isInitializing && (
-            <div className="avatar-loading">
-              <div className="avatar-spinner"></div>
-              <div>Connecting to avatar...</div>
-            </div>
-          )}
-        </div>
-        
-        {/* Controls panel - below the video */}
-        {mediaCanPlay && (
-          <div className="avatar-controls">
-            {/* Volume control */}
-            <div className="avatar-volume-control">
+  return (
+    <div className="Avatar-component">
+      <div className="avatar-container">
+        <div className="avatar-section" style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          maxWidth: '280px', // Reduced to match smaller canvas with some padding
+          maxHeight: '450px'
+        }}>
+          <div className="video-container" style={{
+            position: 'relative',
+            width: '100%',
+            height: 'fit-content',
+            maxHeight: '390px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden', // Hide overflow to prevent cut-off appearance
+            borderRadius: '8px'
+          }}>
+            {/* Loading overlay */}
+            {isInitializing && (
+              <div className="avatar-loading" style={{ 
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px', 
+                backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+                color: 'white',
+                zIndex: 10
+              }}>
+                <div className="avatar-spinner"></div>
+                <div style={{color: 'snow'}}>Initializing Avatar...</div>
+              </div>
+            )}
+            
+            <video
+              ref={mediaElementRef}
+              autoPlay
+              playsInline
+              style={{ display: 'none' }}
+            />
+            <canvas
+              ref={canvasElementRef}
+              className="avatar-canvas"
+              width={400}
+              height={400}
+              style={{ 
+                display: 'block',
+                width: '220px',
+                height: '350px',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'cover', // Use cover to fill the container and show full avatar
+                border: '2px solid #ddd',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(0, 0, 0, 0.1)'
+              }}
+            />
+            
+            {/* Volume Control - Overlaid at bottom of avatar */}
+            <div className="avatar-volume-control" style={{
+              position: 'absolute',
+              bottom: '10px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(0, 0, 0, 0.7)',
+              padding: '4px 12px',
+              borderRadius: '16px',
+              color: 'white',
+              fontSize: '12px',
+              zIndex: 5
+            }}>
               <span className="volume-label">Volume:</span>
               <input
                 type="range"
@@ -447,277 +937,105 @@ function Avatar({ isActive = false, textToSpeak = '' }) {
                 step="0.01"
                 value={volume}
                 onChange={(e) => setVolume(parseFloat(e.target.value))}
+                style={{
+                  width: '80px',
+                  height: '4px',
+                  background: '#ddd',
+                  borderRadius: '2px',
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
               />
               <span className="volume-value">{Math.round(volume * 100)}%</span>
             </div>
-            
-            {/* Interrupt button */}
-            <button
-              className="avatar-interrupt-button"
-              onClick={interruptSpeech}
-              disabled={!sessionInfo?.session_id || isInterrupting || isClosingSession}
-            >
-              {isInterrupting ? '...' : 'Stop'}
-            </button>
           </div>
-        )}
+          
+          {/* Buttons - Below Avatar */}
+          <div className="avatar-button-group" style={{
+            display: 'flex',
+            gap: '8px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            maxWidth: '260px', // Match the avatar section width
+            marginTop: '10px',
+            flexWrap: 'wrap'
+          }}>
+            {/* Show Interrupt button only when session is active */}
+            {isSessionActive && (
+              <button
+                className="avatar-interrupt-button"
+                onClick={interruptHandler}
+                disabled={isInterrupting}
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '80px',
+                  maxWidth: '100px',
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                {isInterrupting ? '...' : 'Interrupt'}
+              </button>
+            )}
+            
+            {/* Show Stop button when session is active */}
+            {isSessionActive && (
+              <button
+                className="avatar-stop-button"
+                onClick={stopSession}
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '80px',
+                  maxWidth: '100px',
+                  padding: '8px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #dc3545 0%, #e91e63 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                Stop
+              </button>
+            )}
+            
+            {/* Show Start button when session is not active and not manually stopped */}
+            {!isSessionActive && !userStoppedManually && (
+              <button
+                className="avatar-start-button"
+                onClick={restartSession}
+                disabled={isStartingSessionRef.current}
+                style={{
+                  flex: '1 1 auto',
+                  minWidth: '100px',
+                  maxWidth: '140px',
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                  color: 'white',
+                  fontWeight: '500'
+                }}
+              >
+                {isStartingSessionRef.current ? 'Starting...' : 'Start'}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
-  );  
-
-  // HeyGen API methods with improved error handling
-  async function newSession(quality, avatar_name) {
-    try {
-      console.log('Avatar: Creating new session');
-
-      // Await API configuration before proceeding
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        throw new Error('Failed to configure API');
-      }
-
-      // Create request body with required parameters
-      // const requestBody = { quality, avatar_name, activity_idle_timeout: 10 };
-      const requestBody = { quality, avatar_name };
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.new`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      // Handle error response
-      if (!response.ok) {
-        let errorMsg = `Server error: ${response.status}`;
-        
-        // Clone the response before reading the body to avoid stream already read error
-        const clonedResponse = response.clone();
-        
-        try {
-          // Try to parse error as JSON first
-          const errorData = await clonedResponse.json();
-          
-          // Check for concurrent limit error specifically
-          if (errorData?.code === 10007 || 
-              (errorData?.message && errorData.message.includes('Concurrent limit'))) {
-            errorMsg = 'Concurrent session limit reached';
-          } else if (errorData?.message) {
-            errorMsg = errorData.message;
-          }
-        } catch (jsonError) {
-          // If JSON parsing fails, just use the status code
-          console.error('Failed to parse error response:', jsonError);
-        }
-        
-        throw new Error(errorMsg);
-      }
-
-      // Parse successful response
-      const data = await response.json();
-      if (!data || !data.data) {
-        throw new Error('Invalid response structure');
-      }
-
-      console.log(`Avatar: Session created with ID ${data.data.session_id}`);
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function startSession(session_id, sdp) {
-    try {
-      // Ensure API is configured
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        throw new Error('Failed to configure API');
-      }
-      
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.start`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-        body: JSON.stringify({ session_id, sdp }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to start session: ${response.status}`);
-      } 
-      
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function handleICE(session_id, candidate) {
-    try {
-      // Ensure API is configured
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        return null; // Silent failure for ICE candidates
-      }
-      
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.ice`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-        body: JSON.stringify({ session_id, candidate }),
-      });
-      
-      if (!response.ok) {
-        // ICE errors are not critical, but we should log them
-        return null;
-      } 
-      
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      // Fail silently for ICE errors as they're not critical
-      return null;
-    }
-  }
-
-  async function repeat(session_id, text) {
-    try {
-      if (!session_id || !text) {
-        return null;
-      }
-      
-      // Ensure API is configured
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        throw new Error('Failed to configure API');
-      }
-      
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.task`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-        body: JSON.stringify({ session_id, text }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to send text: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function stopSession(session_id) {
-    if (!session_id) {
-      return { success: false, error: 'No session ID provided' };
-    }
-    
-    try {
-      // Ensure API is configured
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        return { success: false, error: 'Failed to configure API' };
-      }
-      
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.stop`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-        body: JSON.stringify({ session_id }),
-      });
-      
-      // Even if the response is not ok, we consider the session closed
-      if (!response.ok) {
-        return { success: false, message: 'Server reported an error, but session is considered closed' };
-      } 
-      
-      const data = await response.json();
-      return { success: true, data: data.data };
-    } catch (error) {
-      // Even with errors, we consider the session closed since there's not much we can do
-      return { success: false, error: error.message };
-    }
-  }
-
-  async function interruptSpeech() {
-    if (!sessionInfo?.session_id || isClosingSession) {
-      console.log('Avatar: No active session to interrupt');
-      return;
-    }
-    
-    setIsInterrupting(true);
-    updateStatus('Interrupting avatar...');
-    
-    try {
-      // Ensure API is configured
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        throw new Error('Failed to configure API');
-      }
-      
-      // Send interrupt command to the API
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.interrupt`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-        body: JSON.stringify({ session_id: sessionInfo.session_id }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to interrupt speech: ${response.status}`);
-      }
-      
-      console.log('Avatar: Speech interrupted successfully');
-      updateStatus('Avatar ready');
-    } catch (error) {
-      console.error('Avatar: Error interrupting speech:', error.message);
-      updateStatus('Failed to interrupt speech');
-    } finally {
-      setIsInterrupting(false);
-    }
-  }
-
-  async function listSessions() {
-    try {
-      // Ensure API is configured
-      const apiConfigured = await getAPI();
-      if (!apiConfigured) {
-        throw new Error('Failed to configure API');
-      }
-      
-      const response = await fetch(`${heygen_API.serverUrl}/v1/streaming.list`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Api-Key': heygen_API.apiKey,
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to list sessions: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.data || [];
-    } catch (error) {
-      console.error('Avatar: Error listing sessions:', error.message);
-      return [];
-    }
-  }
-}
+  );
+};
 
 export default Avatar;
