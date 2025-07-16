@@ -1,5 +1,5 @@
 # Frontend Dockerfile
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Remove package-lock.json if it exists and install fresh
+RUN rm -f package-lock.json && npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .

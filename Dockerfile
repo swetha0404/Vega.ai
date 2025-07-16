@@ -35,9 +35,15 @@ RUN mkdir -p /app/logs
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Create a non-root user for security
-RUN groupadd -r vegauser && useradd -r -g vegauser vegauser
+# Create a non-root user for security with proper home directory
+RUN groupadd -r vegauser && useradd -r -g vegauser -m -d /home/vegauser vegauser
 RUN chown -R vegauser:vegauser /app
+RUN chown -R vegauser:vegauser /home/vegauser
+
+# Create HuggingFace cache directory with proper permissions
+RUN mkdir -p /home/vegauser/.cache/huggingface
+RUN chown -R vegauser:vegauser /home/vegauser/.cache
+
 USER vegauser
 
 # Expose the port
