@@ -73,7 +73,7 @@ function ApplicationsPage() {
             {/* ServiceNow */}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
@@ -87,7 +87,7 @@ function ApplicationsPage() {
             {/* Slack */}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
@@ -101,7 +101,7 @@ function ApplicationsPage() {
             {/* Informatica */}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
@@ -115,7 +115,7 @@ function ApplicationsPage() {
             {/* Sharepoint*/}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
@@ -129,7 +129,7 @@ function ApplicationsPage() {
             {/* VMWare */}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
@@ -143,7 +143,7 @@ function ApplicationsPage() {
             {/* Workday */}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
@@ -157,7 +157,7 @@ function ApplicationsPage() {
             {/* Adobe Creative Cloud */}
             <div 
               className={`app-card ${isLoaded ? 'bounce-in-bck' : ''}`} 
-              onClick={() => navigate('/chatpage')}
+
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',

@@ -6,7 +6,7 @@ import Sidebar from '../components/sideBar';
 
 
 function SettingsPage() {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const [uploadStatus, setUploadStatus] = useState('');
   const [uploadStatusType, setUploadStatusType] = useState('');
   const [showNotification, setShowNotification] = useState(false);

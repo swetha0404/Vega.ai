@@ -50,6 +50,11 @@ function App() {
         />
 
         <Route
+          path="/avatartest"
+          element={isAuthenticated ? <Chat /> : <Navigate to="/login" />}
+        />
+
+        <Route
           path="/users"
           element={
             isAdmin
