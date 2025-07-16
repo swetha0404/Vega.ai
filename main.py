@@ -107,7 +107,7 @@ def load_config():
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-app = FastAPI()
+app = FastAPI(title="Vega.ai Backend API", version="1.0.0")
 
 # CORS
 app.add_middleware(
@@ -419,6 +419,17 @@ async def Agentchat(
 @app.get("/heygenAPI")
 async def get_heygen_api_key():
     return {"apiKey": HEYGEN_API_KEY, "url": HEYGEN_SERVER_URL}
+
+# Add health check endpoint for Docker
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Docker containers and load balancers"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "vega-backend",
+        "version": "1.0.0"
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
