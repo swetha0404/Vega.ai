@@ -14,6 +14,8 @@ if "%1"=="dev" goto dev_build
 if "%1"=="prod" goto prod_build
 if "%1"=="backend" goto build_backend
 if "%1"=="frontend" goto build_frontend
+if "%1"=="backend-only" goto run_backend_only
+if "%1"=="frontend-only" goto run_frontend_only
 if "%1"=="run-backend" goto run_backend
 if "%1"=="run-frontend" goto run_frontend
 if "%1"=="stop" goto stop_services
@@ -34,9 +36,9 @@ goto end
 
 :prod_build
 echo 🏭 Building production environment...
-docker-compose -f docker-compose.prod.yml down
-docker-compose -f docker-compose.prod.yml build --no-cache
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker/docker-compose.prod.yml down
+docker-compose -f docker/docker-compose.prod.yml build --no-cache
+docker-compose -f docker/docker-compose.prod.yml up -d
 echo ✅ Production environment is ready!
 echo 🌐 Application: http://localhost
 goto end
@@ -67,10 +69,29 @@ docker run -d --name vega-frontend -p 80:80 vega-frontend
 echo ✅ Frontend is running on http://localhost
 goto end
 
+:run_backend_only
+echo 🔧 Running backend container only...
+docker-compose -f docker/docker-compose.backend-only.yml down
+docker-compose -f docker/docker-compose.backend-only.yml up -d
+echo ✅ Backend-only environment is ready!
+echo 🌐 Backend API: http://localhost:8000
+echo 📋 API Docs: http://localhost:8000/docs
+goto end
+
+:run_frontend_only
+echo 🔧 Running frontend container only...
+docker-compose -f docker/docker-compose.frontend-only.yml down
+docker-compose -f docker/docker-compose.frontend-only.yml up -d
+echo ✅ Frontend-only environment is ready!
+echo 🌐 Frontend: http://localhost
+goto end
+
 :stop_services
 echo 🛑 Stopping all services...
 docker-compose down
-docker-compose -f docker-compose.prod.yml down
+docker-compose -f docker/docker-compose.prod.yml down
+docker-compose -f docker/docker-compose.backend-only.yml down
+docker-compose -f docker/docker-compose.frontend-only.yml down
 docker stop vega-backend vega-frontend 2>nul
 docker rm vega-backend vega-frontend 2>nul
 echo ✅ All services stopped!
@@ -100,6 +121,8 @@ echo   backend      - Build backend container only
 echo   frontend     - Build frontend container only
 echo   run-backend  - Run backend container only
 echo   run-frontend - Run frontend container only
+echo   backend-only - Run backend container only with dependencies
+echo   frontend-only- Run frontend container only
 echo   stop         - Stop all running services
 echo   logs         - Show application logs
 echo   cleanup      - Clean up Docker resources

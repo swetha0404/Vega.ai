@@ -61,6 +61,33 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-build.bat prod   # Windows
 ```
 
+## 📁 Project Structure
+
+```
+AI-MVP/
+├── docker/                     # Docker configuration files
+│   ├── docker-compose.prod.yml # Production compose
+│   ├── docker-compose.backend-only.yml
+│   ├── docker-compose.frontend-only.yml
+│   ├── docker-debug.bat       # Docker debugging utilities
+│   └── fix-docker.bat         # Docker fix utilities
+├── tests/                      # All testing files
+│   ├── conftest.py            # Backend test fixtures
+│   ├── test_*.py              # Backend tests
+│   ├── test-runner.bat        # Test runner script
+│   ├── test-runner.sh         # Test runner script (Linux)
+│   └── TESTING.md             # Testing documentation
+├── frontend/                   # Frontend source code
+│   ├── Dockerfile             # Frontend container
+│   └── src/tests/             # Frontend tests
+├── agenbotc/                   # Backend source code
+├── Dockerfile                  # Backend container
+├── docker-compose.yml          # Main compose (dev)
+├── docker-build.bat           # Build script
+├── docker-build.sh            # Build script (Linux)
+└── test-runner.bat             # Test runner (delegates to tests/)
+```
+
 ## 📁 Container Structure
 
 ### Backend Container (`vega-backend`)
@@ -440,3 +467,107 @@ For application issues:
 - Check main README.md
 - Review API documentation
 - Test individual components
+
+## 🎯 Individual Container Deployment
+
+Sometimes you may want to run only the frontend or backend container independently for testing, development, or sharing purposes.
+
+### Frontend Only Deployment
+
+**Using dedicated compose file:**
+```bash
+# Start frontend only
+docker-compose -f docker/docker-compose.frontend-only.yml up -d
+
+# Stop frontend
+docker-compose -f docker/docker-compose.frontend-only.yml down
+
+# Access: http://localhost
+```
+
+**Using Docker directly:**
+```bash
+# Build frontend container
+docker build -t vega-frontend ./frontend
+
+# Run frontend container standalone
+docker run -d -p 80:80 --name vega-frontend-standalone vega-frontend
+```
+
+### Backend Only Deployment
+
+**Using dedicated compose file:**
+```bash
+# Start backend only (with Redis dependency)
+docker-compose -f docker/docker-compose.backend-only.yml up -d
+
+# Stop backend
+docker-compose -f docker/docker-compose.backend-only.yml down
+
+# Access: http://localhost:8000
+# API Docs: http://localhost:8000/docs
+```
+
+**Using Docker directly:**
+```bash
+# Build backend container
+docker build -t vega-backend .
+
+# Run backend container standalone
+docker run -d -p 8000:8000 --name vega-backend-standalone --env-file ./agenbotc/.env vega-backend
+```
+
+### Use Cases for Individual Containers
+
+1. **Frontend Development:** Test UI changes without backend dependencies
+2. **Backend Development:** Develop API features independently
+3. **Microservice Testing:** Test individual service behavior
+4. **Performance Testing:** Isolate and benchmark specific services
+5. **Sharing/Demo:** Share specific functionality with team members
+
+### Testing Individual Containers
+
+```bash
+# Test frontend only
+docker-compose -f docker/docker-compose.frontend-only.yml up -d
+./test-runner.bat frontend
+
+# Test backend only
+docker-compose -f docker/docker-compose.backend-only.yml up -d
+./test-runner.bat backend
+
+# Using build script (recommended)
+./docker-build.bat frontend-only
+./docker-build.bat backend-only
+```
+
+### Sharing Containers
+
+**Export as Docker images:**
+```bash
+# Save frontend image
+docker save vega-frontend > vega-frontend.tar
+
+# Save backend image
+docker save vega-backend > vega-backend.tar
+```
+
+**Import on another machine:**
+```bash
+# Load frontend image
+docker load < vega-frontend.tar
+
+# Load backend image
+docker load < vega-backend.tar
+```
+
+**Push to Docker Hub:**
+```bash
+# Tag and push frontend
+docker tag vega-frontend yourusername/vega-frontend:latest
+docker push yourusername/vega-frontend:latest
+
+# Tag and push backend
+docker tag vega-backend yourusername/vega-backend:latest
+docker push yourusername/vega-backend:latest
+```
