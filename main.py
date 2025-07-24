@@ -332,11 +332,10 @@ async def upload_ppt(
 @app.post("/process/website")
 async def process_web(url: str = Form(...)):
     try:
-        url_list=url.split(",")
+        url_list = [current_url.strip() for current_url in url.split(",") if current_url.strip()]
         url_with_error=[]
         url_already_existed=[]
         url_uploaded_successfully=[]
-
         for current_url in url_list:
             result = process_website(current_url)
             if isinstance(result, dict):
@@ -346,7 +345,11 @@ async def process_web(url: str = Form(...)):
                     url_already_existed.append(current_url)
                 else:
                     url_uploaded_successfully.append(current_url)
-        upload_info = "Successfully Completed uploading "+str(len(url_uploaded_successfully))+" Already existing URL "+str(len(url_already_existed))+" Error URL "+str(len(url_with_error))   
+        upload_info = (
+    f"Successfully uploaded: {len(url_uploaded_successfully)}, "
+    f"Duplicates: {len(url_already_existed)}, "
+    f"Errors: {len(url_with_error)}"
+)
         return {"status": "Upload Update", "message": upload_info, "doc_id": None}
     except Exception as e:
         return {"status": "error", "message": str(e), "doc_id": None}
