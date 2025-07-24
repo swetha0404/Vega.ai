@@ -110,3 +110,15 @@ dist-ssr
 *.sw?
 
 video_avatar/
+
+# Docker and deployment
+.env.example
+.env.*.example
+*.example
+recording_tests/
+DOCKER_SETUP_SUMMARY.md
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

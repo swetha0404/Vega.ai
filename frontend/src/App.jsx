@@ -7,9 +7,10 @@ import {
 import Login from './pages/LoginPage';
 import Home from './pages/HomePage';
 import Services from './pages/ServicesPage';
-import Settings from './pages/SettingsPage';
 import Chat from './pages/ChatPage';
+import Upload from './pages/UploadPage';
 import UserManagement from './components/UserManagement';
+
 import auth from './utils/auth.js';
 
 
@@ -44,7 +45,7 @@ function App() {
           path="/settings"
           element={
             isAdmin
-              ? <Settings />
+              ? <Upload />
               : <Navigate to={isAuthenticated ? "/applications" : "/login"} />
           }
         />

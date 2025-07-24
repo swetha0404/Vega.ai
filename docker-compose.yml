@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./agenbotc/vectorstore:/app/agenbotc/vectorstore
+      - ./agenbotc/.env:/app/agenbotc/.env
+    networks:
+      - vega-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - vega-network
+    restart: unless-stopped
+
+networks:
+  vega-network:
+    driver: bridge
+
+volumes:
+  vectorstore-data:
