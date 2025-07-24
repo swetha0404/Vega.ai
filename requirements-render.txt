@@ -1,0 +1,35 @@
+# Minimal requirements for Render deployment (memory optimized)
+# Core FastAPI stack
+fastapi
+uvicorn[standard]
+
+# File handling and parsing
+python-multipart
+PyPDF2
+python-docx
+python-pptx
+
+# Web scraping and requests
+requests
+beautifulsoup4
+
+# LLM and AI (lightweight versions)
+openai
+langchain-openai
+langchain-core
+langchain-text-splitters
+
+# Lightweight vector store
+chromadb
+
+# Utilities (essential only)
+pydantic
+pyyaml
+
+# Security and Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+
+# For async operations
+aiofiles
+httpx

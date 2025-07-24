@@ -21,7 +21,7 @@ from datetime import timedelta
 # === Load credentials from .env file (place it with content - OPENAI_API_KEY=<your-api-key> within the agenbotc folder)===
 print(f"Loading .env file from: {env_path}")
 print(f"File exists: {os.path.exists(env_path)}")
-load_dotenv(dotenv_path=env_path)
+load_dotenv()
 OPENAI_TOKEN = os.getenv('OPENAI_API_KEY')
 HEYGEN_API_KEY = os.getenv('HEYGEN_API_KEY')
 HEYGEN_SERVER_URL = os.getenv('HEYGEN_SERVER_URL', 'https://api.heygen.com')  # Default URL if not set

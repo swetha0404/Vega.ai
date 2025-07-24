@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: vega-backend
+    env: docker
+    dockerfilePath: ./Dockerfile.render
+    plan: free
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: OPENAI_API_KEY
+        fromSecret: OPENAI_API_KEY
+      - key: HEYGEN_API_KEY
+        fromSecret: HEYGEN_API_KEY
+      - key: HEYGEN_SERVER_URL
+        value: https://api.heygen.com
+    healthCheckPath: /health
