@@ -31,61 +31,24 @@
   display: block;
   border-radius: 8px;
   font-family: 'Orbitron', sans-serif;
+  
 }
 
 .sidebar-item.active, .sidebar-item:hover {
-  background-color: rgba(83, 193, 222, 0.15); /* Light blue with transparency */
-  color: #53C1DE; /* Light blue text */
+  background-color: rgba(83, 193, 222, 0.15); 
+  color: #53C1DE; 
   transition: 0.5s
 }
 
 .sidebar-item span{
-  color: #FFFFFF; /* White text */
+  color: #FFFFFF; 
   text-decoration: none;
   transition: 0.5s;
 }
 
 .sidebar-item span:hover {
-  color: #53C1DE; /* Light blue on hover */
+  color: #53C1DE; 
   text-decoration: dashed;
 }
 
 
-/* ###########################Responsive Styles#################################### */
-/* @media (max-width: 768px) {
-  .sidebar {
-    width: fit-content;
-    padding-top: 4%;
-    top: 0px; 
-    height: 100vh;
-  }
-
-  .sidebar-item {
-    font-size: 1em;
-    width: fit-content; 
-    padding: 4% 6%; 
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar {
-    width: fit-content; 
-    padding-top: 3%; 
-    top: 0px; 
-    height: 100vh; 
-  }
-
-  .sidebar-item {
-    font-size: 0.9em;
-    width: fit-content;
-    padding: 3% 4%; 
-  }
-}
-
-@media (min-width: 1024px) {
-  .sidebar {
-    width: fit-content;
-    top: 0px;
-    height: 100vh;
-  }
-} */
