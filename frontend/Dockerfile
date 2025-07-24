@@ -1,5 +1,5 @@
-# Frontend Dockerfile
-FROM node:20-alpine as builder
+# Use Node 18 Alpine for smaller image size
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Remove package-lock.json if it exists and install fresh
-RUN rm -f package-lock.json && npm install --legacy-peer-deps
+# Install dependencies
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -16,21 +16,11 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
-
-# Copy built app from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Install serve to serve the built app
+RUN npm install -g serve
 
 # Expose port
-EXPOSE 80
+EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost || exit 1
-
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Command to serve the built application
+CMD ["serve", "-s", "dist", "-l", "3000"]

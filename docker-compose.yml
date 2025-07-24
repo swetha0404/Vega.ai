@@ -1,96 +1,34 @@
-version: '3.8'
-
 services:
-  # Backend service
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: vega-backend
-    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
       - PYTHONPATH=/app
-      - PYTHONUNBUFFERED=1
-    env_file:
-      - ./agenbotc/.env
     volumes:
-      - ./agenbotc/uploads:/app/agenbotc/uploads
       - ./agenbotc/vectorstore:/app/agenbotc/vectorstore
-      - ./logs:/app/logs
-    depends_on:
-      - redis
+      - ./agenbotc/.env:/app/agenbotc/.env
     networks:
       - vega-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+    restart: unless-stopped
 
-  # Frontend service
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: vega-frontend
-    restart: unless-stopped
     ports:
-      - "80:80"
+      - "3000:3000"
     depends_on:
       - backend
     networks:
       - vega-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Redis for caching (optional but recommended)
-  redis:
-    image: redis:7-alpine
-    container_name: vega-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - vega-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # PostgreSQL database (optional, for production)
-  postgres:
-    image: postgres:15-alpine
-    container_name: vega-postgres
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_DB=vega
-      - POSTGRES_USER=vega
-      - POSTGRES_PASSWORD=vega_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - vega-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vega"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-volumes:
-  redis_data:
-  postgres_data:
 
 networks:
   vega-network:
     driver: bridge
+
+volumes:
+  vectorstore-data:

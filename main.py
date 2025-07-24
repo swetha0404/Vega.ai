@@ -122,6 +122,12 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
 # Enhanced authentication system with JWT tokens and secure password hashing
 @app.post("/login", response_model=Token)
 async def login(login_data: UserLogin):

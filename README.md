@@ -21,14 +21,64 @@ Vega.ai is an intelligent educational assistant that combines advanced AI capabi
 - **Multi-page Application**: Home, Chat, Services, and Settings pages
 - **Responsive Design**: Mobile-first approach with cross-device compatibility
 
-## 📋 Prerequisites
+## � Quick Start with Docker (Recommended)
+
+The easiest way to run Vega.ai is using Docker:
+
+### Prerequisites
+- Docker and Docker Compose installed on your system
+- OpenAI API key
+- HeyGen API key (optional, for avatar features)
+
+### Steps
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/swetha0404/Vega.ai.git
+   cd Vega.ai/AI-MVP
+   ```
+
+2. **Run the deployment script**:
+   ```bash
+   # Windows
+   deploy.bat
+   
+   # Mac/Linux
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+
+3. **Configure API keys**:
+   - Edit `agenbotc/.env` and add your API keys
+   - Required: `OPENAI_API_KEY=your_key_here`
+   - Optional: `HEYGEN_API_KEY=your_key_here`
+
+4. **Access the application**:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+
+### Manual Docker Commands
+```bash
+# Build and start all services
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## �📋 Manual Installation Prerequisites
 
 - **Python 3.8+** (recommended: Python 3.11)
 - **Node.js 16+** (recommended: Node.js 18 or higher)
 - **Git**
 - **OpenAI API Key** (for LLM functionality)
 
-## 🛠️ Installation & Setup
+## 🛠️ Manual Installation & Setup
 
 ### 1. Clone the Repository
 ```bash
