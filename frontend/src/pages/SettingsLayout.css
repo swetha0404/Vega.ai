@@ -5,24 +5,22 @@
   min-height: 100vh;
   max-height: fit-content;
   width: 100vw;
-  /* background: #244D52; Teal green background */
 }
 
-/* Responsive split container */
 .settings-split-container {
   position: relative;
   display: flex;
   top: 7vh;
   left: 30vh; 
   height: calc(100vh - 7vh);
-  width: calc(100vw - 30vh); /* Sidebar width plus margin for right side */
+  width: calc(100vw - 30vh); 
   gap: 1.5rem;
   padding: 1.5rem;
-  justify-content: space-between; /* Equal spacing between panels */
+  justify-content: space-between; 
 }
 
 .settings-upload-panel {
-  flex: 0 0 320px; /* Match sidebar width (160px) + adequate spacing */
+  flex: 0 0 320px; 
   background: #E8F6F8;
   border-radius: 16px;  
   padding: 1.5rem 1.5rem 1rem 1.5rem;
@@ -31,31 +29,30 @@
   max-height: fit-content;
   display: flex; 
   flex-direction: column;
-  /* align-self: center; */
   border: 1px solid rgba(36, 77, 82, 0.3);
-  color: #4E4E4E; /* Steel gray text */
-  margin-left: 10px; /* Add slight margin from left */
+  color: #4E4E4E; 
+  margin-left: 10px; 
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-  perspective: 1000px; /* Ensures proper 3D animation */
+  perspective: 1000px;
 }
 
 .settings-upload-panel h3 {
-  color: #244D52; /* Teal green heading */
-  font-size: 1.5rem; /* Reduced to match top bar font size */
+  color: #244D52; 
+  font-size: 1.5rem; 
   font-weight: 600;
   gap: 0.5rem;  
   margin-bottom: 1rem;
   text-align: center;
-  border-bottom: 2px solid #53C1DE; /* Light blue accent */
+  border-bottom: 2px solid #53C1DE;
   padding-bottom: 0.5rem;
-  font-family: 'Orbitron', sans-serif; /* Match sidebar font */
+  font-family: 'Orbitron', sans-serif; 
 }
 
 .settings-upload-panel form > div {
   margin-bottom: 1rem;
   padding: 0.2rem;
-  border: 1px dashed #53C1DE; /* Light blue dashed border */
+  border: 1px dashed #53C1DE; 
   border-radius: 12px;
   transition: all 0.3s ease;
   background: linear-gradient(145deg, #c7d4d5, #53676a); 
@@ -65,12 +62,12 @@
 }
 
 .settings-upload-panel form > div:hover {
-  border-color: #00C2FF; /* Electric blue hover */
+  border-color: #00C2FF; 
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 194, 255, 0.15);
 }
 
-/* Upload Status Notification Styles */
+
 .upload-status {
   margin-bottom: 0.5rem;
   padding: 0.5rem;
@@ -133,25 +130,22 @@
   padding: 1em 1.5rem;
 }
 
-/* Progress bar for processing state */
 .upload-status.processing::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, #53C1DE, #00C2FF); /* Light blue to electric blue */
+  background: linear-gradient(90deg, #53C1DE, #00C2FF); 
   animation: progressBar 2s ease-in-out infinite;
 }
 
-/* Icon styles */
 .upload-status .status-icon {
   display: inline-block;
   margin-right: 0.5rem;
   font-size: 1.2em;
 }
 
-/* Close button styles */
 .notification-close {
   position: relative;
   top: 0.2rem;
@@ -183,7 +177,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Slide out animation */
 .upload-status.hide {
   transform: translateY(-100%);
   opacity: 0;
@@ -205,10 +198,10 @@
 .settings-upload-panel input[type="text"] {
   width: 100%;
   padding: 0.75rem 0.875rem;
-  border: 2px solid #53C1DE; /* Light blue border */
+  border: 2px solid #53C1DE; 
   border-radius: 8px;
-  font-size: 0.95rem; /* Reduced font size */
-  color: #FFFFFF; /* White text */
+  font-size: 0.95rem; 
+  color: #FFFFFF; 
   background: linear-gradient(145deg, #c7d4d5, #53676a); 
   outline: none;
   transition: all 0.3s ease;
@@ -216,30 +209,30 @@
 }
 
 .settings-upload-panel input[type="text"]:focus {
-  border-color: #00C2FF; /* Electric blue focus */
+  border-color: #00C2FF; 
   box-shadow: 0 0 0 2px rgba(0, 194, 255, 0.2);
 }
 .website-input input::placeholder{
-  color: #FFFFFF; /* White placeholder text */
-  opacity: 0.8; /* Slightly transparent */
+  color: #FFFFFF; 
+  opacity: 0.8; 
 }
 .settings-upload-panel input[type="file"] {
   width: 100%;
   padding: 0.875rem;
-  border: 2px solid #53C1DE; /* Light blue border */
+  border: 2px solid #53C1DE; 
   border-radius: 8px;
   font-size: 0.95rem;
-  background: #244D52; /* Teal green background */
+  background: #244D52; 
   cursor: pointer;
   transition: all 0.3s ease;
   box-sizing: border-box;
   font-family: inherit;
-  color: #FFFFFF; /* White text */
+  color: #FFFFFF; 
 }
 
 .settings-upload-panel input[type="file"]:hover {
-  border-color: #00C2FF; /* Electric blue hover */
-  background: #1A3A3F; /* Darker teal green background */
+  border-color: #00C2FF; 
+  background: #1A3A3F; 
 }
 
 .settings-upload-panel input[type="file"]::file-selector-button {
@@ -290,7 +283,7 @@
 
 .settings-upload-panel button:disabled {
   background: linear-gradient(145deg, #E5E7EB, #9CA3AF);
-  color: #6B7280; /* Steel gray text */
+  color: #6B7280;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -302,7 +295,6 @@
   box-shadow: none;
 }
 
-/* File selection label styling */
 .settings-upload-panel label[for$="-upload"]:hover {
   border-color: #00C2FF;
   background: rgba(36, 77, 82, 0.8);
@@ -318,12 +310,12 @@
   flex-direction: column;
   height: 98%;
   border: 1px solid rgba(36, 77, 82, 0.3);
-  min-width: 0; /* Prevent flex item from expanding beyond container */
-  margin-right: 10px; /* Add slight margin from right */
+  min-width: 0; 
+  margin-right: 10px; 
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-  animation-delay: 0.2s; /* Slight delay for staggered effect with upload panel */
-  perspective: 1000px; /* Ensures proper 3D animation */
+  animation-delay: 0.2s; 
+  perspective: 1000px; 
 }
 
 .chat-header {
@@ -332,15 +324,15 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #53C1DE; /* Light blue accent */
+  border-bottom: 2px solid #53C1DE; 
 }
 
 .chat-header h3 {
-  color: #244D52; /* Teal green heading */
-  font-size: 1.5rem; /* Match with other headings */
+  color: #244D52; 
+  font-size: 1.5rem; 
   font-weight: 600;
   margin: 0;
-  font-family: 'Orbitron', sans-serif; /* Match sidebar font */
+  font-family: 'Orbitron', sans-serif; 
 }
 
 .clear-chat-btn {
@@ -369,26 +361,26 @@
   background: linear-gradient(145deg, #FFFFFF, #F8FCFD, #E8F6F8) !important;
   border-radius: 12px;
   border: 1px solid rgba(36, 77, 82, 0.3);
-  color: #4E4E4E; /* Steel gray text */
+  color: #4E4E4E; 
 }
 
 .chat-message.bot {
-  background: #E8F6F8; /* Light teal background */
+  background: #E8F6F8;
   border-radius: 12px 12px 12px 4px;
   padding: 1rem 1.25rem;
   margin-bottom: 0.75rem;
   align-self: flex-start;
   max-width: 80%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #53C1DE; /* Light blue accent */
+  border-left: 4px solid #53C1DE; 
   border-bottom: 1px solid rgba(83, 193, 222, 0.3);
-  color: #4E4E4E; /* Steel gray text */
+  color: #4E4E4E; 
 }
 
-/* Markdown styling within chat messages */
+
 .chat-message.bot h1, .chat-message.bot h2, .chat-message.bot h3 {
   margin: 0.5rem 0;
-  color: #244D52; /* Teal green headings */
+  color: #244D52; 
 }
 
 .chat-message.bot h1 { font-size: 1.25rem; }
@@ -412,20 +404,20 @@
 
 .chat-message.bot strong {
   font-weight: 600;
-  color: #244D52; /* Teal green for emphasis */
+  color: #244D52; 
 }
 
 .chat-message.bot code {
-  background: rgba(83, 193, 222, 0.2); /* Light blue background */
+  background: rgba(83, 193, 222, 0.2); 
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
-  color: #244D52; /* Teal green text */
+  color: #244D52; 
 }
 
 .chat-message.bot pre {
-  background: rgba(78, 78, 78, 0.1); /* Light steel gray background */
+  background: rgba(78, 78, 78, 0.1); 
   padding: 0.75rem;
   border-radius: 6px;
   overflow-x: auto;
@@ -438,22 +430,22 @@
 }
 
 .chat-message.bot blockquote {
-  border-left: 3px solid #53C1DE; /* Light blue accent */
+  border-left: 3px solid #53C1DE; 
   padding-left: 1rem;
   margin: 0.5rem 0;
   font-style: italic;
-  color: #4E4E4E; /* Steel gray text */
+  color: #4E4E4E; 
 }
 
 .chat-message.user {
-  background: linear-gradient(145deg, #244D52, #53C1DE); /* Teal to light blue gradient */
+  background: linear-gradient(145deg, #244D52, #53C1DE); 
   border-radius: 12px 12px 4px 12px;
   padding: 1rem 1.25rem;
   margin-bottom: 0.75rem;
   align-self: flex-end;
   max-width: 80%;
   box-shadow: 0 2px 8px rgba(36, 77, 82, 0.2);
-  border-right: 4px solid #00C2FF; /* Electric blue accent */
+  border-right: 4px solid #00C2FF; 
   color: white;
 }
 
@@ -462,7 +454,7 @@
   font-style: italic;
 }
 
-/* Typing indicator animation */
+
 .typing-indicator {
   display: inline-flex;
   align-items: center;
@@ -472,7 +464,7 @@
 .typing-indicator span {
   height: 6px;
   width: 6px;
-  background: #53C1DE; /* Light blue dots */
+  background: #53C1DE; 
   border-radius: 50%;
   display: inline-block;
   margin-right: 2px;
@@ -518,7 +510,7 @@
 
 .chat-input-form input:focus {
   outline: none;
-  border-color: #00C2FF; /* Electric blue focus */
+  border-color: #00C2FF; 
   box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.1);
 }
 
@@ -537,260 +529,3 @@
   align-items: center;
   justify-content: center;
 }
-
-/* ##############################Responsive Designs################################# */
-/* @media (max-width: 768px) {
-  .chat-input-form {
-    padding: 0.75rem;
-    gap: 0.5rem;
-  }
-  
-  .chat-input-form input {
-    padding: 0.75rem 0.875rem;
-    font-size: 0.9rem;
-  }
-  
-  .chat-input-form button {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .chat-input-form {
-    padding: 0.5rem;
-    gap: 0.4rem;
-  }
-  
-  .chat-input-form input {
-    padding: 0.6rem 0.75rem;
-    font-size: 0.85rem;
-  }
-  
-  .chat-input-form button {
-    padding: 0.6rem 1rem;
-    font-size: 0.75rem;
-  }
-} */
-
-
-/* @media (max-width: 1024px) {
-  .settings-split-container {
-    flex-direction: column; 
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.25rem;
-    overflow-y: auto; 
-  }
-  
-  .settings-upload-panel {
-    width: calc(100% - 3rem);
-    flex: 0 0 auto;
-    margin: 0 auto;
-    max-width: 600px;
-  }
-  
-  .settings-chat-panel {
-    width: calc(100% - 3rem);
-    margin: 0 auto;
-  }
-}
-
-@media (max-width: 768px) {
-  .settings-split-container {
-    left: 135px;
-    width: calc(100vw - 120px - 15px);
-    top: 60px;
-    padding: 0.75rem;
-    gap: 1rem;
-  }
-  
-  .settings-upload-panel {
-    width: 100%;
-    max-width: none;
-  }
-  
-  .settings-upload-panel h3 {
-    font-size: 1.1rem;
-  }
-  
-  .settings-upload-panel form > div {
-    padding: 0.5rem;
-  }
-  
-  .settings-upload-panel input[type="text"] {
-    padding: 0.6rem 0.75rem;
-    font-size: 0.9rem;
-  }
-  
-  .upload-status {
-    font-size: 0.9rem;
-    padding: 0.4rem;
-  }
-  
-  .upload-status .status-icon {
-    font-size: 1.1rem;
-  }
-  
-  .settings-upload-panel button {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.75rem;
-  }
-  
-  .settings-upload-panel input[type="file"]::file-selector-button {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.8rem;
-  }
-  
-  .settings-chat-panel {
-    padding: 1rem;
-    height: auto;
-    min-height: 550px;
-  }
-  
-  .chat-header h3 {
-    font-size: 1.1rem;
-  }
-  
-  .clear-chat-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  
-  .chat-messages {
-    padding: 0.75rem;
-  }
-  
-  .chat-message.bot {
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    max-width: 85%;
-  }
-  
-  .chat-message.bot h1 { font-size: 1.2rem; }
-  .chat-message.bot h2 { font-size: 1.05rem; }
-  .chat-message.bot h3 { font-size: 0.95rem; }
-  
-  .chat-message.bot p {
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .settings-split-container {
-    left: 110px;
-    width: calc(100vw - 90px - 15px);
-    padding: 0.5rem;
-  }
-  
-  .settings-upload-panel {
-    padding: 0.75rem;
-    margin-left: 0;
-    width: 100%;
-  }
-  
-  .settings-chat-panel {
-    margin-right: 0;
-    width: 100%;
-    min-height: 1050px;
-  }
-  
-  .settings-upload-panel h3 {
-    font-size: 1rem;
-  }
-  
-  .settings-upload-panel input[type="text"] {
-    padding: 0.5rem 0.65rem;
-    font-size: 0.85rem;
-  }
-  
-  .upload-status {
-    font-size: 0.85rem;
-    padding: 0.3rem;
-  }
-  
-  .upload-status .status-icon {
-    font-size: 1rem;
-  }
-  
-  .settings-upload-panel button {
-    padding: 0.45rem 0.7rem;
-    font-size: 0.7rem;
-  }
-  
-  .settings-upload-panel input[type="file"]::file-selector-button {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-    margin-right: 0.5rem;
-  }
-  
-  .settings-chat-panel {
-    padding: 0.75rem;
-    min-height: 300px;
-  }
-  
-  .chat-header h3 {
-    font-size: 1rem;
-  }
-  
-  .clear-chat-btn {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.75rem;
-  }
-  
-  .chat-messages {
-    padding: 0.5rem;
-  }
-  
-  .chat-message.bot {
-    padding: 0.6rem 0.8rem;
-    margin-bottom: 0.5rem;
-    max-width: 90%;
-  }
-  
-  .chat-message.bot h1 { font-size: 1.1rem; }
-  .chat-message.bot h2 { font-size: 1rem; }
-  .chat-message.bot h3 { font-size: 0.9rem; }
-  
-  .chat-message.bot p {
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-}
-
-.chat-messages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background: #53C1DE; /
-  border-radius: 3px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background: #00C2FF; 
-  transition: 0.3s;
-}
-
-@media(min-width: 1920px) {
-  .settings-split-container {
-    padding: 2rem;
-    gap: 2rem;
-    left: 10vw;
-    width: calc(100vw - 10vw);
-  }
-
-  
-  .settings-upload-panel h3, .settings-chat-panel h3 {
-    font-size: 1.5rem; 
-  }
-  
-  .chat-input-form {
-    padding: 1.25rem;
-  }
-} */

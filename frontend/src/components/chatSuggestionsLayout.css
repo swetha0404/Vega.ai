@@ -1,4 +1,4 @@
-/* Suggestions dropdown styles */
+
 .suggestions-dropdown {
   position: absolute;
   bottom: 100%;
@@ -11,7 +11,7 @@
   max-height: 200px;
   overflow-y: auto;
   display: none;
-  z-index: 20; /* Higher than suggestions-animation */
+  z-index: 20;
   margin-bottom: 8px;
 }
 
@@ -36,7 +36,6 @@
   background: linear-gradient(90deg, #53C1DE, #00C2FF);
 }
 
-/* Scrollbar styling for suggestions dropdown */
 .suggestions-dropdown::-webkit-scrollbar {
   width: 6px;
 }
@@ -51,7 +50,6 @@
   border-radius: 3px;
 }
 
-/* Suggestion heading style */
 .suggestion-heading {
   padding: 10px 15px;
   font-weight: bold;
@@ -63,19 +61,16 @@
   text-shadow: 0 0 3px #00C2FF; 
 }
 
-/* Input wrapper */
 .chat-input-wrapper {
   position: relative;
   width: 100%;
 }
 
-/* Custom placeholder styling */
 .chat-input-area input::placeholder {
   color: rgba(255, 255, 255, 0.7);
   animation: changePlaceholder 5s ease-in-out infinite;
 }
 
-/* Responsive styles */
 @media screen and (max-width: 768px) {
   .suggestions-animation {
     max-width: 90%;

@@ -1,3 +1,9 @@
+:root {
+  --primary-accent: #53C1DE;
+  --primary-accent-hover: #00C2FF;
+  --card-shadow: 0 4px 12px rgba(36, 77, 82, 0.3);
+  --deep-blue: #244D52;
+}
 .main-layout {
   display: flex;
   top: 0;
@@ -7,17 +13,11 @@
   height: 100vh;
 }
 
-/* .main-layout.full-screen {
-  width: 100vw;
-  height: 100vh;
-  background: #244D52;
-  display: flex;
-} */
 
 .main-content {
   position: absolute;
-  top: 7vh; /* Height of the top bar */
-  left: 21vh; /* Width of the sidebar */
+  top: 7vh; 
+  left: 21vh; 
   width: calc(100vw - 21vh);
   height: calc(100vh - 7vh);
   padding-left: 3%;
@@ -28,7 +28,7 @@
 }
 
 .page-title-container {
-  margin-left: 0; /* Could be redundant with padding-left */
+  margin-left: 0;
   padding-left: 6%;
   margin-top: 2%;
   margin-bottom: 16px;
@@ -40,14 +40,14 @@
   font-size: 2.5em;
   font-weight: 700;
   text-shadow: black 1px 1px 2px;
-  color: #53C1DE;
+  color: var(--primary-accent);
   margin: 0;
   font-family: 'Orbitron', 'sans-serif';
   text-decoration: underline;
 }
 .page-title-container h3 {
   font-size: 1.35em;
-  color: #53C1DE;
+  color:var(--primary-accent);
   font-weight: 500;
   text-shadow: black 0.5px 0.5px 0.5px;
   margin: 0;
@@ -65,17 +65,17 @@
   min-height: fit-content;
   box-sizing: border-box;
   overflow-y: auto;
-  color: #FFFFFF; /* White text */
+  color: #FFFFFF; 
 }
 .applications-title {
   font-size: 2.5em;
   font-weight: 700;
-  color: #FFFFFF; /* White text */
+  color: #FFFFFF;
   margin-bottom: 8px;
 }
 .applications-subtitle {
   font-size: 1.25em;
-  color: #53C1DE; /* Light blue subtitle */
+  color: var(--primary-accent);
   font-weight: 500;
   margin-bottom: 32px;
 }
@@ -97,14 +97,14 @@
   max-width: 320px;
   margin: 0 auto;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(36, 77, 82, 0.3);
+  box-shadow: var(--card-shadow);
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.2s, transform 0.2s;
-  border-left: 8px solid #53C1DE; 
+  border-left: 8px solid var(--primary-accent);
   position: relative;
   overflow: hidden;
 }
@@ -113,44 +113,44 @@
   box-shadow: 0 6px 20px rgba(0, 194, 255, 0.3);
   transform: translateY(-2px) !important;
   transition: 0.5s;
-  border-left: 8px solid #00C2FF; /* Electric blue on hover */
+  border-left: 8px solid var(--primary-accent-hover);
 }
 
 .card-title-home {
   font-size: 1.2em;
   font-weight: 600;
   margin-bottom: 18px;
-  color: #244D52; /* Teal green text */
+  color: var(--deep-blue); 
   white-space: nowrap;
 }
 
 .app-card {
-  background: #E8F6F8; /* Light teal-green background */
+  background: #E8F6F8;
   height: auto;
   width: 280px;
   max-width: 320px;
   margin: 0 auto;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(36, 77, 82, 0.3);
+  box-shadow: var(--card-shadow);
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.2s, transform 0.2s;
-  border-left: 8px solid #53C1DE; /* Light blue border */
+  border-left: 8px solid var(--primary-accent);
   
 }
 .app-card:hover {
   box-shadow: 0 6px 20px rgba(0, 194, 255, 0.3);
   transform: translateY(-2px);
   transition: 0.3s;
-  border-left: 8px solid #00C2FF; /* Electric blue on hover */
+  border-left: 8px solid var(--primary-accent-hover); 
 }
 .card-title {
   font-size: 1.2em;
   font-weight: 600;
-  color: #244D52; /* Teal green text */
+  color: var(--deep-blue);
   white-space: nowrap;
 }
 .card-img {
@@ -163,7 +163,7 @@
 .back-arrow-btn {
   background: none;
   border: none;
-  color: #53C1DE;
+  color:var(--primary-accent);
   font-size: 2em;
   margin-right: 12px;
   cursor: pointer;
@@ -174,12 +174,11 @@
   transform: translateY(-4px);
 }
 .back-arrow-btn:hover {
-  color: #244D52; /* Light blue on hover */
+  color: var(--deep-blue);
   transform: translateY(-4px);
   transition: 0.5s;
 }
 
-/* Dropdown Menu Styles */
 .card-content {
   display: flex;
   flex-direction: column;
@@ -200,7 +199,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #E8F6F8; /* Light teal-green background to match card */
+  background: #E8F6F8; 
   opacity: 0;
   transform: translateY(-100%);
   transition: all 0.4s ease;
@@ -214,7 +213,7 @@
   align-items: center;
   justify-content: center;
   background: #89a9ae;
-  border: 2px solid #53C1DE; /* Light blue border */
+  border: 2px solid var(--primary-accent);
   border-radius: 12px;
   padding: 20px;
   margin: 10px 0;
@@ -235,9 +234,9 @@
 }
 
 .dropdown-option:hover {
-  background: #53C1DE; /* Light blue background on hover */
+  background: var(--primary-accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(83, 193, 222, 0.3);
+  box-shadow: var(--card-shadow)
 }
 
 .dropdown-icon {
@@ -260,9 +259,3 @@
   opacity: 1;
   transform: translateY(0);
 }
-
-/* @media (min-width: 2000px) {
-  .cards-row {
-    grid-template-columns: repeat(4, 1fr);
-  }
-} */
