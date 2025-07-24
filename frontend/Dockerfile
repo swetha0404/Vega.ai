@@ -19,8 +19,12 @@ RUN npm run build
 # Install serve to serve the built app
 RUN npm install -g serve
 
+# Copy and make start script executable
+COPY start.sh .
+RUN chmod +x start.sh
+
 # Expose port
 EXPOSE 3000
 
 # Command to serve the built application
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["./start.sh"]

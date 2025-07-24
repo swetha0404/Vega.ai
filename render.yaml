@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: vega-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: OPENAI_API_KEY
+        fromSecret: OPENAI_API_KEY
+      - key: HEYGEN_API_KEY
+        fromSecret: HEYGEN_API_KEY
+    healthCheckPath: /health
+    
+  - type: web
+    name: vega-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://vega-backend.onrender.com
