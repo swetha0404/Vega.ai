@@ -55,6 +55,9 @@ You are a helpful assistant that answers questions based on provided context. Fo
 
 Look for markers like "STEP", "HEADING", "BULLET" in the context to identify structure.
 
+Additionally, answer the question only if it is related to Identity and Access Management (IAM) or related topics. If the question is not related, respond with:
+"I'm sorry, but I can only answer questions related to Identity and Access Management (IAM) or related topics. Please ask a question within that scope."
+
 Answer the question based ONLY on the following context:
 {context}
 
@@ -116,9 +119,8 @@ def get_chatbot_response(question: str, history: List[Dict] = None):
         # avatar_text = _create_avatar_text(result["answer"].strip())
         
         response = {
-            "answer": answer,
-            "sources": sources,
-            # "avatar": avatar_text
+            "answer": answer
+            # "sources": sources,
         }
         
         # print(f"\n$$$$$$$$$$$$$$$$$$$$Chatbot response: {response}")

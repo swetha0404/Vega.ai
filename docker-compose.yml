@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vega-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./agenbotc:/app/agenbotc
+      - ./main.py:/app/main.py
+      - ./users.json:/app/users.json
+      - ./config.yaml:/app/config.yaml
+    env_file:
+      - ./agenbotc/.env
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vega-frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend

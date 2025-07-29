@@ -120,3 +120,5 @@ video_avatar/
 *.tmp
 *.temp
 .cache/
+
+recording_tests/

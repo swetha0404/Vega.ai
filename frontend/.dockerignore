@@ -1,0 +1,18 @@
+# .dockerignore for frontend (React/Vite)
+.git
+.gitignore
+node_modules/
+.DS_Store
+*.log
+*.tmp
+*.temp
+.cache/
+*.swp
+*.swo
+*.env
+*.local
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
