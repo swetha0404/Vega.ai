@@ -338,17 +338,25 @@ async def upload_ppt(
 @app.post("/process/website")
 async def process_web(url: str = Form(...)):
     try:
-        result = process_website(url)
-        if isinstance(result, dict):
-            if result.get("error"):
-                return {"status": "error", "message": result["message"], "doc_id": None}
-            elif result.get("is_duplicate"):
-                return {"status": "duplicate", "message": result["message"], "doc_id": result["doc_id"]}
-            else:
-                return {"status": "success", "message": result["message"], "doc_id": result["doc_id"]}
-        else:
-            # Backward compatibility for old return format
-            return {"status": "success", "message": f"Website processed successfully", "doc_id": result}
+        url_list = [current_url.strip() for current_url in url.split(",") if current_url.strip()]
+        url_with_error=[]
+        url_already_existed=[]
+        url_uploaded_successfully=[]
+        for current_url in url_list:
+            result = process_website(current_url)
+            if isinstance(result, dict):
+                if result.get("error"):
+                    url_with_error.append(current_url)
+                elif result.get("is_duplicate"):
+                    url_already_existed.append(current_url)
+                else:
+                    url_uploaded_successfully.append(current_url)
+        upload_info = (
+    f"Successfully uploaded: {len(url_uploaded_successfully)}, "
+    f"Duplicates: {len(url_already_existed)}, "
+    f"Errors: {len(url_with_error)}"
+)
+        return {"status": "Upload Update", "message": upload_info, "doc_id": None}
     except Exception as e:
         return {"status": "error", "message": str(e), "doc_id": None}
 
