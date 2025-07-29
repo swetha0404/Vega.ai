@@ -1,4 +1,4 @@
-/* User Management Page Layout */
+
 .user-management-page {
   display: flex;
   flex-direction: column;
@@ -25,7 +25,7 @@
   padding: 2rem;
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-  perspective: 1000px; /* Ensures proper 3D animation */
+  perspective: 1000px;
 }
 
 .user-management-header {
@@ -278,9 +278,8 @@
   vertical-align: middle;
 }
 
-/* Special alignment for badge columns */
-.users-table td:nth-child(3), /* Role column */
-.users-table td:nth-child(4) { /* Status column */
+.users-table td:nth-child(3), 
+.users-table td:nth-child(4) { 
   text-align: center;
 }
 
@@ -382,7 +381,6 @@
   margin-bottom: 2rem;
 }
 
-/* Responsive Styles */
 @media screen and (max-width: 1200px) {
   .user-management-content {
     margin-left: 28vh;
@@ -447,7 +445,7 @@
   
   .form-group input,
   .form-group select {
-    font-size: 16px; /* Prevent zoom on iOS */
+    font-size: 16px; 
   }
   
   .form-actions {

@@ -38,7 +38,7 @@ env/
 *.log
 *.sqlite
 *.db
-vectorstore/chroma.sqlite3
+vectorstore/
 
 # Environment variables
 .env
@@ -115,8 +115,6 @@ video_avatar/
 .env.example
 .env.*.example
 *.example
-recording_tests/
-DOCKER_SETUP_SUMMARY.md
 
 # Temporary files
 *.tmp

@@ -1,9 +1,3 @@
-/* =================
-   AVATAR STYLES
-   Consolidated CSS for all avatar-related components
-   ================= */
-
-/* General Reset and Base Styles */
 * {
   padding: 0;
   margin: 0;
@@ -11,9 +5,6 @@
   color: black;
 }
 
-/* =================
-   AVATAR COMPONENT
-   ================= */
 .Avatar-component {
   width: 100%;
   height: fit-content;
@@ -25,9 +16,6 @@
   max-height: 100%;
 }
 
-/* =================
-   AVATAR CONTAINER
-   ================= */
 .avatar-container {
   position: relative;
   width: 100%;
@@ -77,9 +65,6 @@
   margin: 0 auto;
 }
 
-/* =================
-   AVATAR LOADING
-   ================= */
 .avatar-loading {
   position: absolute;
   top: 9%;
@@ -114,9 +99,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* =================
-   AVATAR CONTROLS
-   ================= */
 .avatar-controls {
   position: relative;
   display: flex;
@@ -127,10 +109,8 @@
   margin-top: 8px;
   padding: 10px;
   gap: 12px;
-  /* background-color: rgba(72, 132, 200, 0.1); */
 }
 
-/* Volume Control */
 .avatar-volume-control {
   display: flex;
   align-items: center;
@@ -206,16 +186,6 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-/* Button Group */
-.avatar-button-group {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-/* Interrupt Button */
 .avatar-interrupt-button {
   padding: 8px 16px;
   background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
@@ -244,8 +214,6 @@
   box-shadow: none;
   transform: none;
 }
-
-/* Stop Session Button */
 .avatar-stop-button {
   padding: 8px 16px;
   background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
@@ -274,8 +242,6 @@
   box-shadow: none;
   transform: none;
 }
-
-/* Button Container */
 .avatar-button-group {
   display: flex;
   align-items: center;
@@ -283,8 +249,6 @@
   gap: 12px;
   flex-wrap: wrap;
 }
-
-/* Start Button */
 .avatar-start-button {
   padding: 8px 16px;
   background: linear-gradient(135deg, #4CAF50, #45A049, #2E7D32);
@@ -312,10 +276,6 @@
   box-shadow: none;
   transform: none;
 }
-
-/* =================
-   SESSION CONTROLS
-   ================= */
 .session-controls {
   display: flex;
   justify-content: center;
@@ -341,10 +301,6 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-
-/* =================
-   TEXT INPUT SECTION
-   ================= */
 .text-input-section {
   display: flex;
   flex-direction: column;
@@ -379,10 +335,6 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-
-/* =================
-   UTILITY CLASSES
-   ================= */
 .hide {
   display: none;
 }
