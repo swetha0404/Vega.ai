@@ -3,25 +3,36 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: vega-backend
+    volumes:
+      - ./.env:/app/.env:ro
     ports:
       - "8000:8000"
-    volumes:
-      - ./agenbotc:/app/agenbotc
-      - ./main.py:/app/main.py
-      - ./users.json:/app/users.json
-      - ./config.yaml:/app/config.yaml
-    env_file:
-      - ./agenbotc/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - vega-network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: vega-frontend
     ports:
-      - "3000:80"
-    volumes:
-      - ./frontend:/app
+      - "80:80"
     depends_on:
       - backend
+    restart: unless-stopped
+    environment:
+      - BACKEND_URL=http://backend:8000
+    networks:
+      - vega-network
+
+networks:
+  vega-network:
+    driver: bridge

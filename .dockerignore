@@ -1,0 +1,70 @@
+# Git
+.git
+.gitignore
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+.env/
+grenv/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+vectorstore/
+
+# Environment variables - don't ignore .env as it's needed for the app
+# .env
+# .env.local
+# .env.*.local
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Docker and deployment
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Recording tests
+recording_tests/
+
+# Frontend - handled by separate Docker build
+frontend/node_modules/
+frontend/dist/
+
+# EC2 Keys
+EC2_Keypair/
