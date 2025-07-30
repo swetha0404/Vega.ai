@@ -78,6 +78,8 @@ class LLMAgent:
                         - If the query is about Tomcat server status, health, monitoring, or performance, use check_tomcat_status
                         - For all other questions, use search_knowledge_base
 
+                        Additionally, do not let the user talk about anything other than topics related to Identity and Access Management (IAM). If they do so, let them know that you are an IAM assistant and can only help with queries related to that.
+                        If the user uses profanity or toxic language, respond that you cannot assist with such language and ask them to rephrase their question politely if it is related to IAM. Otherwise, just say that you cannot assist with that.
                         Always use the appropriate tool to get information before responding."""
                 },
                 {
@@ -86,18 +88,18 @@ class LLMAgent:
                 }
             ]
 
-            response = await self.client.chat.completions.create(
+            Initialresponse = await self.client.chat.completions.create(
                 model="gpt-3.5-turbo",# this is used for chat completion.
                 messages=messages,
                 tools=self.tools,
                 tool_choice="auto"
             )
-            print(f"LLM response: {response}")
+            print(f"######################LLM response: {Initialresponse}")
             # Check if the LLM wants to call the tool or KB.
-            if response.choices[0].message.tool_calls:
-                #print(f"Tool call detected: {response.choices[0].message.tool_calls}")
+            if Initialresponse.choices[0].message.tool_calls:
+                #print(f"Tool call detected: {Initialresponse.choices[0].message.tool_calls}")
                 # Extract tool call details
-                tool_call = response.choices[0].message.tool_calls[0]
+                tool_call = Initialresponse.choices[0].message.tool_calls[0]
                 #print(f"Tool call ID: {tool_call.id}")
                 #print(f"Tool call function: {tool_call.function.name}, arguments: {tool_call.function.arguments}")
                 function_name = tool_call.function.name
@@ -109,12 +111,14 @@ class LLMAgent:
                     tool_result = await self._check_tomcat_status(**function_args)
                 elif function_name == "search_knowledge_base":
                     tool_result = await self._search_knowledge_base(**function_args)
+                    print(f"\n#################Calling Knowledge Base: {function_name} with args: {function_args}")
                 else:
                     tool_result = "Unknown function called"
+                    print("\n#####################Unknown function called:")
 
                 # LLm responds with Final Result
                 final_messages = messages + [
-                    response.choices[0].message,
+                    Initialresponse.choices[0].message,
                     {
                         "role": "tool",
                         "content": str(tool_result),
@@ -135,11 +139,13 @@ class LLMAgent:
                 
                 # Get avatar-friendly response
                 avatar_messages = final_messages.copy()
+                print("\n#################Avatar messages(final_messages.copy():", avatar_messages)
                 avatar_messages[0] = {
                     "role": "system",
-                    "content": """You are a helpful assistant. Create a clear, concise, and conversational response suitable for text-to-speech.
+                    "content": """You are a helpful assistant. Rephrase the following answer to be clear, concise, and conversational, suitable for text-to-speech.
 
                     Guidelines for avatar speech:
+                    - If the content from user is already short and clear, just repeat it.
                     - Use natural, conversational language
                     - Keep sentences short and easy to understand
                     - Avoid complex markdown formatting, code blocks, or bullet points
@@ -148,6 +154,8 @@ class LLMAgent:
                     - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
                     - Keep the response under 3-4 sentences when possible
                     - If the information is complex, summarize the main points clearly
+                    - Do not respond to the content from user with 'Sure' or 'Got it' as you are rephrasing the text, not responding to it.
+                    - You do not have to be sweet all the time, be assertive if the user content seems to use reprimanding language
                     """
                 }
                 
@@ -160,46 +168,40 @@ class LLMAgent:
                     "verbose": tool_result,
                     "avatar": avatar_response.choices[0].message.content
                 }
-            else:
-                # No tools called, generate both verbose and avatar responses in one pass
-                single_pass_messages = [
-                    {
-                        "role": "system",
-                        "content": """You are a helpful assistant. Provide your response in the following JSON format:
+            else: #if there is no tool call, this is the else block which is entered
+                avatar_messages = [
+                {
+                    "role": "system",
+                    "content": """You are a helpful assistant. Rephrase the following answer to be clear, concise, and conversational, suitable for text-to-speech.
 
-{
-  "verbose": "A detailed, well-formatted response in Markdown with bullet points, bold headers, and code blocks where helpful",
-  "avatar": "A clear, concise, conversational response suitable for text-to-speech (2-3 sentences, natural language, no markdown)"
-}
-
-Make sure the verbose response is comprehensive and well-formatted, while the avatar response is conversational and easy to speak."""
-                    },
-                    {
-                        "role": "user", 
-                        "content": user_query
-                    }
+                    Guidelines for avatar speech:
+                    - If the content from user is already short and clear, just repeat it.
+                    - Use natural, conversational language
+                    - Keep sentences short and easy to understand
+                    - Avoid complex markdown formatting, code blocks, or bullet points
+                    - Focus on the key information the user needs
+                    - Make it sound human and friendly
+                    - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
+                    - Keep the response under 3-4 sentences when possible
+                    - If the information is complex, summarize the main points clearly
+                    - Do not respond to the content from user with 'Sure' or 'Got it' as you are rephrasing the text, not responding to it.
+                    - You do not have to be sweet all the time, be assertive if the user content seems to use reprimanding language
+                    """
+                },
+                {
+                    "role": "user",
+                    "content": Initialresponse.choices[0].message.content
+                }
                 ]
-                
-                combined_response = await self.client.chat.completions.create(
+                avatar_response = await self.client.chat.completions.create(
                     model="gpt-3.5-turbo",
-                    messages=single_pass_messages
+                    messages=avatar_messages
                 )
-                
-                try:
-                    # Parse the JSON response
-                    response_content = combined_response.choices[0].message.content
-                    parsed_response = json.loads(response_content)
-                    return {
-                        "verbose": parsed_response.get("verbose", response_content),
-                        "avatar": parsed_response.get("avatar", "Please check the detailed response for more information.")
-                    }
-                except json.JSONDecodeError:
-                    # Fallback if JSON parsing fails
-                    return {
-                        "verbose": response_content,
-                        "avatar": "I have a response for you. Please check the detailed information."
-                    }
 
+                return {
+                    "verbose": Initialresponse.choices[0].message.content,
+                    "avatar": avatar_response.choices[0].message.content
+                }
         except Exception as e:
             error_message = f"Error processing query: {str(e)}"
             return {

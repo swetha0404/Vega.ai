@@ -26,6 +26,7 @@ ENV/
 env/
 .venv/
 .env/
+grenv/
 
 # IDE specific files
 .idea/
@@ -120,3 +121,5 @@ video_avatar/
 *.tmp
 *.temp
 .cache/
+
+recording_tests/

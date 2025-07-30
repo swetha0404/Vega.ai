@@ -25,7 +25,7 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
   const defaultVoiceId = null; // Use null to let avatar use its default voice
 
   // API configuration
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Backend server URL
+  const API_BASE = import.meta.env.BACKEND_URL || 'http://localhost:8000'; // Backend server URL
   const heygen_API = {
     apiKey: '',
     serverUrl: 'https://api.heygen.com',

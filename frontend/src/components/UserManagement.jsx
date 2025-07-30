@@ -5,7 +5,7 @@ import Sidebar from './sideBar';
 import Topbar from './topBar.jsx';
 import './userManagement.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE = import.meta.env.BACKEND_URL || "http://localhost:8000";
 
 function UserManagement() {
   const navigate = useNavigate();

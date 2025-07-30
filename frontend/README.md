@@ -139,7 +139,7 @@ npm run lint
 ### Environment Variables
 Create a `.env` file in the frontend directory:
 ```env
-VITE_API_BASE_URL=http://localhost:8000
+BACKEND_URL=http://localhost:8000
 VITE_API_TIMEOUT=30000
 VITE_APP_NAME=Vega.ai
 VITE_ENABLE_VOICE_INPUT=true
