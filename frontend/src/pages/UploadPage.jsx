@@ -7,7 +7,7 @@ import Sidebar from '../components/sideBar.jsx';
 
 
 function UploadPage() {
-  const API_BASE = import.meta.env.BACKEND_URL || "http://localhost:8000";
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
   const [uploadStatus, setUploadStatus] = useState('');
   const [uploadStatusType, setUploadStatusType] = useState('');
   const [showNotification, setShowNotification] = useState(false);

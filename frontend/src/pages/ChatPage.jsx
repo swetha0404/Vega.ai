@@ -11,7 +11,7 @@ import Sidebar from '../components/sideBar.jsx';
 import Avatar from '../components/avatar.jsx';
 
 function ChatPage() {
-  const API_BASE = import.meta.env.BACKEND_URL || "http://localhost:8000";
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
   
   // Check authentication on component mount
   useEffect(() => {
