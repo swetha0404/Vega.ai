@@ -3,7 +3,7 @@
 ## Project Structure
 
 ```
-AI-MVP/
+Repo folder/
 ├── agenbotc/           # Backend Python code (FastAPI, chatbot, LLM agent, etc.)
 ├── frontend/           # Frontend React/Vite app
 ├── Dockerfile          # Backend Dockerfile
@@ -24,8 +24,19 @@ AI-MVP/
 ## Local Development
 
 ### 1. Backend (FastAPI)
-- Navigate to `AI-MVP` directory
-- Create and activate a Python virtual environment
+- Create and activate a Python virtual environment (Optional)
+  Windows:
+  ```
+  pythom -m venv myenv
+  myenv\Scripts\activate
+  deactivate (once done)
+  ```
+  MacOS:
+  ```
+  python -m venv myenv
+  source myenv/bin/activate
+  deactivate
+  ```
 - Install dependencies:
   ```
   pip install -r requirements.txt
@@ -38,7 +49,7 @@ AI-MVP/
 - API docs available at: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ### 2. Frontend (React/Vite)
-- Navigate to `AI-MVP/frontend`
+- Navigate to `/frontend`
 - Install dependencies:
   ```
   npm install
@@ -55,7 +66,7 @@ AI-MVP/
 
 1. Make sure you have Docker and Docker Compose installed.
 2. Place your `.env` file in `agenbotc/.env`.
-3. From the `AI-MVP` directory, build and run both containers:
+3. From the home directory, build and run both containers:
    ```
    docker-compose up --build
    ```
