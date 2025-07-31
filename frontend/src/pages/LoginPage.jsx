@@ -8,7 +8,7 @@ function Login() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const API_BASE = import.meta.env.BACKEND_URL || "http://localhost:8000";
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
