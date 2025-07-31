@@ -78,8 +78,7 @@ class LLMAgent:
                         - If the query is about Tomcat server status, health, monitoring, or performance, use check_tomcat_status
                         - For all other questions, use search_knowledge_base
 
-                        Additionally, do not let the user talk about anything other than topics related to Identity and Access Management (IAM). If they do so, let them know that you are an IAM assistant and can only help with queries related to that.
-                        If the user uses profanity or toxic language, respond that you cannot assist with such language and ask them to rephrase their question politely if it is related to IAM. Otherwise, just say that you cannot assist with that.
+                        Additionally, if the user uses profanity or toxic language, respond that you cannot assist with such language and ask them to rephrase their question politely if it is related to IAM. Otherwise, just say that you cannot assist with that.
                         Always use the appropriate tool to get information before responding."""
                 },
                 {
