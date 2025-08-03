@@ -25,7 +25,7 @@ venv/
 ENV/
 env/
 .venv/
-.env/
+# .env/
 grenv/
 
 # IDE specific files
@@ -42,7 +42,7 @@ grenv/
 vectorstore/
 
 # Environment variables
-.env
+# .env
 .env.local
 .env.*.local
 !/frontend/.env
