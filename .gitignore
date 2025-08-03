@@ -123,3 +123,6 @@ video_avatar/
 .cache/
 
 recording_tests/
+
+# Ensure Unix line endings for shell scripts
+*.sh text eol=lf
