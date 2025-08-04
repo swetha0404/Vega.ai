@@ -63,11 +63,8 @@ function Login() {
       </div>
       
       <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Your personal
-          <span>Your personal</span>
-          <span>Your personal</span>
-          <span>IAM Assistant</span>
-        </h2>
+        {/* Updated h2 to a single line of text with new styling */}
+        <h2 className="static-heading">Your personal <br></br> IAM Assistant</h2>
         <input
           type="text"
           placeholder="Username"
@@ -91,7 +88,7 @@ function Login() {
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             <img 
-              src={showPassword ? "/eye-closed.png" : "/eye-open.png"} 
+              src={showPassword ? "/eyeClose.png" : "/eyeOpen.png"} 
               alt={showPassword ? "Hide password" : "Show password"}
             />
           </button>
@@ -106,4 +103,4 @@ function Login() {
   );
 }
 
-export default Login; 
+export default Login;

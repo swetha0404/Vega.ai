@@ -42,7 +42,7 @@ function MainLayout() {
                   }}
                 >
                   <div className="card-content">
-                    <img src="/PF-Logo.png" alt="PingFederate" className="card-img" />
+                    <img src="/PF-Logo-White.png" alt="PingFederate" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
                     <div className="dropdown-option" onClick={() => navigate('/services')} title='PingFederate SP-Connections'>
@@ -65,7 +65,7 @@ function MainLayout() {
                   }}
                 >
                   <div className="card-content">
-                    <img src="/PO-Logo.png" alt="PingOne" className="card-img" />
+                    <img src="/PO-Logo-White.png" alt="PingOne" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
                     <div className="dropdown-option" onClick={() => navigate('/services')} title='PingOne SP-Connections'>
@@ -88,8 +88,11 @@ function MainLayout() {
                   }}
                 >
                   <div className="card-content">
-                    <img src="/PD-Logo.png" alt="PingDirectory" className="card-img" />
-                  </div>
+                    <img 
+                    src="/PD-White.png" 
+                    alt="PingDirectory" 
+                    style={{ width: '250px', height: 'auto' }} />
+                    </div>
                   <div className="dropdown-menu">
                     <div className="dropdown-option" onClick={() => navigate('/services')} title='PingDirectory SP-Connections'>
                       <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon"/>
@@ -111,7 +114,7 @@ function MainLayout() {
                   }}
                 >
                   <div className="card-content">
-                    <img src="/PI-Logo.png" alt="PingIDM" className="card-img" />
+                    <img src="/PI-Logo-White.png" alt="PingIDM" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
                     <div className="dropdown-option" onClick={() => navigate('/services')} title='PingIDM SP-Connections'>

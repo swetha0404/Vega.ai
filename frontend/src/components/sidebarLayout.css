@@ -1,6 +1,6 @@
 .sidebar {
   width: fit-content; 
-  background: linear-gradient(180deg, #244D52, #1A3A3F, #0F2426); 
+  background: linear-gradient(180deg, #001f3f, #001a33, #001122); /* New dark gradient */
   color: #FFFFFF; 
   display: flex;
   flex-direction: column;
@@ -8,14 +8,14 @@
   padding-top: 6%;
   padding-left: 2%;
   padding-right: 2%;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.03);
+  box-shadow: 2px 0 8px rgba(0,0,0,0.3);
   position: fixed;
   top: 0px; 
   left: 0;
   height: 100vh;
   z-index: 900;
   border-right: 2px solid;
-  border-image: radial-gradient(circle, #53C1DE, #00C2FF) 1; 
+  border-image: linear-gradient(to bottom, #0492C2, #5b41d8) 1; /* Updated border colors */
 }
 
 .sidebar-item{
@@ -31,13 +31,12 @@
   display: block;
   border-radius: 8px;
   font-family: 'Orbitron', sans-serif;
-  
 }
 
 .sidebar-item.active, .sidebar-item:hover {
-  background-color: rgba(83, 193, 222, 0.15); 
-  color: #53C1DE; 
-  transition: 0.5s
+  background-color: rgba(4, 146, 194, 0.15); /* Updated to new accent color */
+  color: #0492C2; /* Updated to new accent color */
+  transition: 0.5s;
 }
 
 .sidebar-item span{
@@ -47,8 +46,13 @@
 }
 
 .sidebar-item span:hover {
-  color: #53C1DE; 
+  color: #0492C2; /* Updated to new accent color */
   text-decoration: dashed;
 }
 
-
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none; /* Hide the sidebar on smaller screens */
+  }
+}

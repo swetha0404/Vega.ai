@@ -1,10 +1,16 @@
 :root {
-  --primary-color: #244D52;
-  --accent-color: #53C1DE;
-  --light-bg: #E8F6F8;
+  --primary-color: #001f3f; /* A deeper, darker blue for main elements */
+  --secondary-color: #5b41d8; /* The vibrant purple from login page */
+  --accent-color: #0492C2; /* The vibrant cyan from login page */
+  --panel-bg-color: rgba(255, 255, 255, 0.05); /* A subtle, semi-transparent grey for inner panels */
   --text-light: #FFFFFF;
-  --text-dark: #4E4E4E;
+  --text-dark: rgba(255, 255, 255, 0.8);
+  --success-color: #38a169;
+  --error-color: #e53e3e;
+  --duplicate-color: #e0ac1a;
+  --processing-color: #4a5568;
 }
+
 .settings-page {
   position: absolute;
   left: 0;
@@ -18,42 +24,43 @@
   position: relative;
   display: flex;
   top: 7vh;
-  left: 30vh; 
+  left: 30vh;
   height: calc(100vh - 7vh);
-  width: calc(100vw - 30vh); 
+  width: calc(100vw - 30vh);
   gap: 1.5rem;
   padding: 1.5rem;
-  justify-content: space-between; 
+  justify-content: space-between;
 }
 
 .settings-upload-panel {
-  flex: 0 0 320px; 
-  background: var(--light-bg);
-  border-radius: 16px;  
+  flex: 0 0 320px;
+  background: rgba(0, 0, 0, 0.4); /* Darker, semi-transparent black for better contrast */
+  border-radius: 16px;
   padding: 1.5rem 1.5rem 1rem 1.5rem;
-  box-shadow: 0 10px 30px rgba(36, 77, 82, 0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   width: 320px;
   max-height: fit-content;
-  display: flex; 
+  display: flex;
   flex-direction: column;
-  border: 1px solid rgba(36, 77, 82, 0.3);
-  color: #4E4E4E; 
-  margin-left: 10px; 
+  border: 1px solid rgba(4, 146, 194, 0.3);
+  color: var(--text-dark);
+  margin-left: 10px;
+  backdrop-filter: blur(10px);
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   perspective: 1000px;
 }
 
 .settings-upload-panel h3 {
-  color: var(--primary-color);
-  font-size: 1.5rem; 
+  color: var(--text-light);
+  font-size: 1.5rem;
   font-weight: 600;
-  gap: 0.5rem;  
+  gap: 0.5rem;
   margin-bottom: 1rem;
   text-align: center;
-  border-bottom: 2px solid var(--accent-color);
+  border-bottom: 2px solid var(--secondary-color); /* Used purple for the accent */
   padding-bottom: 0.5rem;
-  font-family: 'Orbitron', sans-serif; 
+  font-family: 'Orbitron', sans-serif;
 }
 
 .settings-upload-panel form > div {
@@ -62,16 +69,16 @@
   border: 1px dashed var(--accent-color);
   border-radius: 12px;
   transition: all 0.3s ease;
-  background: linear-gradient(145deg, #c7d4d5, #53676a); 
+  background: var(--panel-bg-color); /* New subtle background color */
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
 }
 
 .settings-upload-panel form > div:hover {
-  border-color: #00C2FF; 
+  border-color: var(--secondary-color); /* Hover uses the purple accent */
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 194, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(91, 65, 216, 0.3);
 }
 
 
@@ -97,7 +104,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  padding: 1em 1.5rem ;
+  padding: 1em 1.5rem;
   transform: translateY(0);
   opacity: 1;
   min-height: fit-content;
@@ -106,31 +113,31 @@
 }
 
 .upload-status.success {
-  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-  color: #1d6452;
-  border: 1px solid #c3e6cb;
-  box-shadow: 0 2px 8px rgba(21, 87, 36, 0.1);
+  background: var(--success-color);
+  color: white;
+  border: 1px solid rgba(56, 161, 105, 0.5);
+  box-shadow: 0 2px 8px rgba(56, 161, 105, 0.1);
 }
 
 .upload-status.error {
-  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  box-shadow: 0 2px 8px rgba(114, 28, 36, 0.1);
+  background: var(--error-color);
+  color: white;
+  border: 1px solid rgba(229, 62, 62, 0.5);
+  box-shadow: 0 2px 8px rgba(229, 62, 62, 0.1);
 }
 
 .upload-status.duplicate {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-  color: #856404;
-  border: 1px solid #ffeaa7;
-  box-shadow: 0 2px 8px rgba(133, 100, 4, 0.1);
+  background: var(--duplicate-color);
+  color: white;
+  border: 1px solid rgba(224, 172, 26, 0.5);
+  box-shadow: 0 2px 8px rgba(224, 172, 26, 0.1);
 }
 
 .upload-status.processing {
-  background: linear-gradient(135deg, #cce7ff 0%, #b3d9ff 100%);
-  color: #004085;
-  border: 1px solid #b3d9ff;
-  box-shadow: 0 2px 8px rgba(0, 64, 133, 0.1);
+  background: var(--processing-color);
+  color: white;
+  border: 1px solid rgba(74, 85, 104, 0.5);
+  box-shadow: 0 2px 8px rgba(74, 85, 104, 0.1);
   top: 0;
   left: 0;
   width: 100%;
@@ -143,7 +150,7 @@
   bottom: 0;
   left: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-color), #00C2FF); 
+  background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
   animation: progressBar 2s ease-in-out infinite;
 }
 
@@ -157,12 +164,12 @@
   position: relative;
   top: 0.2rem;
   right: 0.2rem;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 0.6rem;
   font-weight: normal;
   cursor: pointer;
-  color: #666;
+  color: var(--text-light);
   opacity: 0.7;
   transition: all 0.15s ease;
   padding: 0;
@@ -178,8 +185,8 @@
 
 .notification-close:hover {
   opacity: 1;
-  background: rgba(255, 255, 255, 1);
-  color: #333;
+  background: rgba(255, 255, 255, 0.4);
+  color: var(--primary-color);
   transform: scale(1.05);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
@@ -187,7 +194,8 @@
 .upload-status.hide {
   transform: translateY(-100%);
   opacity: 0;
-  max-height: 0;  margin-bottom: 0;
+  max-height: 0;
+  margin-bottom: 0;
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -195,7 +203,7 @@
 .settings-upload-panel label {
   display: block;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--text-dark);
   margin-bottom: 0.5rem;
   font-size: 1rem;
   text-transform: uppercase;
@@ -205,23 +213,23 @@
 .settings-upload-panel input[type="text"] {
   width: 100%;
   padding: 0.75rem 0.875rem;
-  border: 2px solid var(--accent-color); 
+  border: 2px solid var(--accent-color);
   border-radius: 8px;
-  font-size: 0.95rem; 
+  font-size: 0.95rem;
   color: var(--text-light);
-  background: linear-gradient(145deg, #c7d4d5, #53676a); 
+  background: rgba(0,0,0,0.6); /* Darker input background for more contrast */
   outline: none;
   transition: all 0.3s ease;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .settings-upload-panel input[type="text"]:focus {
-  border-color: #00C2FF; 
-  box-shadow: 0 0 0 2px rgba(0, 194, 255, 0.2);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 2px rgba(91, 65, 216, 0.2);
 }
 .website-input input::placeholder{
-  color: var(--text-light);
-  opacity: 0.8; 
+  color: var(--text-dark);
+  opacity: 0.8;
 }
 .settings-upload-panel input[type="file"] {
   width: 100%;
@@ -229,7 +237,7 @@
   border: 2px solid var(--accent-color);
   border-radius: 8px;
   font-size: 0.95rem;
-  background: var(--primary-color);
+  background: rgba(0,0,0,0.6); /* Darker input background for more contrast */
   cursor: pointer;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -238,8 +246,8 @@
 }
 
 .settings-upload-panel input[type="file"]:hover {
-  border-color: #00C2FF; 
-  background: #1A3A3F; 
+  border-color: var(--secondary-color);
+  background: rgba(0,0,0,0.7);
 }
 
 .settings-upload-panel input[type="file"]::file-selector-button {
@@ -257,15 +265,15 @@
 }
 
 .settings-upload-panel input[type="file"]::file-selector-button:hover {
-  background: linear-gradient(145deg, var(--accent-color), #00C2FF);
+  background: linear-gradient(145deg, var(--accent-color), var(--secondary-color));
   transform: translateY(-1px);
 }
 
 .settings-upload-panel button {
   width: 100%;
   padding: 0.6rem 1rem;
-  background: linear-gradient(145deg, var(--primary-color),var(--accent-color));
-  color: white;
+  background: linear-gradient(145deg, var(--primary-color), var(--accent-color));
+  color: var(--text-light);
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -278,51 +286,52 @@
 }
 
 .settings-upload-panel button:hover {
-  background: linear-gradient(145deg,var(--accent-color), #00C2FF);
+  background: linear-gradient(145deg, var(--accent-color), var(--secondary-color));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 194, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(91, 65, 216, 0.3);
 }
 
 .settings-upload-panel button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 194, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(91, 65, 216, 0.3);
 }
 
 .settings-upload-panel button:disabled {
-  background: linear-gradient(145deg, #E5E7EB, #9CA3AF);
-  color: #6B7280;
+  background: linear-gradient(145deg, #2d3748, #4a5568);
+  color: #a0aec0;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .settings-upload-panel button:disabled:hover {
-  background: linear-gradient(145deg, #E5E7EB, #9CA3AF);
+  background: linear-gradient(145deg, #2d3748, #4a5568);
   transform: none;
   box-shadow: none;
 }
 
 .settings-upload-panel label[for$="-upload"]:hover {
-  border-color: #00C2FF;
-  background: rgba(36, 77, 82, 0.8);
+  border-color: var(--secondary-color);
+  background: rgba(0,0,0,0.6);
 }
 
 .settings-chat-panel {
   flex: 1;
-  background: var(--light-bg);
+  background: rgba(0, 0, 0, 0.4); /* Darker, semi-transparent black for better contrast */
   border-radius: 16px;
   padding: 1rem 1.5rem 1.5rem 1.5rem;
-  box-shadow: 0 10px 30px rgba(36, 77, 82, 0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
   height: 98%;
-  border: 1px solid rgba(36, 77, 82, 0.3);
-  min-width: 0; 
-  margin-right: 10px; 
+  border: 1px solid rgba(4, 146, 194, 0.3);
+  min-width: 0;
+  margin-right: 10px;
+  backdrop-filter: blur(10px);
   -webkit-animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
   animation: swing-in-top-bck 0.6s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-  animation-delay: 0.2s; 
-  perspective: 1000px; 
+  animation-delay: 0.2s;
+  perspective: 1000px;
 }
 
 .chat-header {
@@ -331,19 +340,19 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid var(--accent-color);
+  border-bottom: 2px solid var(--secondary-color);
 }
 
 .chat-header h3 {
-  color: var(--primary-color);
-  font-size: 1.5rem; 
+  color: var(--text-light);
+  font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
-  font-family: 'Orbitron', sans-serif; 
+  font-family: 'Orbitron', sans-serif;
 }
 
 .clear-chat-btn {
-  background: linear-gradient(145deg, #ef4444, #dc2626);
+  background: linear-gradient(145deg, #e53e3e, #c53030);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -355,9 +364,9 @@
 }
 
 .clear-chat-btn:hover {
-  background: linear-gradient(145deg, #dc2626, #b91c1c);
+  background: linear-gradient(145deg, #c53030, #9b2c2c);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
 
 .chat-messages {
@@ -365,34 +374,34 @@
   overflow-y: auto;
   margin-bottom: 1rem;
   padding: 1rem;
-  background: linear-gradient(145deg, var(--text-light), #F8FCFD, var(--light-bg)) !important;
+  background: rgba(0, 0, 0, 0.2); /* A lighter semi-transparent background for messages */
   border-radius: 12px;
-  border: 1px solid rgba(36, 77, 82, 0.3);
-  color: #4E4E4E; 
+  border: 1px solid rgba(4, 146, 194, 0.3);
+  color: var(--text-light);
 }
 
 .chat-message.bot {
-  background: var(--light-bg);
+  background: rgba(4, 146, 194, 0.1); /* Very subtle background for bot messages */
   border-radius: 12px 12px 12px 4px;
   padding: 1rem 1.25rem;
   margin-bottom: 0.75rem;
   align-self: flex-start;
   max-width: 80%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid var(--accent-color);
-  border-bottom: 1px solid rgba(83, 193, 222, 0.3);
-  color: #4E4E4E; 
+  border-left: 4px solid var(--secondary-color);
+  border-bottom: 1px solid rgba(91, 65, 216, 0.3);
+  color: var(--text-light); /* Changed bot message color back to white */
 }
 
+/* This is the corrected rule to specifically target the paragraph text within the bot message. */
+.chat-message.bot p {
+  color: var(--text-light); 
+}
 
 .chat-message.bot h1, .chat-message.bot h2, .chat-message.bot h3 {
   margin: 0.5rem 0;
-  color: var(--primary-color);
+  color: var(--accent-color); /* Highlight bot headings with the cyan accent */
 }
-
-.chat-message.bot h1 { font-size: 1.25rem; }
-.chat-message.bot h2 { font-size: 1.1rem; }
-.chat-message.bot h3 { font-size: 1rem; }
 
 .chat-message.bot p {
   margin: 0.5rem 0;
@@ -411,20 +420,20 @@
 
 .chat-message.bot strong {
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--accent-color);
 }
 
 .chat-message.bot code {
-  background: rgba(83, 193, 222, 0.2); 
+  background: rgba(91, 65, 216, 0.2);
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
-  color: var(--primary-color);
+  color: var(--text-light);
 }
 
 .chat-message.bot pre {
-  background: rgba(78, 78, 78, 0.1); 
+  background: rgba(0,0,0,0.2);
   padding: 0.75rem;
   border-radius: 6px;
   overflow-x: auto;
@@ -437,23 +446,23 @@
 }
 
 .chat-message.bot blockquote {
-  border-left: 3px solid var(--accent-color);
+  border-left: 3px solid var(--secondary-color);
   padding-left: 1rem;
   margin: 0.5rem 0;
   font-style: italic;
-  color: #4E4E4E; 
+  color: var(--text-dark);
 }
 
 .chat-message.user {
-  background: linear-gradient(145deg, var(--primary-color), var(--accent-color)); 
+  background: linear-gradient(145deg, var(--primary-color), var(--secondary-color)); /* User messages use the purple accent */
   border-radius: 12px 12px 4px 12px;
   padding: 1rem 1.25rem;
   margin-bottom: 0.75rem;
   align-self: flex-end;
   max-width: 80%;
-  box-shadow: 0 2px 8px rgba(36, 77, 82, 0.2);
-  border-right: 4px solid #00C2FF; 
-  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-right: 4px solid var(--accent-color); /* User message border uses cyan accent */
+  color: var(--text-light);
 }
 
 .chat-message.loading {
@@ -495,10 +504,10 @@
   display: flex;
   gap: 0.75rem;
   padding: 1rem;
-  background: #a9c0c3;
+  background: rgba(0,0,0,0.6); /* A darker, more defined background for the input form */
   border-radius: 12px;
-  border: 1px solid rgba(36, 77, 82, 0.3);
-  color: var(--text-light); 
+  border: 1px solid var(--accent-color);
+  color: var(--text-light);
 }
 
 .chat-input-form input {
@@ -508,17 +517,17 @@
   border: 2px solid var(--accent-color);
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  background: var(--text-light);
-  color: #4E4E4E; 
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
 }
 .chat-input-form input::placeholder {
-  color: #9CA3AF; 
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .chat-input-form input:focus {
   outline: none;
-  border-color: #00C2FF; 
-  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.1);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(91, 65, 216, 0.1);
 }
 
 .chat-input-form button {
@@ -535,4 +544,101 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.chat-input-form button:hover {
+  background: linear-gradient(145deg, var(--accent-color), var(--secondary-color));
+}
+
+
+@media (max-width: 1024px) {
+  .settings-split-container {
+    flex-direction: column;
+    left: 0;
+    width: 100vw;
+    top: 8vh;
+    padding: 1rem;
+  }
+
+  .settings-upload-panel,
+  .settings-chat-panel {
+    width: 100%;
+    margin: 0 auto 1rem auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-split-container {
+    left: 0;
+    width: 100vw;
+    padding: 1rem;
+    top: 0;
+    height: calc(100vh);
+  }
+
+  /* Hide the sidebar on smaller screens */
+  .sidebar-container {
+    display: none;
+  }
+  .chat-header h3,
+  .settings-upload-panel h3 {
+    font-size: 1.2rem;
+  }
+
+  .chat-input-form input {
+    padding: 0.75rem;
+  }
+
+  .chat-input-form button {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .settings-upload-panel input[type="file"]::file-selector-button {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-upload-panel,
+  .settings-chat-panel {
+    padding: 1rem;
+  }
+  .settings-split-container {
+    padding: 0.5rem;
+  }
+
+  /* Make upload panel forms more compact */
+  .settings-upload-panel form > div {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .settings-upload-panel input[type="text"],
+  .settings-upload-panel button {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Improve the file upload label text visibility */
+  .settings-upload-panel label[for$="-upload"] {
+    color: var(--text-dark);
+    background: var(--light-bg);
+  }
+
+  /* Adjust chat message spacing */
+  .chat-message.bot,
+  .chat-message.user {
+    max-width: 100%;
+    padding: 0.75rem;
+  }
+
+  .chat-input-form {
+    flex-direction: column;
+  }
+
+  .chat-input-form input,
+  .chat-input-form button {
+    width: 100%;
+  }
 }

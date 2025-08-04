@@ -3,7 +3,14 @@ html, body, #root {
   height: 100vh;
   margin: 0;
   padding: 0;
-  background-color: #FFFFFF;
+  /* Updated background to match LoginLayout.css */
+  background:
+    linear-gradient(217deg, #003f7f, transparent 70.71%),
+    linear-gradient(127deg, #002a50, transparent 70.71%),
+    linear-gradient(336deg, #001a33, transparent 70.71%),
+    linear-gradient(180deg, #00284d 0%, #003366 100%);
+  animation: gradientShift 15s ease infinite;
+  background-size: 200% 200%;
 }
 @font-face {
   font-family: 'Expansiva';
@@ -49,12 +56,12 @@ html, body, #root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif, 'BeautyGlitch', 'Expansiva', 'ExpansivaBold', 'ExpansivaBoldItalic', 'LunarEscape', 'SpaceAge', 'Orbitron', 'OrbitronBold';
   line-height: 1.5;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.87);
+  /* Updated to match LoginLayout.css text color */
+  color: #FFFFFF;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
 }
 
 .fade-in {

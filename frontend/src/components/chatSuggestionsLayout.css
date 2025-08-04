@@ -1,18 +1,28 @@
+/* Using variables from the new color scheme for consistency */
+:root {
+  --primary-color: #001f3f;
+  --secondary-color: #5b41d8;
+  --accent-color: #0492C2;
+  --text-light: #FFFFFF;
+  --text-dark: rgba(255, 255, 255, 0.8);
+  --panel-bg-color: rgba(255, 255, 255, 0.05);
+}
 
 .suggestions-dropdown {
   position: absolute;
   bottom: 100%;
   left: 0;
   width: 100%;
-  background: #397077;
+  background: rgba(0, 0, 0, 0.8); /* Updated background to a dark, semi-transparent color */
   border-radius: 8px;
-  border: 1px solid rgba(72, 132, 200, 0.5);
-  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(4, 146, 194, 0.5); /* Updated border color */
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3); /* Adjusted box shadow for dark theme */
   max-height: 200px;
   overflow-y: auto;
   display: none;
   z-index: 20;
   margin-bottom: 8px;
+  backdrop-filter: blur(5px);
 }
 
 .suggestions-dropdown.active {
@@ -23,9 +33,9 @@
 .suggestion-item {
   padding: 10px 15px;
   cursor: pointer;
-  color: white;
+  color: var(--text-light);
   transition: all 0.2s;
-  border-bottom: 1px solid rgba(72, 132, 200, 0.3);
+  border-bottom: 1px solid rgba(4, 146, 194, 0.3); /* Updated border color */
 }
 
 .suggestion-item:last-child {
@@ -33,7 +43,7 @@
 }
 
 .suggestion-item:hover {
-  background: linear-gradient(90deg, #53C1DE, #00C2FF);
+  background: linear-gradient(90deg, var(--accent-color), var(--secondary-color)); /* Updated hover gradient */
 }
 
 .suggestions-dropdown::-webkit-scrollbar {
@@ -46,19 +56,19 @@
 }
 
 .suggestions-dropdown::-webkit-scrollbar-thumb {
-  background: #53C1DE;
+  background: var(--accent-color); /* Updated scrollbar thumb color */
   border-radius: 3px;
 }
 
 .suggestion-heading {
   padding: 10px 15px;
   font-weight: bold;
-  color: #53C1DE;
-  border-bottom: 1px solid rgba(72, 132, 200, 0.5);
+  color: var(--secondary-color); /* Updated heading color */
+  border-bottom: 1px solid rgba(91, 65, 216, 0.5); /* Updated border color */
   text-align: center;
   font-family: 'Orbitron', sans-serif;
   font-size: 0.9em;
-  text-shadow: 0 0 3px #00C2FF; 
+  text-shadow: 0 0 3px var(--secondary-color); /* Updated text shadow color */
 }
 
 .chat-input-wrapper {
@@ -73,7 +83,7 @@
 
 @media screen and (max-width: 768px) {
   .suggestions-animation {
-    max-width: 90%;
+    max-width: 100%; /* Ensures the dropdown fills the available width on smaller screens */
     font-size: 0.9rem;
   }
   

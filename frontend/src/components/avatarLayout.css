@@ -1,8 +1,22 @@
+/* Using variables from the new color scheme for consistency */
+:root {
+  --primary-color: #001f3f;
+  --secondary-color: #5b41d8;
+  --accent-color: #0492C2;
+  --text-light: #FFFFFF;
+  --text-dark: rgba(255, 255, 255, 0.8);
+  --panel-bg-color: rgba(255, 255, 255, 0.05);
+}
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  color: black;
+}
+
+/* Base font color for all elements is set to white */
+body {
+  color: var(--text-light);
 }
 
 .Avatar-component {
@@ -49,7 +63,7 @@
 
 .avatar-canvas {
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Adjusted for dark theme */
   max-width: 200px;
   max-height: 100%;
   width: auto;
@@ -76,7 +90,7 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
-  color: white;
+  color: var(--text-light);
   z-index: 5;
 }
 
@@ -88,8 +102,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 4px solid rgba(72, 132, 200, 0.3);
-  border-top-color: #1de9b6;
+  border: 4px solid rgba(4, 146, 194, 0.3); /* Updated border color */
+  border-top-color: var(--secondary-color); /* Updated accent color */
   animation: spin 1s linear infinite;
   margin-bottom: 10px;
 }
@@ -122,7 +136,7 @@
 .avatar-volume-control .volume-label {
   margin-right: 10px;
   min-width: 45px;
-  color: white;
+  color: var(--text-light);
   font-family: 'Orbitron', 'sans-serif';
   font-size: 12px;
   font-weight: 500;
@@ -132,7 +146,7 @@
   margin-left: 6px;
   width: 30px;
   text-align: right;
-  color: lightgray;
+  color: var(--text-dark);
   font-size: 12px;
   font-weight: 500;
 }
@@ -140,7 +154,7 @@
 .avatar-volume-control input[type="range"] {
   flex: 1;
   height: 5px;
-  background: #1de9b6;
+  background: var(--accent-color); /* Updated color */
   border-radius: 3px;
   outline: none;
   margin-right: 8px;
@@ -152,7 +166,7 @@
 .avatar-volume-control input[type="range"]::-webkit-slider-track {
   width: 100%;
   height: 5px;
-  background: #1de9b6;
+  background: var(--accent-color); /* Updated color */
   border-radius: 3px;
   -webkit-appearance: none;
   appearance: none;
@@ -164,14 +178,14 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #1de9b6;
+  background: var(--secondary-color); /* Updated color */
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .avatar-volume-control input[type="range"]::-moz-range-track {
   height: 5px;
-  background: #1de9b6;
+  background: var(--accent-color); /* Updated color */
   border-radius: 3px;
   border: none;
 }
@@ -181,43 +195,16 @@
   height: 14px;
   border: none;
   border-radius: 50%;
-  background: #1de9b6;
+  background: var(--secondary-color); /* Updated color */
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-.avatar-interrupt-button {
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-weight: bold;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  font-family: 'Orbitron', sans-serif;
-  margin-left: 8px;
-}
-
-.avatar-interrupt-button:hover:not(:disabled) {
-  background: #4884c8;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-  opacity: 0.9;
-}
-
-.avatar-interrupt-button:disabled {
-  background-color: #666;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
+.avatar-interrupt-button,
 .avatar-stop-button {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
-  color: white;
+  background: linear-gradient(135deg, var(--accent-color), var(--secondary-color)); /* Updated gradient */
+  color: var(--text-light);
   border: none;
   border-radius: 20px;
   font-weight: bold;
@@ -229,19 +216,22 @@
   margin-left: 8px;
 }
 
+.avatar-interrupt-button:hover:not(:disabled),
 .avatar-stop-button:hover:not(:disabled) {
-  background: #4884c8;
+  background: var(--secondary-color); /* Updated hover color */
   transform: translateY(-1px);
   box-shadow: 0 3px 5px rgba(0,0,0,0.2);
   opacity: 0.9;
 }
 
+.avatar-interrupt-button:disabled,
 .avatar-stop-button:disabled {
   background-color: #666;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
+
 .avatar-button-group {
   display: flex;
   align-items: center;
@@ -251,8 +241,8 @@
 }
 .avatar-start-button {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #4CAF50, #45A049, #2E7D32);
-  color: white;
+  background: linear-gradient(135deg, #16a085, #1abc9c); /* Updated to a modern, complementary green */
+  color: var(--text-light);
   border: none;
   border-radius: 20px;
   font-weight: bold;
@@ -264,7 +254,7 @@
 }
 
 .avatar-start-button:hover:not(:disabled) {
-  background: #45A049;
+  background: #1abc9c;
   transform: translateY(-1px);
   box-shadow: 0 3px 5px rgba(0,0,0,0.2);
   opacity: 0.9;
@@ -315,6 +305,7 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
+  color: var(--text-light);
 }
 
 .speak-button {
@@ -345,4 +336,49 @@
 
 .hidden {
   display: none;
+}
+
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .avatar-video-container {
+    height: 300px; /* Adjust height for smaller screens */
+  }
+
+  .avatar-volume-control {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .avatar-volume-control .volume-label {
+    min-width: unset;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-video-container {
+    height: 250px;
+  }
+  
+  .avatar-controls {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .avatar-volume-control {
+    width: 100%;
+  }
+
+  .avatar-volume-control .volume-value {
+    width: 25px;
+    font-size: 10px;
+  }
+
+  .avatar-interrupt-button,
+  .avatar-stop-button,
+  .avatar-start-button {
+    font-size: 10px;
+    padding: 6px 12px;
+  }
 }
