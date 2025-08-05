@@ -25,7 +25,7 @@ venv/
 ENV/
 env/
 .venv/
-.env/
+# .env/
 grenv/
 
 # IDE specific files
@@ -42,7 +42,7 @@ grenv/
 vectorstore/
 
 # Environment variables
-.env
+# .env
 .env.local
 .env.*.local
 !/frontend/.env
@@ -123,3 +123,6 @@ video_avatar/
 .cache/
 
 recording_tests/
+
+# Ensure Unix line endings for shell scripts
+*.sh text eol=lf
