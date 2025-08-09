@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate} from 'react-router-dom';
 import './homeLayout.css';
-import Sidebar from '../components/sideBar';
+import Sidebar from '../components/sidebar';
 import Topbar from '../components/topBar';
 
 
 function MainLayout() {
   const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   
   useEffect(() => {
     // Trigger animation after component mounts
@@ -17,16 +22,15 @@ function MainLayout() {
   return (
     <div className="main-layout">
       
-      <Topbar />
+      <Topbar toggleSidebar={toggleSidebar}/>
       
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
       <main className='main-content'>
 
-            <div className="page-title-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-              <h1 className="page-title slide-in-top" style={{ fontFamily: 'Orbitron'}}>Applications</h1>
-              {/* <h1 className="page-title slide-in-top" style={{ fontFamily: 'ExpansivaBold', color: 'white', fontSize: '4.5em', background: 'rgba(38,38,38,255)', width: '5em', height: '3em', padding: '0.5em' }}>Vega</h1> */}
-              <h3 className="slide-in-top" style={{ fontFamily: 'ExpansivaBoldItalic', animationDelay: '0.2s' }}> Up to date AI-powered assistance to guide you.</h3>
+            <div className="page-title-container">
+              <h1 className="page-title slide-in-top" style={{ fontFamily: 'Orbitron', color: '#cfd6e0'}}>Applications</h1>
+              <h3 className="slide-in-top" style={{ fontFamily: 'ExpansivaBoldItalic', animationDelay: '0.2s', color: '#cfd6e0' }}> Up to date AI-powered assistance to guide you.</h3>
             </div> 
             <section className="applications-section">
               <div className="cards-row">
@@ -38,7 +42,8 @@ function MainLayout() {
                   style={{ 
                     cursor: 'pointer',
                     visibility: isLoaded ? 'visible' : 'hidden',
-                    animationDelay: '0.3s'
+                    animationDelay: '0.3s',
+                    backgroundColor: '#121a3f'
                   }}
                 >
                   <div className="card-content">
@@ -61,7 +66,8 @@ function MainLayout() {
                   style={{ 
                     cursor: 'pointer',
                     visibility: isLoaded ? 'visible' : 'hidden',
-                    animationDelay: '0.6s'
+                    animationDelay: '0.6s',
+                    backgroundColor: '#121a3f'
                   }}
                 >
                   <div className="card-content">
@@ -84,7 +90,8 @@ function MainLayout() {
                   style={{ 
                     cursor: 'pointer',
                     visibility: isLoaded ? 'visible' : 'hidden',
-                    animationDelay: '0.9s'
+                    animationDelay: '0.9s',
+                    backgroundColor: '#121a3f'
                   }}
                 >
                   <div className="card-content">
@@ -110,7 +117,8 @@ function MainLayout() {
                   style={{ 
                     cursor: 'pointer',
                     visibility: isLoaded ? 'visible' : 'hidden',
-                    animationDelay: '1.2s'
+                    animationDelay: '1.2s',
+                    backgroundColor: '#121a3f'
                   }}
                 >
                   <div className="card-content">

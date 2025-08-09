@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import auth from '../utils/auth.js';
-import Sidebar from './sideBar';
+import Sidebar from './sidebar';
 import Topbar from './topBar';
 import './userManagement.css';
 
@@ -20,6 +20,11 @@ function UserManagement() {
     email: '',
     role: 'user'
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   // Get auth token from localStorage
   const getAuthToken = () => {
@@ -157,8 +162,8 @@ function UserManagement() {
   if (!isAdmin()) {
     return (
       <div className="user-management-page">
-        <Topbar />
-        <Sidebar />
+        <Topbar toggleSidebar={toggleSidebar} />
+        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <main className="user-management-content">
           <div className="user-management-container">
             <div className="access-denied">
@@ -176,8 +181,8 @@ function UserManagement() {
 
   return (
     <div className="user-management-page">
-      <Topbar />
-      <Sidebar />
+      <Topbar toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <main className="user-management-content">
         <div className="user-management-container">
           <div className="user-management-header">

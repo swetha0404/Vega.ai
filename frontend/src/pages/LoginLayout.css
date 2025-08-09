@@ -13,12 +13,8 @@
   align-items: center;
   justify-content: center;
   margin: 0;
-  color: #FFFFFF;
-  background:
-    linear-gradient(217deg, #003f7f, transparent 70.71%),
-    linear-gradient(127deg, #002a50, transparent 70.71%),
-    linear-gradient(336deg, #001a33, transparent 70.71%),
-    linear-gradient(180deg, #00284d 0%, #003366 100%);
+  color: #cfd6e0;
+  background: #000e2f;
   flex-direction: column;
   overflow: auto;
   animation: gradientShift 15s ease infinite;
@@ -27,7 +23,7 @@
 
 .login-header {
   text-align: center;
-  color: #5b41d8;
+  color: #c57bff;
   letter-spacing: 1px;
   animation: fadeInDown 1s ease-out forwards;
   padding-bottom: 5vh;
@@ -68,7 +64,7 @@
 
 .login-form {
   margin-top: 0;
-  background: rgba(0,0,0,0.4);
+  background: transparent;
   padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -81,10 +77,10 @@
   animation: fadeInUp 1s ease-out forwards;
   animation-delay: 0.3s;
   opacity: 0;
-  border-top: 5px solid #0492C2;
-  border-bottom: 5px solid #0492C2;
-  border-left: 1px solid #0492C2;
-  border-right: 1px solid #0492C2;
+  border-top: 5px solid #c57bff;
+  border-bottom: 5px solid #c57bff;
+  border-left: 1px solid #c57bff;
+  border-right: 1px solid #c57bff;
   position: relative;
 }
 
@@ -106,12 +102,12 @@
 .login-form input {
   margin-bottom: 1.2rem;
   padding: 0.9rem 1rem;
-  border: 1px solid #5b41d8;
+  border: 1px solid #c57bff;
   border-radius: 10px;
   font-size: clamp(0.9rem,2.5vw,1.1rem);
   transition: all 0.3s ease;
   background: rgba(0,14,47,0.8);
-  color: #FFFFFF;
+  color: #ffffff;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2) inset;
   width: 100%;
 }
@@ -123,8 +119,8 @@
 }
 
 .login-form .submit-button {
-  background: linear-gradient(135deg, #0492C2, #5b41d8);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, #3585ff, #c57bff);
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 1rem;

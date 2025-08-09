@@ -1,10 +1,10 @@
 :root {
-  --primary-color: #001f3f;
-  --secondary-color: #5b41d8;
-  --accent-color: #0492C2;
-  --text-light: #FFFFFF;
-  --text-dark: rgba(255, 255, 255, 0.8);
-  --panel-bg-color: rgba(0, 0, 0, 0.4);
+  --primary-color: #5a8dff;
+  --secondary-color: #3585ff;
+  --accent-color: #c57bff;
+  --text-light: #ffffff;
+  --text-dark: #cfd6e0;
+  --panel-bg-color: #000e2f;
 }
 
 .user-management-page {

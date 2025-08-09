@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './SettingsLayout.css';
 import Topbar from '../components/topBar';
-import Sidebar from '../components/sideBar';
+import Sidebar from '../components/sidebar';
 
 
 function SettingsPage() {
@@ -15,6 +15,7 @@ function SettingsPage() {
   const [selectedDocxFile, setSelectedDocxFile] = useState(null);
   const [selectedPptFile, setSelectedPptFile] = useState(null);
   const notificationTimeoutRef = useRef(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Chat state
   const [messages, setMessages] = useState([
@@ -23,6 +24,10 @@ function SettingsPage() {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -331,8 +336,8 @@ function SettingsPage() {
 
 return (
   <div className="settings-page">
-    <Topbar />
-    <Sidebar />
+    <Topbar toggleSidebar={toggleSidebar} />
+    <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className="settings-split-container">  
         <div className="settings-upload-panel" key="upload-panel">
           <h3>Impart Knowledge</h3>        

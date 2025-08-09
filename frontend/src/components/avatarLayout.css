@@ -1,11 +1,11 @@
 /* Using variables from the new color scheme for consistency */
 :root {
-  --primary-color: #001f3f;
-  --secondary-color: #5b41d8;
-  --accent-color: #0492C2;
-  --text-light: #FFFFFF;
-  --text-dark: rgba(255, 255, 255, 0.8);
-  --panel-bg-color: rgba(255, 255, 255, 0.05);
+  --primary-color: #5a8dff;
+  --secondary-color: #3585ff;
+  --accent-color: #c57bff;
+  --text-light: #ffffff;
+  --text-dark: #cfd6e0;
+  --panel-bg-color: #121a3f;
 }
 
 * {
@@ -241,7 +241,7 @@ body {
 }
 .avatar-start-button {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #16a085, #1abc9c); /* Updated to a modern, complementary green */
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: var(--text-light);
   border: none;
   border-radius: 20px;
@@ -254,7 +254,7 @@ body {
 }
 
 .avatar-start-button:hover:not(:disabled) {
-  background: #1abc9c;
+  background: var(--secondary-color);
   transform: translateY(-1px);
   box-shadow: 0 3px 5px rgba(0,0,0,0.2);
   opacity: 0.9;

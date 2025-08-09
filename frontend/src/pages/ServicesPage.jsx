@@ -1,12 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './homeLayout.css';
-import Sidebar from '../components/sideBar.jsx';
+import Sidebar from '../components/sidebar.jsx';
 import Topbar from '../components/topBar.jsx';
 
 function ApplicationsPage() {
   const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   
   useEffect(() => {
     // Trigger animation after component mounts
@@ -15,16 +20,15 @@ function ApplicationsPage() {
 
   return (
     <div className="main-layout">
-      <Topbar />
-
-      <Sidebar />
+      <Topbar toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <main className={`main-content`}>
         <div className="page-title-container">
           <button 
             className={`back-arrow-btn ${isLoaded ? 'slide-in-left' : ''}`} 
             onClick={() => navigate('/applications')} 
             title="Back to Applications"
-            style={{ visibility: isLoaded ? 'visible' : 'hidden' }}
+            style={{ visibility: isLoaded ? 'visible' : 'hidden', color: '#cfd6e0' }}
           >
             &#8592;
           </button>
@@ -32,7 +36,8 @@ function ApplicationsPage() {
             className={`page-title ${isLoaded ? 'slide-in-top' : ''}`}
             style={{ 
               fontFamily: 'Orbitron', 
-              visibility: isLoaded ? 'visible' : 'hidden'
+              visibility: isLoaded ? 'visible' : 'hidden',
+              color: '#cfd6e0'
             }}
           >
             Services
@@ -49,7 +54,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'pointer',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '0.3s'
+                animationDelay: '0.3s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">Google Workspace</div> */}
@@ -63,7 +69,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'pointer',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '0.6s'
+                animationDelay: '0.6s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">Salesforce</div> */}
@@ -77,7 +84,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '0.9s'
+                animationDelay: '0.9s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">ServiceNow</div> */}
@@ -91,7 +99,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '1.2s'
+                animationDelay: '1.2s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">Slack</div> */}
@@ -105,7 +114,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '1.5s'
+                animationDelay: '1.5s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">Informatica</div> */}
@@ -119,7 +129,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '1.8s'
+                animationDelay: '1.8s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">SharePoint</div> */}
@@ -133,7 +144,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '2.1s'
+                animationDelay: '2.1s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">VMWare</div> */}
@@ -147,7 +159,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '2.4s'
+                animationDelay: '2.4s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">Workday</div> */}
@@ -161,7 +174,8 @@ function ApplicationsPage() {
               style={{ 
                 cursor: 'not-allowed',
                 visibility: isLoaded ? 'visible' : 'hidden',
-                animationDelay: '2.7s'
+                animationDelay: '2.7s',
+                backgroundColor: '#121a3f'
               }}
             >
               {/* <div className="card-title">Adobe Creative Cloud</div> */}
@@ -178,4 +192,4 @@ function ApplicationsPage() {
   );
 }
 
-export default ApplicationsPage; 
+export default ApplicationsPage;

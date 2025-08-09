@@ -56,12 +56,20 @@ html, body, #root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif, 'BeautyGlitch', 'Expansiva', 'ExpansivaBold', 'ExpansivaBoldItalic', 'LunarEscape', 'SpaceAge', 'Orbitron', 'OrbitronBold';
   line-height: 1.5;
   font-weight: 400;
-  /* Updated to match LoginLayout.css text color */
   color: #FFFFFF;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Updated Color Palette to match Login Page */
+  --primary-color: #3585ff;
+  --secondary-color: #c57bff;
+  --accent-color: #0492C2;
+  --panel-bg-color: #000e2f;
+  --input-bg-color: rgba(0,14,47,0.8);
+  --text-light: #ffffff;
+  --text-dark: #cfd6e0;
 }
 
 .fade-in {

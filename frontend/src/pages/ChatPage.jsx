@@ -7,11 +7,16 @@ import auth from '../utils/auth.js';
 import './chatPageLayout.css';
 import '../components/chatSuggestionsLayout.css';
 import Topbar from '../components/topBar.jsx';
-import Sidebar from '../components/sideBar.jsx';
+import Sidebar from '../components/sidebar.jsx';
 import Avatar from '../components/avatar.jsx';
 
 function ChatPage() {
   const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
   
   // Check authentication on component mount
   useEffect(() => {
@@ -277,8 +282,8 @@ function ChatPage() {
 
   return (
     <div className="chat-page">
-      <Topbar />
-      <Sidebar />
+      <Topbar toggleSidebar={toggleSidebar} />
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
     <div className="chat-container">
       <div className="chat-left" >
         <div className="avatar-full-rectangle">

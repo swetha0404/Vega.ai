@@ -1,26 +1,88 @@
 .sidebar {
   width: fit-content; 
-  background: linear-gradient(180deg, #001f3f, #001a33, #001122); /* New dark gradient */
-  color: #FFFFFF; 
+  background: transparent;
+  color: var(--text-dark); 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: space-between;
   padding-top: 6%;
   padding-left: 2%;
   padding-right: 2%;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.3);
-  position: fixed;
+    position: fixed;
   top: 0px; 
   left: 0;
   height: 100vh;
   z-index: 900;
-  border-right: 2px solid;
-  border-image: linear-gradient(to bottom, #0492C2, #5b41d8) 1; /* Updated border colors */
+  transition: transform 0.3s ease;
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.hamburger {
+  position: fixed;
+  top: 50px;
+  left: 10px;
+  z-index: 1000;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 2em;
+  cursor: pointer;
+  display: block; /* Show by default */
+}
+
+.user-avatar.user-avatar-circle {
+  width: 44px; 
+  height: 44px; 
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: #c57bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em; 
+  font-weight: bold;
+  user-select: none;
+  border: 3px solid var(--text-light);
+  z-index: 9999;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.user-avatar.user-avatar-circle:hover {
+  transform: scale(1.05);
+}
+
+.header-user-text {
+  margin-top: 5px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.logout-dropdown {
+  margin-top: 5px;
+  padding: 5px;
+  background-color: transparent;
+  color: var(--text-light);
+  border-radius: 50%;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-dropdown:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-item{
   position: relative;
-  top: 74px;
   align-items: center;
   padding: 7% 10%;
   margin: 9% 0;
@@ -31,28 +93,90 @@
   display: block;
   border-radius: 8px;
   font-family: 'Orbitron', sans-serif;
+  background-color: transparent;
 }
 
 .sidebar-item.active, .sidebar-item:hover {
-  background-color: rgba(4, 146, 194, 0.15); /* Updated to new accent color */
-  color: #0492C2; /* Updated to new accent color */
+  background-color: var(--highlight);
+  color: var(--accent-color);
   transition: 0.5s;
 }
 
 .sidebar-item span{
-  color: #FFFFFF; 
+  color: var(--text-light); 
   text-decoration: none;
   transition: 0.5s;
 }
 
 .sidebar-item span:hover {
-  color: #0492C2; /* Updated to new accent color */
+  color: var(--accent-color);
   text-decoration: dashed;
+}
+
+/* New/Updated User Info Styles */
+.user-info-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 15px 10px;
+  background: transparent;
+  border-radius: 0 0 10px 10px;
+}
+
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
+.user-greeting {
+  font-size: 0.7em;
+  color: var(--text-dark);
+}
+
+.user-name {
+  font-size: 0.9em;
+  font-weight: bold;
+  color: var(--text-light);
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.logout-icon {
+  width: 20px;
+  height: 20px;
+  filter: invert(100%);
+  transition: filter 0.3s ease;
 }
 
 /* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
   .sidebar {
-    display: none; /* Hide the sidebar on smaller screens */
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .hamburger {
+    display: block; /* Show hamburger on small screens */
   }
 }

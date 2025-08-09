@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './topBarLayout.css'
 
-function Topbar() {
+function Topbar({ toggleSidebar }) {
   const [active, setActive] = useState('Applications');
   const [showDropdown, setShowDropdown] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
@@ -47,6 +47,12 @@ function Topbar() {
 
   return (
     <div className="top-header">
+      <div className="header-left-group">
+        <div className="header-app-name">IAM-Copilot</div> 
+        <button className="hamburger" onClick={toggleSidebar}>
+            ☰
+        </button>
+      </div>
       <div className="header-logo" onClick={() => navigate('/applications')} style={{ cursor: 'pointer' }}>
         <img 
           src="/Vega_latest.png" 
@@ -54,33 +60,6 @@ function Topbar() {
           // className={logoLoaded ? 'flicker-in-1' : ''} 
           // style={{ visibility: logoLoaded ? 'visible' : 'hidden' }}
         />
-      </div>
-      <div className="header-app-name">IAM-Copilot</div> 
-      <div className="header-user-info">
-        <div
-          className="user-avatar user-avatar-circle"
-          ref={avatarRef}
-          onClick={() => setShowDropdown((prev) => !prev)}
-          tabIndex={0}
-          title='Dropdown'
-        >
-          {avatarLetter}
-          
-        </div>
-        <div className="header-user-text">
-          <div className="greeting">Hi there,</div>
-          <div className="username">{username}</div>
-        </div>
-        {showDropdown && (
-          <div
-            className="logout-dropdown"
-            ref={dropdownRef}
-            onClick={handleLogout}
-            style={{ cursor: 'pointer' }}
-          >
-            Logout
-          </div>
-        )}
       </div>
     </div>
   );
