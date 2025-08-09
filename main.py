@@ -1,12 +1,50 @@
-import warnings
 import sys
 import os
 import subprocess
+
+# Function to install required packages automatically
+def install_requirements():
+    """Install all required packages from requirements.txt before starting the server"""
+    try:
+        requirements_path = os.path.join(os.path.dirname(__file__), "requirements.txt")
+        if not os.path.exists(requirements_path):
+            print("requirements.txt not found - skipping package installation")
+            return
+        
+        # Check if key packages are already installed to avoid reinstalling on every reload
+        try:
+            import fastapi
+            import uvicorn
+            import langchain
+            import chromadb
+            # import knowledge
+            print("Key packages already installed - skipping installation")
+            return
+        except ImportError:
+            # If any key package is missing, proceed with installation
+            pass
+        
+        print("Installing packages from requirements.txt...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", requirements_path])
+        print("All requirements installed successfully!")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"Error installing requirements: {e}")
+        print("Continuing with startup - some features may not work properly")
+    except Exception as e:
+        print(f"Unexpected error during package installation: {e}")
+        print("Continuing with startup - some features may not work properly")
+
+# Install requirements before importing other modules
+print("Checking and installing required packages...")
+install_requirements()
+
+
 import uvicorn
 from datetime import datetime
 from dotenv import load_dotenv
 
-agenbotc_dir = (os.path.join(os.path.dirname(__file__),".", "agenbotc"))
+agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
 sys.path.append(os.path.abspath(agenbotc_dir))
 env_path = os.path.join(agenbotc_dir, ".env")
 
@@ -17,11 +55,12 @@ from pydantic import BaseModel
 import yaml
 from typing import List, Optional
 from datetime import timedelta
+import warnings
 
 # === Load credentials from .env file (place it with content - OPENAI_API_KEY=<your-api-key> within the agenbotc folder)===
 print(f"Loading .env file from: {env_path}")
 print(f"File exists: {os.path.exists(env_path)}")
-load_dotenv(dotenv_path=env_path)
+load_dotenv(env_path)
 OPENAI_TOKEN = os.getenv('OPENAI_API_KEY')
 HEYGEN_API_KEY = os.getenv('HEYGEN_API_KEY')
 HEYGEN_SERVER_URL = os.getenv('HEYGEN_SERVER_URL', 'https://api.heygen.com')  # Default URL if not set
@@ -64,50 +103,13 @@ warnings.filterwarnings("ignore", message=".*HuggingFaceEmbeddings.*deprecated.*
 warnings.filterwarnings("ignore", message=".*Chroma.*deprecated.*")
 warnings.filterwarnings("ignore", message=".*langchain.*")
 
-# Function to install required packages automatically
-def install_requirements():
-    """Install all required packages from requirements.txt before starting the server"""
-    try:
-        requirements_path = os.path.join(os.path.dirname(__file__), "requirements.txt")
-        if not os.path.exists(requirements_path):
-            print("requirements.txt not found - skipping package installation")
-            return
-        
-        # Check if key packages are already installed to avoid reinstalling on every reload
-        try:
-            import fastapi
-            import uvicorn
-            import langchain
-            import chromadb
-            # import knowledge
-            print("Key packages already installed - skipping installation")
-            return
-        except ImportError:
-            # If any key package is missing, proceed with installation
-            pass
-        
-        print("Installing packages from requirements.txt...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", requirements_path])
-        print("All requirements installed successfully!")
-        
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing requirements: {e}")
-        print("Continuing with startup - some features may not work properly")
-    except Exception as e:
-        print(f"Unexpected error during package installation: {e}")
-        print("Continuing with startup - some features may not work properly")
-
-# Install requirements before importing other modules
-print("Checking and installing required packages...")
-install_requirements()
-
 # Load config
 def load_config():
     config_path = os.path.join(os.path.dirname(__file__), "config.yaml")
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
-app = FastAPI()
+app = FastAPI(title="Vega.ai Backend API", version="1.0.0")
 
 # CORS
 app.add_middleware(
@@ -121,6 +123,19 @@ app.add_middleware(
 class LoginRequest(BaseModel):
     username: str
     password: str
+
+import psutil
+
+def get_memory_usage():
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 * 1024)  # in MB
+    return round(mem, 2)
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat(), "memory_usage": get_memory_usage()}
 
 # Enhanced authentication system with JWT tokens and secure password hashing
 @app.post("/login", response_model=Token)
@@ -355,29 +370,6 @@ class ChatRequest(BaseModel):
     question: str
     history: List[ChatMessage] = []
 
-# @app.post("/chat")
-# async def chat(
-#     request: ChatRequest,
-#     current_user: User = Depends(get_current_active_user)
-# ):
-#     """Chat endpoint with authentication"""
-#     # Convert history to the format expected by chatbot
-#     history_list = []
-#     for msg in request.history:
-#         if msg.question and msg.answer:
-#             history_list.append({"question": msg.question, "answer": msg.answer})
-    
-#     response = get_chatbot_response(request.question, history_list)
-    
-#     # Handle the new response format that includes avatar text
-#     if isinstance(response, dict):
-#         return {
-#             "response": response.get("answer", str(response)),
-#             "avatarText": response.get("avatar", response.get("answer", str(response)))
-#         }
-#     else:
-#         return {"response": response, "avatarText": str(response)}
-
 # -------------------------------------------------------------------------------------------------------------
 # Handles advanced chat interactions using the LLM agent for more sophisticated query processing
 @app.post("/Agentchat")
@@ -420,5 +412,18 @@ async def Agentchat(
 async def get_heygen_api_key():
     return {"apiKey": HEYGEN_API_KEY, "url": HEYGEN_SERVER_URL}
 
+# -------------------------------------------------------------------------------------------------------------
+# Add health check endpoint for Docker
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Docker containers and load balancers"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "vega-backend",
+        "version": "1.0.0"
+    }
+
+# -------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

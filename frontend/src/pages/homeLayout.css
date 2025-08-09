@@ -1,4 +1,5 @@
 :root {
+<<<<<<< HEAD
   --primary-color: #000e2f;
   --secondary-color: #3585ff;
   --accent-color: #c57bff;
@@ -10,6 +11,12 @@
   --primary-accent-hover: var(--accent-color);
   --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   --deep-blue: transparent;
+=======
+  --primary-accent: #53C1DE;
+  --primary-accent-hover: #00C2FF;
+  --card-shadow: 0 4px 12px rgba(36, 77, 82, 0.3);
+  --deep-blue: #244D52;
+>>>>>>> origin/main
 }
 .main-layout {
   display: flex;
@@ -22,7 +29,11 @@
 
 
 .main-content {
+<<<<<<< HEAD
   margin: 0 auto;
+=======
+  position: absolute;
+>>>>>>> origin/main
   top: 7vh; 
   left: 21vh; 
   width: calc(100vw - 21vh);
@@ -49,15 +60,24 @@
 .page-title {
   font-size: 2.5em;
   font-weight: 700;
+<<<<<<< HEAD
   text-shadow: 0 0 5px var(--secondary-color);
   color: var(--secondary-color);
+=======
+  text-shadow: black 1px 1px 2px;
+  color: var(--primary-accent);
+>>>>>>> origin/main
   margin: 0;
   font-family: 'Orbitron', 'sans-serif';
   text-decoration: underline;
 }
 .page-title-container h3 {
   font-size: 1.35em;
+<<<<<<< HEAD
   color: var(--accent-color);
+=======
+  color:var(--primary-accent);
+>>>>>>> origin/main
   font-weight: 500;
   text-shadow: none;
   margin: 0;
@@ -76,17 +96,29 @@
   min-height: fit-content;
   box-sizing: border-box;
   overflow-y: auto;
+<<<<<<< HEAD
   color: var(--text-light); 
+=======
+  color: #FFFFFF; 
+>>>>>>> origin/main
 }
 .applications-title {
   font-size: 2.5em;
   font-weight: 700;
+<<<<<<< HEAD
   color: var(--text-light);
+=======
+  color: #FFFFFF;
+>>>>>>> origin/main
   margin-bottom: 8px;
 }
 .applications-subtitle {
   font-size: 1.25em;
+<<<<<<< HEAD
   color: var(--secondary-color);
+=======
+  color: var(--primary-accent);
+>>>>>>> origin/main
   font-weight: 500;
   margin-bottom: 32px;
 }
@@ -115,7 +147,11 @@
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.2s, transform 0.2s;
+<<<<<<< HEAD
   border-left: 8px solid var(--secondary-color);
+=======
+  border-left: 8px solid var(--primary-accent);
+>>>>>>> origin/main
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(5px);
@@ -125,20 +161,33 @@
   box-shadow: 0 6px 20px rgba(91, 65, 216, 0.4);
   transform: translateY(-2px) !important;
   transition: 0.5s;
+<<<<<<< HEAD
   border-left: 8px solid var(--accent-color);
+=======
+  border-left: 8px solid var(--primary-accent-hover);
+>>>>>>> origin/main
 }
 
 .app-card-home .card-title-home {
   font-size: 1.2em;
   font-weight: 600;
   margin-bottom: 18px;
+<<<<<<< HEAD
   color: var(--text-light) !important;
+=======
+  color: var(--deep-blue); 
+>>>>>>> origin/main
   white-space: nowrap;
 }
 
 .app-card {
+<<<<<<< HEAD
   background: var(--panel-bg-color);
   height: 320px;
+=======
+  background: #E8F6F8;
+  height: auto;
+>>>>>>> origin/main
   width: 280px;
   max-width: 320px;
   margin: 0 auto;
@@ -150,13 +199,19 @@
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.2s, transform 0.2s;
+<<<<<<< HEAD
   border-left: 8px solid var(--secondary-color);
   backdrop-filter: blur(5px);
+=======
+  border-left: 8px solid var(--primary-accent);
+  
+>>>>>>> origin/main
 }
 .app-card:hover {
   box-shadow: 0 6px 20px rgba(91, 65, 216, 0.4);
   transform: translateY(-2px);
   transition: 0.3s;
+<<<<<<< HEAD
   border-left: 8px solid var(--accent-color); 
 }
 .app-card[style*="not-allowed"] {
@@ -170,13 +225,20 @@
   box-shadow: none;
   opacity: 0.5;
   border-left: 8px solid rgba(255, 255, 255, 0.2);
+=======
+  border-left: 8px solid var(--primary-accent-hover); 
+>>>>>>> origin/main
 }
 
 
 .app-card .card-title {
   font-size: 1.2em;
   font-weight: 600;
+<<<<<<< HEAD
   color: var(--text-light) !important;
+=======
+  color: var(--deep-blue);
+>>>>>>> origin/main
   white-space: nowrap;
 }
 .card-img {
@@ -189,7 +251,11 @@
 .back-arrow-btn {
   background: none;
   border: none;
+<<<<<<< HEAD
   color: var(--secondary-color);
+=======
+  color:var(--primary-accent);
+>>>>>>> origin/main
   font-size: 2em;
   margin-right: 12px;
   cursor: pointer;
@@ -200,7 +266,11 @@
   transform: translateY(-4px);
 }
 .back-arrow-btn:hover {
+<<<<<<< HEAD
   color: var(--accent-color);
+=======
+  color: var(--deep-blue);
+>>>>>>> origin/main
   transform: translateY(-4px);
   transition: 0.5s;
 }
@@ -225,7 +295,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   background: rgba(0, 0, 0, 0.8);
+=======
+  background: #E8F6F8; 
+>>>>>>> origin/main
   opacity: 0;
   transform: translateY(-100%);
   transition: all 0.4s ease;
@@ -238,8 +312,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid var(--secondary-color);
+=======
+  background: #89a9ae;
+  border: 2px solid var(--primary-accent);
+>>>>>>> origin/main
   border-radius: 12px;
   padding: 20px;
   margin: 10px 0;
@@ -261,9 +340,15 @@
 }
 
 .dropdown-option:hover {
+<<<<<<< HEAD
   background: var(--secondary-color);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(91, 65, 216, 0.4);
+=======
+  background: var(--primary-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow)
+>>>>>>> origin/main
 }
 
 .dropdown-icon {
@@ -285,6 +370,7 @@
 .app-card-home:hover .dropdown-option {
   opacity: 1;
   transform: translateY(0);
+<<<<<<< HEAD
 }
 
 @media (max-width: 992px) {
@@ -381,4 +467,6 @@
     max-width: unset;
     margin: 0 auto;
   }
+=======
+>>>>>>> origin/main
 }

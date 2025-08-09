@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate} from 'react-router-dom';
 import './homeLayout.css';
-import Sidebar from '../components/sidebar';
-import Topbar from '../components/topBar';
+import Sidebar from '../components/sidebar.jsx';
+import Topbar from '../components/topBar.jsx';
 
 
 function MainLayout() {

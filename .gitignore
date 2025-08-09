@@ -25,7 +25,8 @@ venv/
 ENV/
 env/
 .venv/
-.env/
+# .env/
+grenv/
 
 # IDE specific files
 .idea/
@@ -38,10 +39,10 @@ env/
 *.log
 *.sqlite
 *.db
-vectorstore/chroma.sqlite3
+vectorstore/
 
 # Environment variables
-.env
+# .env
 .env.local
 .env.*.local
 !/frontend/.env
@@ -110,3 +111,18 @@ dist-ssr
 *.sw?
 
 video_avatar/
+
+# Docker and deployment
+.env.example
+.env.*.example
+*.example
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+recording_tests/
+
+# Ensure Unix line endings for shell scripts
+*.sh text eol=lf

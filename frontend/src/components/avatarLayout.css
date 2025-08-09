@@ -200,7 +200,34 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-.avatar-interrupt-button,
+.avatar-interrupt-button {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #00C2FF, #53C1DE, #244D52);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  font-family: 'Orbitron', sans-serif;
+  margin-left: 8px;
+}
+
+.avatar-interrupt-button:hover:not(:disabled) {
+  background: #4884c8;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+  opacity: 0.9;
+}
+
+.avatar-interrupt-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
 .avatar-stop-button {
   padding: 8px 16px;
   background: linear-gradient(135deg, var(--accent-color), var(--secondary-color)); /* Updated gradient */

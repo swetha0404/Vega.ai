@@ -19,6 +19,7 @@
 }
 
 
+
 .chat-bubble code, .chat-bubble pre {
   font-family: 'Courier New', monospace;
 }
@@ -361,6 +362,7 @@
 
 .chat-messages::-webkit-scrollbar-thumb {
   background: var(--secondary-color);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 3px;
   transition: all 0.3s;
 }

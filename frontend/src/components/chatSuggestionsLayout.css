@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Using variables from the new color scheme for consistency */
 :root {
   --primary-color: #3585ff;
@@ -8,6 +9,8 @@
   --panel-bg-color: #000e2f;
   --input-bg-color: rgba(0,14,47,0.8);
 }
+=======
+>>>>>>> origin/main
 
 .suggestions-dropdown {
   position: absolute;

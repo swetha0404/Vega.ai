@@ -25,7 +25,7 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
   const defaultVoiceId = null; // Use null to let avatar use its default voice
 
   // API configuration
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Backend server URL
+  const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'; // Backend server URL
   const heygen_API = {
     apiKey: '',
     serverUrl: 'https://api.heygen.com',
@@ -767,11 +767,11 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
   // Fallback UI when avatar can't be initialized or user stopped manually
   if (showFallbackUI) {
     const fallbackMessage = userStoppedManually ? 
-      'You sent vega for tea.' : 
+      'You sent Vega for tea.' : 
       'Vega has gone on a tea break.';
     
     const fallbackSubtext = userStoppedManually ?
-      'Click Start to call her back.' :
+      'Click Start to call back.' :
       'Please chat with the copilot for assistance. (You can still use the mic to talk)';
 
     return (

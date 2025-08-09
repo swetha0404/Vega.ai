@@ -4,26 +4,17 @@
     "email": null,
     "role": "user",
     "is_active": true,
-    "created_at": "2025-07-12T15:46:52.300020",
-    "last_login": "2025-07-12T16:04:28.570548",
-    "hashed_password": "$2b$12$C4DJDIM33F0BDbisjrAHj.CxfCohicBlWWpnjiAFex4qcaG0Y31iO"
+    "created_at": "2025-08-09T17:43:19.794711",
+    "last_login": null,
+    "hashed_password": "$2b$12$CXBIzpwhpsR1fy7ppRzpXuBr6Zc7R4MYohLXdmDJoAVfdN8Hvt0dS"
   },
   "admin": {
     "username": "admin",
     "email": null,
     "role": "admin",
     "is_active": true,
-    "created_at": "2025-07-12T15:46:52.498151",
-    "last_login": "2025-08-09T14:30:33.813727",
-    "hashed_password": "$2b$12$egRc4WkkPg6tvQxpDvuv/u7EUk5QbZrAL0Z6iHNVRTHW2p6Bqllg6"
-  },
-  "swetha": {
-    "username": "swetha",
-    "email": "swetha@eduservit.com",
-    "role": "admin",
-    "is_active": true,
-    "created_at": "2025-07-15T13:38:02.024074",
-    "last_login": "2025-07-15T13:39:53.177914",
-    "hashed_password": "$2b$12$30v2M6L5qp09YxV86gHRoeJbVSaUp0wk..UhNa/jWPp.0fhnTlx6."
+    "created_at": "2025-08-09T17:43:20.039184",
+    "last_login": null,
+    "hashed_password": "$2b$12$D.bDSwscGcAYbZI./SwyqO8i4zyxS4UkbWC2scseX6OTycSpkNg2C"
   }
 }

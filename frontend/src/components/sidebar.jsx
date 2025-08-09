@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import auth from '../utils/auth.js';
-import './sideBarLayout.css'; 
+
+import './sidebarLayout.css'; 
 
 import { useState, useRef } from "react";
 
