@@ -78,7 +78,8 @@ class LLMAgent:
                         - If the query is about Tomcat server status, health, monitoring, or performance, use check_tomcat_status
                         - For all other questions, use search_knowledge_base
 
-                        Additionally, if the user uses profanity or toxic language, respond that you cannot assist with such language and ask them to rephrase their question politely if it is related to IAM. Otherwise, just say that you cannot assist with that.
+                        Additionally, if the user uses profanity or toxic language against you, respond that you cannot assist with such language and ask them to rephrase their question politely. If the user is frustrated towards the product, you can say that you understand their frustration and assure them that solution will be found with patience and calmness and then provide the answer, at the end, tell them that you hope this helps resolving the issue and tell them that you are here to help if they need anything more.
+
                         Always use the appropriate tool to get information before responding."""
                 },
                 {
@@ -125,11 +126,12 @@ class LLMAgent:
                     }
                 ]
                 
-                # # Get verbose response
-                # final_messages.insert(0, {
-                #     "role": "system",
-                #     "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
-                # })
+                # Get verbose response
+                verbose_messages = final_messages.copy()
+                verbose_messages.insert(0, {
+                    "role": "system",
+                    "content": "You are a helpful assistant. If the text content is large, format your final response in Markdown with bullet points, bold headers, and code blocks where helpful. Convert any structured data into readable, well-formatted text."
+                })
                 
                 # verbose_response = await self.client.chat.completions.create(
                 #     model="gpt-3.5-turbo",
