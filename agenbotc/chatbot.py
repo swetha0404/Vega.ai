@@ -10,8 +10,7 @@ from dotenv import load_dotenv
 # Get the path to the .env file in the same directory as this script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(current_dir, '.env')
-print(f"\n$$$$$$$$$$$$$$Loading .env from chatbot.py: {env_path}")
-print(f"\n$$$$$$$$$$$$$$File exists: {os.path.exists(env_path)}")
+
 load_dotenv(dotenv_path=env_path)
 OPENAI_TOKEN = os.getenv('OPENAI_API_KEY')
 
@@ -27,67 +26,100 @@ llm = ChatOpenAI(
 
 # Custom prompt template for formatted responses
 CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template("""
-Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+Rewrite the user's follow-up into a single, self-contained question for Authenion/IAM retrieval.
+
+Rules:
+- Preserve exact technical entities: error codes, endpoints/URLs, config keys, versions, cookie names, and ports (e.g., 8080/8443).
+- If the follow-up relies on context, add the minimum missing details from Chat History so it stands alone.
+- Prefer including relevant IAM/Authenion protocol terms (SSO, OAuth2/OIDC, SAML, MFA, SCIM, LDAP/Kerberos) when implied.
+- Do NOT answer; return only the rewritten question.
+- If already standalone, return it unchanged.
 
 Chat History:
 {chat_history}
 
-Follow Up Input: {question}
+Follow-up:
+{question}
+
 Standalone question:
 """)
 
+
 QA_PROMPT = PromptTemplate.from_template("""
-You are a helpful assistant that answers questions based on provided context. Format your answers nicely with:
+You are Vega, an assistant for Authenion and IAM. Answer ONLY from the provided context; do not invent features, paths, or values.
 
-1. Proper paragraphs with clear breaks between ideas
-2. Bullet points for lists
-3. Numbered steps for processes sequentially
-4. Bold text for important terms or headings
-5. Clear section headers when appropriate
-6. Break down complex information into simpler parts
-7. Use tables for structured data when necessary
-8. Provide sources for the information you present
-9. Use markdown formatting for code snippets or technical terms
-10. Avoid unnecessary jargon unless it's relevant to the question
-11. Use examples to clarify complex concepts
-12. If the question is asking for a definition, provide a clear and concise definition
-13. If the question is asking for steps or a procedure, prioritize extracting and presenting those steps clearly
+When context is complete:
+- Give a compact, actionable resolution.
 
-Look for markers like "STEP", "HEADING", "BULLET" in the context to identify structure.
+When context is partial or tangential:
+- Extract the closest relevant guidance from the context.
+- Offer a short next diagnostic or fix and ask exactly ONE clarifying question if essential.
+- Propose up to TWO refined follow-up search queries.
 
-Additionally, if the user uses profanity or toxic language, respond that you cannot assist with such language and ask them to rephrase their question politely if it is related to IAM. Otherwise, just say that you cannot assist with that.
+FORMAT (be concise)
+**Diagnosis Snapshot:** 1–2 lines grounded in the context.
+**Fix Now:** Numbered steps with exact keys/paths/values and UI/CLI steps (quote them as in context).
+**Verify:** One quick test and expected outcome.
+**If Still Failing:** 2–3 next checks/escalations (logs/metrics/commands; exact paths/names from context).
+**Question:** One precise clarifier (only if needed).
 
-Answer the question based ONLY on the following context:
+Use markdown; inline code for keys/values/endpoints (`like_this`).
+
+Privacy: Do not output addresses, phone numbers, or client company names; filter them out if present.
+
+Context:
 {context}
 
-Question: {question}
+Question:
+{question}
 
-Answer in a well-formatted structure:
+Answer:
 """)
 
-# Initialize retrieval chain with custom prompts
 qa_chain = ConversationalRetrievalChain.from_llm(
     llm=llm,
-    retriever=vector_store.as_retriever(search_kwargs={"k": 4}),
+    retriever=vector_store.as_retriever(
+        search_type="mmr", 
+        search_kwargs={"k": 8, "fetch_k": 24, "lambda_mult": 0.5}
+    ),
     return_source_documents=True,
     condense_question_prompt=CONDENSE_QUESTION_PROMPT,
     combine_docs_chain_kwargs={"prompt": QA_PROMPT},
     verbose=True
 )
 
+
 def format_chat_history(history):
-    """Format chat history for LLM consumption"""
+    """Format chat history dict for LLM consumption"""
     formatted_history = []
-    if history:
-        for exchange in history:
-            if "question" in exchange:
-                formatted_history.append((exchange["question"], exchange.get("answer", "")))
+    if history and isinstance(history, dict):
+        # Convert dict format {"User_message_1": "...", "AI_message_1": "..."} to tuple format
+        # Group messages by number and create conversation pairs
+        messages = {}
+        for key, value in history.items():
+            if key.startswith('User_message_'):
+                msg_num = key.replace('User_message_', '')
+                if msg_num not in messages:
+                    messages[msg_num] = {}
+                messages[msg_num]['question'] = value
+            elif key.startswith('AI_message_'):
+                msg_num = key.replace('AI_message_', '')
+                if msg_num not in messages:
+                    messages[msg_num] = {}
+                messages[msg_num]['answer'] = value
+        
+        # Convert to the format expected by ConversationalRetrievalChain
+        for msg_num in sorted(messages.keys(), key=int):
+            if 'question' in messages[msg_num] and 'answer' in messages[msg_num]:
+                formatted_history.append((messages[msg_num]['question'], messages[msg_num]['answer']))
+        
+        print(f"\n\n$$$$$$$$$$$$$$Formatted chat history: {formatted_history}")
     return formatted_history
 
-def get_chatbot_response(question: str, history: List[Dict] = None):
+def get_chatbot_response(question: str, history: dict = None):
     """Generate a response based on the question and chat history"""
     if history is None:
-        history = []
+        history = {}
     
     chat_history = format_chat_history(history)
     
@@ -95,75 +127,18 @@ def get_chatbot_response(question: str, history: List[Dict] = None):
         # Get response from the language model
         result = qa_chain({"question": question, "chat_history": chat_history})
         
-        # Format source information
-        sources = []
-        if "source_documents" in result:
-            for doc in result["source_documents"]:
-                source = doc.metadata.get("source", "Unknown source")
-                if source not in sources:
-                    sources.append(source)
-        
         # Clean and format the answer
         answer = result["answer"].strip()
         
-        # Add sources if available
-        if sources:
-            answer += f"\n\n**Sources:**\n"
-            for i, source in enumerate(sources, 1):
-                # Extract just the filename from the full path
-                filename = source.split('/')[-1].split('\\')[-1]
-                answer += f"{i}. {filename}\n"
-        
-        # Create avatar-friendly version
-        # avatar_text = _create_avatar_text(result["answer"].strip())
-        
         response = {
             "answer": answer
-            # "sources": sources,
         }
         
-        # print(f"\n$$$$$$$$$$$$$$$$$$$$Chatbot response: {response}")
         return response
         
     except Exception as e:
         print(f"\n$$$$$$$$$$$$$$$Error in chatbot response: {str(e)}")
         return {
             "answer": "I apologize, but I encountered an error while processing your question. Please try rephrasing your question or check if you have uploaded relevant documents to the knowledge base.",
-            "sources": [],
             "avatar": "I'm sorry, I encountered an error while processing your question. Please try asking again."
         }
-
-# def _create_avatar_text(answer_text: str) -> str:
-#     """Create a simplified, avatar-friendly version of the answer"""
-#     # Remove markdown formatting
-#     import re
-    
-#     # Remove bold markdown
-#     text = re.sub(r'\*\*(.*?)\*\*', r'\1', answer_text)
-#     text = re.sub(r'\*(.*?)\*', r'\1', text)
-    
-#     # Remove links
-#     text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)
-    
-#     # Remove code blocks
-#     text = re.sub(r'```[\s\S]*?```', 'Please check the detailed response for code examples.', text)
-    
-#     # Convert bullet points to conversational format
-#     text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)
-    
-#     # Remove section headers (markdown)
-#     text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)
-    
-#     # Remove excessive whitespace
-#     text = re.sub(r'\n\s*\n', '. ', text)
-#     text = re.sub(r'\s+', ' ', text)
-    
-#     # Limit length for avatar speech
-#     if len(text) > 400:
-#         sentences = text.split('. ')
-#         truncated = '. '.join(sentences[:3])
-#         if len(truncated) > 400:
-#             truncated = truncated[:400] + "..."
-#         text = truncated + ". Please check the detailed response for more information."
-    
-#     return text.strip()

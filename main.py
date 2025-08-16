@@ -36,8 +36,8 @@ def install_requirements():
         print("Continuing with startup - some features may not work properly")
 
 # Install requirements before importing other modules
-print("Checking and installing required packages...")
-install_requirements()
+# print("Checking and installing required packages...")
+# install_requirements()
 
 
 import uvicorn
@@ -76,7 +76,6 @@ else:
     print("WARNING: HEYGEN_API_KEY not found in .env file!")
 
 from ingestion import process_pdf, process_docx, process_ppt, process_website
-from chatbot import get_chatbot_response
 from llm_agent import LLMAgent
 from tomcat_monitor import TomcatMonitor
 from auth import (
@@ -362,13 +361,9 @@ async def process_web(url: str = Form(...)):
         return {"status": "error", "message": str(e), "doc_id": None}
 
 # -------------------------------------------------------------------------------------------------------------
-class ChatMessage(BaseModel):
-    question: str = ""
-    answer: str = ""
-
 class ChatRequest(BaseModel):
     question: str
-    history: List[ChatMessage] = []
+    history: dict = {}
 
 # -------------------------------------------------------------------------------------------------------------
 # Handles advanced chat interactions using the LLM agent for more sophisticated query processing
@@ -378,11 +373,11 @@ async def Agentchat(
     current_user: User = Depends(get_current_active_user)
 ):
     """Main chat endpoint that routes queries through LLM agent with authentication"""
-    print(f"@@@@@@@@@@@@@Processing query through LLM agent for user: {current_user.username}")
+    print(f"\n@@@@@@@@@@@@@Processing query through LLM agent for user: {current_user.username}")
     try:
-        # Process query and get both verbose and avatar responses
-        response_data = await llm_agent.process_query(request.question)
-        print(f"@@@@@@@@@@@@@LLM Agent response: {response_data}")
+        # Process query and get both verbose and avatar responses, passing history
+        response_data = await llm_agent.process_query(request.question, request.history)
+        print(f"\n\n\n@@@@@@@@@@@@@ main.py LLM Agent response: {response_data}")
         
         # Handle different response formats
         if isinstance(response_data, dict):

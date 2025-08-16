@@ -19,6 +19,7 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
   const apiPromiseRef = useRef(null);
   const previousTextRef = useRef('');
   const isStartingSessionRef = useRef(false); // Prevent multiple session starts
+  const dismountTimeoutRef = useRef(null); // Handle delayed session cleanup
 
   // Default avatar and voice configuration
   const defaultAvatarId = 'Alessandra_ProfessionalLook2_public';
@@ -131,7 +132,10 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
       }
 
       updateStatus('✅ API configured successfully');
-      updateStatus(`Creating session with avatar: ${defaultAvatarId}`);
+
+      // Always create a fresh session for proper WebRTC connection
+      // The sessionStorage is mainly used for the delayed cleanup mechanism
+      updateStatus(`Creating new session with avatar: ${defaultAvatarId}`);
 
       // Create session with default avatar and voice
       const sessionData = await newSession('low', defaultAvatarId, defaultVoiceId);
@@ -141,6 +145,11 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
       }
 
       setSessionInfo(sessionData);
+      
+      // Store session ID and timestamp in sessionStorage
+      sessionStorage.setItem('avatarSessionId', sessionData.session_id);
+      sessionStorage.setItem('avatarSessionTimestamp', Date.now().toString());
+      
       updateStatus('✅ Session created successfully');
       
       // Check if we have the required properties
@@ -408,6 +417,10 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
       // Call the close interface
       await terminateSession(sessionInfo.session_id);
       
+      // Remove session from sessionStorage
+      sessionStorage.removeItem('avatarSessionId');
+      sessionStorage.removeItem('avatarSessionTimestamp');
+      
       // Reset state
       setSessionInfo(null);
       setIsSessionActive(false);
@@ -432,6 +445,7 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
     const requestBody = {
       quality,
       avatar_name,
+      idle_timeout: 420, // 7 minutes = 420 seconds
     };
 
     // Only add voice configuration if voice_id is provided
@@ -697,11 +711,31 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
   // Effect to manage avatar session lifecycle
   useEffect(() => {
     if (isActive && !isSessionActive && !isStartingSessionRef.current && !userStoppedManually) {
+      // Clear any pending dismount timeout when component becomes active
+      if (dismountTimeoutRef.current) {
+        console.log('Avatar: Clearing dismount timeout - component reactivated');
+        clearTimeout(dismountTimeoutRef.current);
+        dismountTimeoutRef.current = null;
+      }
       // Auto-start session when component becomes active (only if user hasn't manually stopped)
       startSession();
     } else if (!isActive && isSessionActive) {
-      // Auto-stop session when component becomes inactive (but don't set manual stop flag)
-      stopSessionAutomatic();
+      // Start delayed cleanup when component becomes inactive
+      console.log('Avatar: Component deactivated, starting 10-second cleanup timer');
+      dismountTimeoutRef.current = setTimeout(() => {
+        // Double-check if component is still inactive and session is still active
+        console.log('Avatar: Checking session cleanup after 10 seconds...');
+        
+        // Check current state and sessionStorage
+        const currentSessionId = sessionStorage.getItem('avatarSessionId');
+        if (!isActive && isSessionActive && currentSessionId) {
+          console.log('Avatar: 10 seconds elapsed, component still inactive, closing session');
+          stopSessionAutomatic();
+        } else {
+          console.log('Avatar: Session state changed during timeout, skipping cleanup');
+        }
+        dismountTimeoutRef.current = null;
+      }, 10000); // 10 seconds delay
     }
   }, [isActive, isSessionActive, userStoppedManually]);
 
@@ -725,17 +759,56 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
   useEffect(() => {
     const mediaElement = mediaElementRef.current;
     if (mediaElement) {
-      const handleLoadedMetadata = () => {
+      const handleLoadedMetadata = async () => {
         setMediaCanPlay(true);
-        mediaElement.play();
-        // Start background removal immediately
-        renderCanvas();
+        try {
+          await mediaElement.play();
+          // Start background removal immediately after successful play
+          renderCanvas();
+        } catch (error) {
+          if (error.name === 'NotAllowedError') {
+            console.log('Avatar: Autoplay blocked by browser, waiting for user interaction');
+            // Set up click handler to enable playback on user interaction
+            const enablePlayback = async () => {
+              try {
+                await mediaElement.play();
+                renderCanvas();
+                // Remove the event listener after successful play
+                document.removeEventListener('click', enablePlayback, { once: true });
+                document.removeEventListener('keydown', enablePlayback, { once: true });
+                console.log('Avatar: Playback enabled after user interaction');
+              } catch (playError) {
+                console.log('Avatar: Still unable to play media:', playError);
+              }
+            };
+            
+            // Listen for any user interaction to enable playback
+            document.addEventListener('click', enablePlayback, { once: true });
+            document.addEventListener('keydown', enablePlayback, { once: true });
+          } else {
+            console.error('Avatar: Media play error:', error);
+          }
+        }
       };
 
-      const handleCanPlay = () => {
+      const handleCanPlay = async () => {
         setMediaCanPlay(true);
-        // Also trigger canvas rendering when video can play
-        renderCanvas();
+        // Try to start playback if not already playing
+        if (mediaElement.paused) {
+          try {
+            await mediaElement.play();
+            renderCanvas();
+          } catch (error) {
+            if (error.name === 'NotAllowedError') {
+              console.log('Avatar: Autoplay blocked in handleCanPlay, media will play after user interaction');
+            } else {
+              console.error('Avatar: handleCanPlay error:', error);
+            }
+          }
+        } else {
+          // Already playing, just trigger canvas rendering
+          renderCanvas();
+        }
       };
 
       const handlePlaying = () => {
@@ -754,6 +827,17 @@ const Avatar = ({ isActive = false, textToSpeak = '' }) => {
       };
     }
   }, [sessionInfo]); // Add sessionInfo dependency to re-setup when session changes
+
+  // Effect to cleanup dismount timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (dismountTimeoutRef.current) {
+        console.log('Avatar: Component unmounting, clearing dismount timeout');
+        clearTimeout(dismountTimeoutRef.current);
+        dismountTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Prepare UI states
   const isInitializing = !sessionInfo && isActive && !initializationFailed && !userStoppedManually;

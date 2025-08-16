@@ -11,8 +11,13 @@ class TomcatMonitor:
         self.tomcat_host = tomcat_host
         self.tomcat_url = f"http://{tomcat_host}:{tomcat_port}"
 
-    async def get_status(self, detailed: bool = False) -> Dict[str, Any]:
-        """Get comprehensive Tomcat server status"""
+    async def get_status(self, detailed: bool = False) -> str:
+        """Get comprehensive Tomcat server status as formatted string"""
+        status = await self._get_status_dict(detailed)
+        return self._format_status_string(status)
+
+    async def _get_status_dict(self, detailed: bool = False) -> Dict[str, Any]:
+        """Get comprehensive Tomcat server status as dictionary (internal use)"""
         status = {
             "timestamp": asyncio.get_event_loop().time(),
             "server_running": False,
@@ -46,6 +51,31 @@ class TomcatMonitor:
             status["error"] = str(e)
 
         return status
+
+    def _format_status_string(self, status: Dict[str, Any]) -> str:
+        """Format status dictionary into a readable string"""
+        if "error" in status:
+            return f"Tomcat Server Status Error: {status['error']}"
+        
+        # Basic status information with double newlines and markdown formatting
+        status_str = "**Tomcat Server Status Report:-**\n\n"
+        status_str += f"• **Server Running:** {status.get('server_running', 'Unknown')}\n\n"
+        status_str += f"• **Port Accessible:** {status.get('port_accessible', 'Unknown')}\n\n"
+        status_str += f"• **Overall Health:** {status.get('overall_health', 'Unknown')}\n\n"
+        status_str += f"• **Active Processes:** {len(status.get('processes', []))}\n\n"
+        
+        # System resources
+        sys_resources = status.get('system_resources', {})
+        if sys_resources:
+            status_str += f"• **System CPU:** {sys_resources.get('cpu_percent', 'Unknown')}%\n\n"
+            memory_info = sys_resources.get('memory', {})
+            if memory_info:
+                status_str += f"• **Memory Usage:** {memory_info.get('percent', 'Unknown')}%\n\n"
+            disk_info = sys_resources.get('disk', {})
+            if disk_info:
+                status_str += f"• **Disk Usage:** {disk_info.get('percent', 'Unknown')}%"
+        
+        return status_str
 
     async def _get_tomcat_processes(self) -> List[Dict[str, Any]]:
         """Find all Tomcat-related processes"""
