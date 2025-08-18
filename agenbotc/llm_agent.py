@@ -21,23 +21,23 @@ class LLMAgent:
 
         # Define available tools For now only Tomcat monitor and move to Our Knowledge base to Check. 
         self.tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "check_tomcat_status",
-                    "description": "Check the status of Tomcat server including health, memory usage, and running processes",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "detailed": {
-                                "type": "boolean",
-                                "description": "Whether to return detailed status information",
-                                "default": False
-                            }
-                        }
-                    }
-                }
-            },
+            # {
+            #     "type": "function",
+            #     "function": {
+            #         "name": "check_tomcat_status",
+            #         "description": "Check the status of Tomcat server including health, memory usage, and running processes",
+            #         "parameters": {
+            #             "type": "object",
+            #             "properties": {
+            #                 "detailed": {
+            #                     "type": "boolean",
+            #                     "description": "Whether to return detailed status information",
+            #                     "default": False
+            #                 }
+            #             }
+            #         }
+            #     }
+            # },
             {
                 "type": "function",
                 "function": {
@@ -62,28 +62,39 @@ class LLMAgent:
             }
         ]
 
-    async def process_query(self, user_query: str) -> str:
+    async def process_query(self, user_query: str, chat_history: dict = None) -> str:
         """Process user query and route to appropriate tool"""
-        print (f"###############################Processing user query: {user_query}")
+        if chat_history is None:
+            chat_history = {}
+        
+        # Store chat_history for use in tool functions
+        self.current_chat_history = chat_history
         try:
             #  LLM decides which tool to use
             messages = [
                 {
                     "role": "system",
-                    "content": """You are an intelligent assistant that helps users with:
-                        1. Tomcat server status monitoring (use check_tomcat_status tool)
-                        2. General knowledge questions (use search_knowledge_base tool)
+                    "content": """You are Vega, an IAM (Authenion) support assistant. You MUST call exactly ONE tool before answering.
+                        For all testing and development purposes assume the tomcat server is working and help user resolve the issue presented in the query
+                        TOOLS
+                         search_knowledge_base(query: string, limit: int = 5) — Use for Authenion docs & IAM topics: features, install/upgrade, config, integrations, APIs/SDKs, troubleshooting guides, SSO/OAuth2/OIDC/SAML, MFA, RBAC/ABAC, SCIM, LDAP/Kerberos, JWT/certs/keys, sessions, error codes.
 
-                        Analyze the user's query and decide which tool to use:
-                        - If the query is about Tomcat server status, health, monitoring, or performance, use check_tomcat_status
-                        - For all other questions, use search_knowledge_base
+                        ROUTING
+                        
+                        - search_knowledge_base(query := rewrite the user request into a clear standalone Authenion/IAM query; limit=5).
+                        - When unsure, DEFAULT to search_knowledge_base.
 
-                        Additionally, if the user uses profanity or toxic language, respond that you cannot assist with such language and ask them to rephrase their question politely if it is related to IAM. Otherwise, just say that you cannot assist with that.
-                        Always use the appropriate tool to get information before responding."""
+                        SCOPE
+                        Treat as in-scope if related to Authenion, SSO/OAuth2/OIDC/SAML, MFA, SCIM, LDAP/Kerberos, RBAC/ABAC, JWT/certs/keys, users/roles/permissions, install/config/upgrade, troubleshooting, or Tomcat runtime for Authenion.
+
+                        IMPORTANT
+                        - Analyze the current query; use chat history only as context (do NOT repeat prior answers verbatim).
+                        - Make the tool call first. The final user answer will be produced AFTER the tool output is returned in the next step.
+                        """
                 },
                 {
                     "role": "user", 
-                    "content": user_query
+                    "content": f"Current User Query: {user_query}; Chat History: {chat_history}"
                 }
             ]
 
@@ -93,14 +104,11 @@ class LLMAgent:
                 tools=self.tools,
                 tool_choice="auto"
             )
-            print(f"######################LLM response: {Initialresponse}")
+            print(f"\n\n######################LLM Initial response: {Initialresponse}")
             # Check if the LLM wants to call the tool or KB.
             if Initialresponse.choices[0].message.tool_calls:
-                #print(f"Tool call detected: {Initialresponse.choices[0].message.tool_calls}")
                 # Extract tool call details
                 tool_call = Initialresponse.choices[0].message.tool_calls[0]
-                #print(f"Tool call ID: {tool_call.id}")
-                #print(f"Tool call function: {tool_call.function.name}, arguments: {tool_call.function.arguments}")
                 function_name = tool_call.function.name
                 function_args = json.loads(tool_call.function.arguments)
                 
@@ -108,14 +116,16 @@ class LLMAgent:
                 if function_name == "check_tomcat_status":
                     print(f"\n#################Calling tool: {function_name} with args: {function_args}")
                     tool_result = await self._check_tomcat_status(**function_args)
+                    print(f"\n#################Tomcat server check Tool result with type: {type(tool_result)} - {tool_result}")
                 elif function_name == "search_knowledge_base":
-                    tool_result = await self._search_knowledge_base(**function_args)
                     print(f"\n#################Calling Knowledge Base: {function_name} with args: {function_args}")
+                    tool_result = await self._search_knowledge_base(**function_args)
+                    print(f"\n#################Knowledge Base search tool_result with type: {type(tool_result)} - {tool_result}")
+
                 else:
                     tool_result = "Unknown function called"
-                    print("\n#####################Unknown function called:")
+                    print("\n#####################Unknown function called")
 
-                # LLm responds with Final Result
                 final_messages = messages + [
                     Initialresponse.choices[0].message,
                     {
@@ -125,38 +135,60 @@ class LLMAgent:
                     }
                 ]
                 
-                # # Get verbose response
-                # final_messages.insert(0, {
-                #     "role": "system",
-                #     "content": "You are a helpful assistant. Format your final response in Markdown with bullet points, bold headers, and code blocks where helpful."
-                # })
-                
-                # verbose_response = await self.client.chat.completions.create(
-                #     model="gpt-3.5-turbo",
-                #     messages=final_messages
-                # )
+                final_messages.insert(0, {
+                    "role": "system",
+                    "content": """You are Vega. Produce a resolution-first answer grounded ONLY in the tool output and/or KB snippets provided in this thread.
+
+                        OUTPUT STYLE (keep it compact and actionable)
+                        - **Diagnosis Snapshot (1–2 lines):** What the evidence suggests.
+                        - **Most Likely Causes (bulleted):** Pull concrete causes that match the evidence/snippets.
+                        - **Fix Now (numbered steps):** Exact configuration names/paths/values and CLI/UI steps. Prefer product-specific details found in the snippets. Include one quick verification step.
+                        - **If Still Failing:** 2–3 next checks or escalations (logs/metrics/commands with exact paths/keys), each tied to a possible cause.
+                        - **One Clarifying Question** (only if essential to choose between fixes).
+
+                        GROUNDING RULES
+                        - Use ONLY facts present in tool output / KB snippets you were given in this conversation. Do not invent features, paths, or values.
+                        - If details are partial, still give the most probable, safe next step and ask one precise clarifier.
+                        - Prefer exact names: setting keys, profile options, endpoints, HTTP params, cookie names, etc., when they appear in the provided material.
+
+                        FORMAT
+                        - Markdown. Bold section headers. Numbered steps for fixes. Inline code for keys/values/endpoints (`like_this`).
+
+                        PRIVACY
+                        - Do not output addresses, phone numbers, or client company names; replace with `[REDACTED_*]` if present in inputs."""
+                })
+
+                final_response = await self.client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=final_messages
+                )
+
+
                 
                 # Get avatar-friendly response
-                avatar_messages = final_messages.copy()
-                print("\n#################Avatar messages(final_messages.copy():", avatar_messages)
-                avatar_messages[0] = {
-                    "role": "system",
-                    "content": """You are a helpful assistant. Rephrase the following answer to be clear, concise, and conversational, suitable for text-to-speech.
+                avatar_messages = [
+                    {"role": "system",
+                    "content": """You are Vega’s voice. Turn the previous assistant answer into a short, conversational script for text-to-speech.
 
-                    Guidelines for avatar speech:
-                    - If the content from user is already short and clear, just repeat it.
-                    - Use natural, conversational language
-                    - Keep sentences short and easy to understand
-                    - Avoid complex markdown formatting, code blocks, or bullet points
-                    - Focus on the key information the user needs
-                    - Make it sound human and friendly
-                    - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
-                    - Keep the response under 3-4 sentences when possible
-                    - If the information is complex, summarize the main points clearly
-                    - Do not respond to the content from user with 'Sure' or 'Got it' as you are rephrasing the text, not responding to it.
-                    - You do not have to be sweet all the time, be assertive if the user content seems to use reprimanding language
-                    """
-                }
+                    GOAL
+                    - Help the user resolve the issue quickly. Speak like a helpful engineer, not a document.
+
+                    STYLE
+                    - 50–90 words (3–5 sentences). No lists, no markdown, no code blocks, no URLs.
+                    - Use clear, friendly, direct language with short sentences and contractions.
+                    - Start with a one-line diagnosis, then 2–3 concrete actions using “First… Next… Finally…”
+                    - Include one quick verification (“You should see…”). If a crucial fact is missing, end with one concise question.
+                    - Do not say “According to the tool/KB,” “Based on the context,” or meta commentary.
+
+                    CONVERSION RULES
+                    - Keep product/protocol names (Authenion, SSO, OIDC, SAML). Avoid unnecessary jargon.
+                    - Convert config keys/values to plain speech (say the key, then the value).
+                    - Do not invent new steps; only compress what’s already in the prior assistant message."""},
+
+                    {"role": "user",
+                    "content": final_response.choices[0].message.content}
+                    #  "content": tool_result }
+                ]
                 
                 avatar_response = await self.client.chat.completions.create(
                     model="gpt-3.5-turbo",
@@ -164,27 +196,32 @@ class LLMAgent:
                 )
 
                 return {
-                    "verbose": tool_result,
+                    "verbose": final_response.choices[0].message.content,
+                    # "verbose": tool_result,
                     "avatar": avatar_response.choices[0].message.content
                 }
+            
+
             else: #if there is no tool call, this is the else block which is entered
+                print(f"\n#################No tool call found")
                 avatar_messages = [
                 {
                     "role": "system",
-                    "content": """You are a helpful assistant. Rephrase the following answer to be clear, concise, and conversational, suitable for text-to-speech.
+                    "content": """You are Vega’s voice. Rephrase the previous assistant message for text-to-speech. Do not add, remove, or infer new information; only compress and humanize the existing content.
 
-                    Guidelines for avatar speech:
-                    - If the content from user is already short and clear, just repeat it.
-                    - Use natural, conversational language
-                    - Keep sentences short and easy to understand
-                    - Avoid complex markdown formatting, code blocks, or bullet points
-                    - Focus on the key information the user needs
-                    - Make it sound human and friendly
-                    - If there are multiple steps, mention them conversationally (e.g., "First, you'll need to..." instead of bullet points)
-                    - Keep the response under 3-4 sentences when possible
-                    - If the information is complex, summarize the main points clearly
-                    - Do not respond to the content from user with 'Sure' or 'Got it' as you are rephrasing the text, not responding to it.
-                    - You do not have to be sweet all the time, be assertive if the user content seems to use reprimanding language
+                    STYLE
+                    - 45–80 words, 2–4 sentences. No lists, no markdown, no code, no URLs.
+                    - Clear, friendly, confident; use contractions; short sentences; natural rhythm.
+                    - Merge headings/bullets into flowing speech. Keep key product/protocol names as given.
+                    - If the input already is short and clear, keep it nearly verbatim.
+
+                    CONVERSION RULES
+                    - Preserve all facts; do not introduce steps, claims, or apologies that aren’t present.
+                    - Convert config keys/values to plain speech but keep the exact terms.
+                    - If the input includes a question or request for info, keep exactly one concise question.
+                    - Keep placeholders like [REDACTED_*] and speak them as “redacted.” Do not voice phone numbers, addresses, or client names.
+                    - Avoid meta talk (“according to,” “based on context,” “the tool says”).
+
                     """
                 },
                 {
@@ -208,16 +245,18 @@ class LLMAgent:
                 "avatar": "I encountered an error while processing your question. Please try again."
             }
 
-    async def _check_tomcat_status(self, detailed: bool = False) -> Dict[str, Any]:
+    async def _check_tomcat_status(self, detailed: bool = False) -> str:
         """Tool function to check Tomcat status"""
         print(f"\n########################Checking Tomcat status with detailed={detailed}")
         return await self.tomcat_monitor.get_status(detailed)
 
     async def _search_knowledge_base(self, query: str, limit: int = 5) -> Dict[str, Any]:
         """Tool function to search knowledge base"""
-        print(f"\n#########################Agent Searching knowledge base with query: {query}, limit: {limit}")
-        result = chatbot.get_chatbot_response(query, history=[])
-        # print(f"\n#########################Agent Knowledge base search result: {result}")
+        
+        # Use the stored chat history
+        history = getattr(self, 'current_chat_history', {})
+        print(f"\n#########################Agent Searching knowledge base with query: {query}, \nhistory: {history}")
+        result = chatbot.get_chatbot_response(query, history=history)
 
         # Extract the answer from the result
         if isinstance(result, dict) and "answer" in result:

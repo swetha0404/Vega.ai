@@ -25,6 +25,22 @@ function UploadPage() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  // Chat History Management Functions - using UploadPage-specific key
+  const getChatHistory = () => {
+    const stored = sessionStorage.getItem('UploadPage_History');
+    return stored ? JSON.parse(stored) : {};
+  };
+
+  const updateChatHistory = (key, message) => {
+    const chatHistory = getChatHistory();
+    chatHistory[key] = message;
+    sessionStorage.setItem('UploadPage_History', JSON.stringify(chatHistory));
+  };
+
+  const clearChatHistory = () => {
+    sessionStorage.removeItem('UploadPage_History');
+  };
+
   // Scroll to bottom when new messages are added
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -260,6 +276,7 @@ function UploadPage() {
     setMessages([
       { type: 'bot', text: "Hello! I'm your knowledge base assistant. Upload PDFs or provide website URLs to help me answer your questions better." }
     ]);
+    clearChatHistory(); // Clear the chat history from sessionStorage
   };
 
   // Handle chat message sending
@@ -277,14 +294,11 @@ function UploadPage() {
     setMessages(newMessages);
 
     try {
-      // Prepare chat history for API (exclude the welcome message)
-      const chatHistory = newMessages
-        .slice(1) // Remove welcome message
-        .map(msg => ({
-          question: msg.type === 'user' ? msg.text : '',
-          answer: msg.type === 'bot' ? msg.text : ''
-        }))
-        .filter(exchange => exchange.question || exchange.answer);
+      // Get current chat history from sessionStorage (previous messages only)
+      const storedChatHistory = getChatHistory();
+      
+      // Log current chat history for debugging
+      console.log('UploadPage - Chat History being sent to backend:', storedChatHistory);
 
       const authToken = localStorage.getItem('authToken');
       const tokenType = localStorage.getItem('tokenType') || 'Bearer';
@@ -297,7 +311,7 @@ function UploadPage() {
         },
         body: JSON.stringify({
           question: userMessage,
-          history: chatHistory
+          history: storedChatHistory // Send Chat_History object directly
         })
       });
 
@@ -312,11 +326,25 @@ function UploadPage() {
       }
 
       const result = await response.json();
+      const botResponse = result.response || 'Sorry, I couldn\'t generate a response.';
+      
+      // After getting response, add BOTH user message and AI response to chat history
+      const chatHistory = getChatHistory();
+      
+      // Count existing user messages to get the next message number
+      const userMessageCount = Object.keys(chatHistory).filter(key => key.startsWith('User_message_')).length;
+      const nextMessageNumber = userMessageCount + 1;
+      
+      const userKey = `User_message_${nextMessageNumber}`;
+      const aiKey = `AI_message_${nextMessageNumber}`;
+      
+      updateChatHistory(userKey, userMessage);
+      updateChatHistory(aiKey, botResponse);
       
       // Add bot response to chat
       setMessages(prev => [...prev, { 
         type: 'bot', 
-        text: result.response || 'Sorry, I couldn\'t generate a response.' 
+        text: botResponse 
       }]);
 
     } catch (error) {

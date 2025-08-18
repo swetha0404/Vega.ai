@@ -35,7 +35,34 @@ function ChatPage() {
   const [avatarTextToSpeak, setAvatarTextToSpeak] = useState(''); // Text for avatar to speak
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
+
+  // Chat History Management Functions - using ChatPage-specific key
+  const getChatHistory = () => {
+    const stored = sessionStorage.getItem('ChatPage_History');
+    return stored ? JSON.parse(stored) : {};
+  };
+
+  const updateChatHistory = (key, message) => {
+    const chatHistory = getChatHistory();
+    chatHistory[key] = message;
+    sessionStorage.setItem('ChatPage_History', JSON.stringify(chatHistory));
+  };
+
+  const clearChatHistory = () => {
+    sessionStorage.removeItem('ChatPage_History');
+  };
+
+  // Clear chat history
+  const clearChat = () => {
+    setMessages([
+      { type: 'bot', text: "Hello! I'm your AI Copilot. Ask me questions about PingFederate, get help, or receive step-by-step guidance." }
+    ]);
+    setConversationStarted(false);
+    setShowSuggestions(false); // Explicitly hide suggestions when clearing chat
+    setInputPlaceholder('Type your message...');
+    clearChatHistory(); // Clear the chat history from sessionStorage
+  };  
 
   const handleSendMessage = async () => {
 
@@ -58,14 +85,11 @@ function ChatPage() {
     setMessages(newMessages);
 
     try {
-      // Prepare chat history for API (exclude the welcome message)
-      const chatHistory = newMessages
-        .slice(1) // Remove welcome message
-        .map(msg => ({
-          question: msg.type === 'user' ? msg.text : '',
-          answer: msg.type === 'bot' ? msg.text : ''
-        }))
-        .filter(exchange => exchange.question || exchange.answer);
+      // Get current chat history from sessionStorage (previous messages only)
+      const storedChatHistory = getChatHistory();
+      
+      // Log current chat history for debugging
+      console.log('ChatPage - Chat History being sent to backend:', storedChatHistory);
 
       const response = await fetch(`${API_BASE}/Agentchat`, {
         method: 'POST',
@@ -75,7 +99,7 @@ function ChatPage() {
         },
         body: JSON.stringify({
           question: userMessage,
-          history: chatHistory
+          history: storedChatHistory // Send Chat_History object directly
         })
       });
 
@@ -86,6 +110,19 @@ function ChatPage() {
       const result = await response.json();
       const botResponse = result.response || 'Sorry, I couldn\'t generate a response.';
       const avatarText = result.avatarText || botResponse;
+      
+      // After getting response, add BOTH user message and AI response to chat history
+      const chatHistory = getChatHistory();
+      
+      // Count existing user messages to get the next message number
+      const userMessageCount = Object.keys(chatHistory).filter(key => key.startsWith('User_message_')).length;
+      const nextMessageNumber = userMessageCount + 1;
+      
+      const userKey = `User_message_${nextMessageNumber}`;
+      const aiKey = `AI_message_${nextMessageNumber}`;
+      
+      updateChatHistory(userKey, userMessage);
+      updateChatHistory(aiKey, botResponse);
       
       // Add bot response to chat
       setMessages(prev => [...prev, { 
@@ -150,6 +187,12 @@ function ChatPage() {
         const newMessages = [...messages, { type: 'user', text: userMessage }];
         setMessages(newMessages);
         
+        // Get current chat history (previous messages only)
+        const storedChatHistory = getChatHistory();
+        
+        // Log current chat history for debugging
+        console.log('ChatPage Voice - Chat History being sent to backend:', storedChatHistory);
+        
         // Make the API call directly here instead of using handleSendMessage
         fetch(`${API_BASE}/Agentchat`, {
           method: 'POST',
@@ -159,13 +202,7 @@ function ChatPage() {
           },
           body: JSON.stringify({
             question: userMessage,
-            history: newMessages
-              .slice(1)
-              .map(msg => ({
-                question: msg.type === 'user' ? msg.text : '',
-                answer: msg.type === 'bot' ? msg.text : ''
-              }))
-              .filter(exchange => exchange.question || exchange.answer)
+            history: storedChatHistory // Send Chat_History object directly
           })
         })
         .then(response => {
@@ -177,6 +214,19 @@ function ChatPage() {
         .then(result => {
           const botResponse = result.response || 'Sorry, I couldn\'t generate a response.';
           const avatarText = result.avatarText || botResponse;
+          
+          // After getting response, add BOTH user message and AI response to chat history
+          const chatHistory = getChatHistory();
+          
+          // Count existing user messages to get the next message number
+          const userMessageCount = Object.keys(chatHistory).filter(key => key.startsWith('User_message_')).length;
+          const nextMessageNumber = userMessageCount + 1;
+          
+          const userKey = `User_message_${nextMessageNumber}`;
+          const aiKey = `AI_message_${nextMessageNumber}`;
+          
+          updateChatHistory(userKey, userMessage);
+          updateChatHistory(aiKey, botResponse);
           
           // Add bot response to chat
           setMessages(prev => [...prev, { 
@@ -292,9 +342,10 @@ function ChatPage() {
 
       <div className="chat-right">
         <div className="chat-back-header" style={{alignItems: 'center'}}>
+          {/* Navigating to Homepage directly now for simplicity. Change /applications to /services */}
           <button
             className="chat-back-button"
-            onClick={() => navigate('/services')}
+            onClick={() => navigate('/applications')}
             title="Back to Services"
           >
             &#8592;
@@ -303,8 +354,17 @@ function ChatPage() {
         </div>
 
         <div className="chat-header">
-          <h2>AI-Copilot</h2>
-          <p>Ask questions, get help, or receive step-by-step guidance here.</p>
+          <div>
+            {/* <h2>AI-Copilot</h2> */}
+            <p>Ask questions, get help, or receive step-by-step guidance here.</p>
+          </div>
+          <button 
+            className="clear-chat-btn" 
+            onClick={clearChat}
+            title="Clear chat history"
+          >
+            Clear Chat
+          </button>
         </div>
 
         <div className="chat-messages">

@@ -42,7 +42,7 @@ grenv/
 vectorstore/
 
 # Environment variables
-# .env
+.env
 .env.local
 .env.*.local
 !/frontend/.env
@@ -121,8 +121,3 @@ video_avatar/
 *.tmp
 *.temp
 .cache/
-
-recording_tests/
-
-# Ensure Unix line endings for shell scripts
-*.sh text eol=lf

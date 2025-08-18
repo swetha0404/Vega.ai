@@ -46,10 +46,12 @@ function MainLayout() {
                     <img src="/PF-Logo.png" alt="PingFederate" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingFederate SP-Connections'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingFederate SP-Connections'>
                       <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon" />
                     </div>
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingFederate OAuth'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingFederate OAuth'>
                       <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon" />
                     </div>
                   </div>
@@ -69,10 +71,12 @@ function MainLayout() {
                     <img src="/PO-Logo.png" alt="PingOne" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingOne SP-Connections'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingOne SP-Connections'>
                       <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon" />
                     </div>
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingOne OAuth'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingOne OAuth'>
                       <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon" />
                     </div>
                   </div>
@@ -92,10 +96,12 @@ function MainLayout() {
                     <img src="/PD-Logo.png" alt="PingDirectory" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingDirectory SP-Connections'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingDirectory SP-Connections'>
                       <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon"/>
                     </div>
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingDirectory OAuth'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingDirectory OAuth'>
                       <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon"/>
                     </div>
                   </div>
@@ -115,10 +121,12 @@ function MainLayout() {
                     <img src="/PI-Logo.png" alt="PingIDM" className="card-img" />
                   </div>
                   <div className="dropdown-menu">
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingIDM SP-Connections'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingIDM SP-Connections'>
                       <img src="/SP-Connections.png" alt="SP Connections" className="dropdown-icon" />
                     </div>
-                    <div className="dropdown-option" onClick={() => navigate('/services')} title='PingIDM OAuth'>
+                    {/* Navigating to chatpage directly now for simplicity. Change /chatpage to /services */}
+                    <div className="dropdown-option" onClick={() => navigate('/chatpage')} title='PingIDM OAuth'>
                       <img src="/OAUTH.png" alt="OAuth" className="dropdown-icon" />
                     </div>
                   </div>
