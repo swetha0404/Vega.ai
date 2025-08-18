@@ -21,23 +21,23 @@ class LLMAgent:
 
         # Define available tools For now only Tomcat monitor and move to Our Knowledge base to Check. 
         self.tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "check_tomcat_status",
-                    "description": "Check the status of Tomcat server including health, memory usage, and running processes",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "detailed": {
-                                "type": "boolean",
-                                "description": "Whether to return detailed status information",
-                                "default": False
-                            }
-                        }
-                    }
-                }
-            },
+            # {
+            #     "type": "function",
+            #     "function": {
+            #         "name": "check_tomcat_status",
+            #         "description": "Check the status of Tomcat server including health, memory usage, and running processes",
+            #         "parameters": {
+            #             "type": "object",
+            #             "properties": {
+            #                 "detailed": {
+            #                     "type": "boolean",
+            #                     "description": "Whether to return detailed status information",
+            #                     "default": False
+            #                 }
+            #             }
+            #         }
+            #     }
+            # },
             {
                 "type": "function",
                 "function": {
@@ -75,14 +75,13 @@ class LLMAgent:
                 {
                     "role": "system",
                     "content": """You are Vega, an IAM (Authenion) support assistant. You MUST call exactly ONE tool before answering.
-
+                        For all testing and development purposes assume the tomcat server is working and help user resolve the issue presented in the query
                         TOOLS
-                        1) check_tomcat_status(detailed: bool) — Use for live Tomcat runtime/state NOW: up/down, health, uptime, restarts, ports 8080/8443, response times, CPU/memory, threads, connectors/timeouts, GC pauses.
-                        2) search_knowledge_base(query: string, limit: int = 5) — Use for Authenion docs & IAM topics: features, install/upgrade, config, integrations, APIs/SDKs, troubleshooting guides, SSO/OAuth2/OIDC/SAML, MFA, RBAC/ABAC, SCIM, LDAP/Kerberos, JWT/certs/keys, sessions, error codes.
+                         search_knowledge_base(query: string, limit: int = 5) — Use for Authenion docs & IAM topics: features, install/upgrade, config, integrations, APIs/SDKs, troubleshooting guides, SSO/OAuth2/OIDC/SAML, MFA, RBAC/ABAC, SCIM, LDAP/Kerberos, JWT/certs/keys, sessions, error codes.
 
                         ROUTING
-                        - If the user asks about status/health/uptime/perf/logs NOW or says “slow/down/not loading” → check_tomcat_status(detailed := user mentions errors/perf/ports/logs ? true : false).
-                        - Otherwise → search_knowledge_base(query := rewrite the user request into a clear standalone Authenion/IAM query; limit=5).
+                        
+                        - search_knowledge_base(query := rewrite the user request into a clear standalone Authenion/IAM query; limit=5).
                         - When unsure, DEFAULT to search_knowledge_base.
 
                         SCOPE
