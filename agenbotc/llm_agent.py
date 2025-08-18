@@ -129,44 +129,51 @@ class LLMAgent:
                     tool_result = "Unknown function called"
                     print("\n#####################Unknown function called")
 
-                final_messages = messages + [
-                    Initialresponse.choices[0].message,
-                    {
-                        "role": "tool",
-                        "content": str(tool_result),
-                        "tool_call_id": tool_call.id
-                    }
-                ]
-                
-                final_messages.insert(0, {
-                    "role": "system",
-                    "content": """You are Vega. Produce the final answer grounded ONLY in the tool/KB snippets provided in this thread.
+                final_messages = [
+                        {"role": "system", "content": """You are Vega. Produce the final answer grounded ONLY in the tool/KB snippets provided in this thread.
 
-                        INTENT → OUTPUT MODE
-                        - If the latest user request explicitly asks for a command/script/config snippet/single value (phrases like “command”, “CLI”, “jar”, “curl”, “sqlplus”, “snippet”, “exact value”), choose a minimal mode:
-                        • COMMAND_ONLY → One fenced code block with the exact command(s); then ≤2 very short lines (run dir/prereq and placeholder note). Nothing else.
-                        • SNIPPET_ONLY → One fenced config block; then ≤1 short placement line.
-                        • VALUE_ONLY → The single value only.
-                        - Otherwise use RESOLUTION-FIRST (compact):
-                        **Diagnosis Snapshot** (1–2 lines) → **Fix Now** (numbered, product-specific; exact keys/paths/values; include one quick verification) → **If Still Failing** (2–3 targeted checks) → optional ONE clarifying question if essential.
+                    INTENT → OUTPUT MODE
+                    - If the latest user request explicitly asks for a command/script/config snippet/single value (phrases like “command”, “CLI”, “jar”, “curl”, “sqlplus”, “snippet”, “exact value”), choose a minimal mode:
+                    • COMMAND_ONLY → One fenced code block with the exact command(s); then ≤2 very short lines (run dir/prereq and placeholder note). Nothing else.
+                    • SNIPPET_ONLY → One fenced config block; then ≤1 short placement line.
+                    • VALUE_ONLY → The single value only.
+                    - Otherwise use RESOLUTION-FIRST (compact):
+                    **Diagnosis Snapshot** (1–2 lines) → **Fix Now** (numbered, product-specific; exact keys/paths/values; include one quick verification) → **If Still Failing** (2–3 targeted checks) → optional ONE clarifying question if essential.
 
-                        GROUNDING
-                        - Use ONLY facts present in this conversation’s tool/KB content. No speculation. Mark placeholders like <…> clearly.
+                    GROUNDING
+                    - Use ONLY facts present in this conversation’s tool/KB content. No speculation. Mark placeholders like <…> clearly.
 
-                        FORMAT
-                        - Markdown. Use fenced code blocks for commands/snippets. Keep it concise.
+                    FORMAT
+                    - Markdown. Use fenced code blocks for commands/snippets. Keep it concise.
 
-                        PRIVACY
-                        - Never output addresses, phone numbers, or client names; replace with “[REDACTED_*]”.
+                    PRIVACY
+                    - Never output addresses, phone numbers, or client names; replace with “[REDACTED_*]”.
+                    """
+                    },
+                        # Pass the tool call the router made:
+                        {
+                            "role": "assistant",
+                            "content": None,
+                            "tool_calls": Initialresponse.choices[0].message.tool_calls
+                        },
+                        # Provide the tool result WITH ITS NAME so the model grounds on it:
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": function_name,                 # <-- critical patch
+                            "content": str(tool_result)
+                        }
+                    ]
 
-                        """
-                })
+                print(f"\n\n#################Final messages to model: {final_messages}")
 
                 final_response = await self.client.chat.completions.create(
                     model="gpt-4o-mini",
-                    temperature=0.2,
+                    temperature=0.1,
                     messages=final_messages
                 )
+
+                print(f"\n\n#################Final response from model: {final_response}")
 
 
                 # Get avatar-friendly response

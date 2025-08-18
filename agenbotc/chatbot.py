@@ -19,8 +19,8 @@ if not OPENAI_TOKEN:
 
 # Initialize LLM
 llm = ChatOpenAI(
-    model_name="gpt-4o-mini", 
-    temperature=0.2,
+    model="gpt-4o-mini", 
+    temperature=0.1,
     api_key=OPENAI_TOKEN
 )
 
