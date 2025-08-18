@@ -101,7 +101,8 @@ class LLMAgent:
             ]
 
             Initialresponse = await self.client.chat.completions.create(
-                model="gpt-3.5-turbo",# this is used for chat completion.
+                model="gpt-4o-mini",# this is used for chat completion.
+                temperature=0.2,
                 messages=messages,
                 tools=self.tools,
                 tool_choice="auto"
@@ -162,12 +163,12 @@ class LLMAgent:
                 })
 
                 final_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
+                    temperature=0.2,
                     messages=final_messages
                 )
 
 
-                
                 # Get avatar-friendly response
                 avatar_messages = [
                     {"role": "system",
@@ -193,7 +194,8 @@ class LLMAgent:
                 ]
                 
                 avatar_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
+                    temperature=0.4,
                     messages=avatar_messages
                 )
 
@@ -233,7 +235,8 @@ class LLMAgent:
                 }
                 ]
                 avatar_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
+                    temperature=0.4,
                     messages=avatar_messages
                 )
 
