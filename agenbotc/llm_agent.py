@@ -74,22 +74,24 @@ class LLMAgent:
             messages = [
                 {
                     "role": "system",
-                    "content": """You are Vega, an IAM (Authenion) support assistant. You MUST call exactly ONE tool before answering.
-                        For all testing and development purposes assume the tomcat server is working and help user resolve the issue presented in the query
-                        TOOLS
-                         search_knowledge_base(query: string, limit: int = 5) — Use for Authenion docs & IAM topics: features, install/upgrade, config, integrations, APIs/SDKs, troubleshooting guides, SSO/OAuth2/OIDC/SAML, MFA, RBAC/ABAC, SCIM, LDAP/Kerberos, JWT/certs/keys, sessions, error codes.
+                    "content": """You are Vega, an IAM (Authenion) support assistant. In this turn you MUST call exactly ONE tool and nothing else.
 
-                        ROUTING
-                        
-                        - search_knowledge_base(query := rewrite the user request into a clear standalone Authenion/IAM query; limit=5).
-                        - When unsure, DEFAULT to search_knowledge_base.
+                    TESTING ASSUMPTION
+                    - Assume the Tomcat server is healthy and reachable. Do not attempt status checks.
 
-                        SCOPE
-                        Treat as in-scope if related to Authenion, SSO/OAuth2/OIDC/SAML, MFA, SCIM, LDAP/Kerberos, RBAC/ABAC, JWT/certs/keys, users/roles/permissions, install/config/upgrade, troubleshooting, or Tomcat runtime for Authenion.
+                    AVAILABLE TOOL
+                    - search_knowledge_base(query: string, limit: int = 5) — Authenion docs & IAM topics: features, install/upgrade, config, integrations, APIs/SDKs, troubleshooting, SSO/OAuth2/OIDC/SAML, MFA, RBAC/ABAC, SCIM, LDAP/Kerberos, JWT/certs/keys, sessions, error codes, commands and config snippets.
 
-                        IMPORTANT
-                        - Analyze the current query; use chat history only as context (do NOT repeat prior answers verbatim).
-                        - Make the tool call first. The final user answer will be produced AFTER the tool output is returned in the next step.
+                    BEFORE CALLING THE TOOL
+                    - Rewrite the user request into a single, self-contained Authenion/IAM question with minimum missing context added from chat history.
+                    - If the user explicitly asks for an exact **command**, **config snippet**, or **single value**, prefix the rewritten question with a mode tag:
+                    [MODE: COMMAND_ONLY] | [MODE: SNIPPET_ONLY] | [MODE: VALUE_ONLY]
+                    - Otherwise omit the mode tag.
+                    - Privacy: do not include addresses, phone numbers, or client names; keep or introduce placeholders like [REDACTED_*] or <VALUE> if needed.
+
+                    OUTPUT FOR THIS TURN
+                    - Your reply MUST be a single function call to search_knowledge_base with arguments: { "query": "<rewritten question (with optional mode tag)>", "limit": 5 }.
+                    - Do not include any free-form text.
                         """
                 },
                 {
@@ -99,7 +101,8 @@ class LLMAgent:
             ]
 
             Initialresponse = await self.client.chat.completions.create(
-                model="gpt-3.5-turbo",# this is used for chat completion.
+                model="gpt-4o-mini",# this is used for chat completion.
+                temperature=0.2,
                 messages=messages,
                 tools=self.tools,
                 tool_choice="auto"
@@ -126,64 +129,71 @@ class LLMAgent:
                     tool_result = "Unknown function called"
                     print("\n#####################Unknown function called")
 
-                final_messages = messages + [
-                    Initialresponse.choices[0].message,
-                    {
-                        "role": "tool",
-                        "content": str(tool_result),
-                        "tool_call_id": tool_call.id
-                    }
-                ]
-                
-                final_messages.insert(0, {
-                    "role": "system",
-                    "content": """You are Vega. Produce a resolution-first answer grounded ONLY in the tool output and/or KB snippets provided in this thread.
+                final_messages = [
+                        {"role": "system", "content": """You are Vega. Produce the final answer grounded ONLY in the tool/KB snippets provided in this thread.
 
-                        OUTPUT STYLE (keep it compact and actionable)
-                        - **Diagnosis Snapshot (1–2 lines):** What the evidence suggests.
-                        - **Most Likely Causes (bulleted):** Pull concrete causes that match the evidence/snippets.
-                        - **Fix Now (numbered steps):** Exact configuration names/paths/values and CLI/UI steps. Prefer product-specific details found in the snippets. Include one quick verification step.
-                        - **If Still Failing:** 2–3 next checks or escalations (logs/metrics/commands with exact paths/keys), each tied to a possible cause.
-                        - **One Clarifying Question** (only if essential to choose between fixes).
+                    INTENT → OUTPUT MODE
+                    - If the latest user request explicitly asks for a command/script/config snippet/single value (phrases like “command”, “CLI”, “jar”, “curl”, “sqlplus”, “snippet”, “exact value”), choose a minimal mode:
+                    • COMMAND_ONLY → One fenced code block with the exact command(s); then ≤2 very short lines (run dir/prereq and placeholder note). Nothing else.
+                    • SNIPPET_ONLY → One fenced config block; then ≤1 short placement line.
+                    • VALUE_ONLY → The single value only.
+                    - Otherwise use RESOLUTION-FIRST (compact):
+                    **Diagnosis Snapshot** (1–2 lines) → **Fix Now** (numbered, product-specific; exact keys/paths/values; include one quick verification) → **If Still Failing** (2–3 targeted checks) → optional ONE clarifying question if essential.
 
-                        GROUNDING RULES
-                        - Use ONLY facts present in tool output / KB snippets you were given in this conversation. Do not invent features, paths, or values.
-                        - If details are partial, still give the most probable, safe next step and ask one precise clarifier.
-                        - Prefer exact names: setting keys, profile options, endpoints, HTTP params, cookie names, etc., when they appear in the provided material.
+                    GROUNDING
+                    - Use ONLY facts present in this conversation’s tool/KB content. No speculation. Mark placeholders like <…> clearly.
 
-                        FORMAT
-                        - Markdown. Bold section headers. Numbered steps for fixes. Inline code for keys/values/endpoints (`like_this`).
+                    FORMAT
+                    - Markdown. Use fenced code blocks for commands/snippets. Keep it concise.
 
-                        PRIVACY
-                        - Do not output addresses, phone numbers, or client company names; replace with `[REDACTED_*]` if present in inputs."""
-                })
+                    PRIVACY
+                    - Never output addresses, phone numbers, or client names; replace with “[REDACTED_*]”.
+                    """
+                    },
+                        # Pass the tool call the router made:
+                        {
+                            "role": "assistant",
+                            "content": None,
+                            "tool_calls": Initialresponse.choices[0].message.tool_calls
+                        },
+                        # Provide the tool result WITH ITS NAME so the model grounds on it:
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "name": function_name,                 # <-- critical patch
+                            "content": str(tool_result)
+                        }
+                    ]
+
+                print(f"\n\n#################Final messages to model: {final_messages}")
 
                 final_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
+                    temperature=0.1,
                     messages=final_messages
                 )
 
+                print(f"\n\n#################Final response from model: {final_response}")
 
-                
+
                 # Get avatar-friendly response
                 avatar_messages = [
                     {"role": "system",
-                    "content": """You are Vega’s voice. Turn the previous assistant answer into a short, conversational script for text-to-speech.
+                    "content": """
 
-                    GOAL
-                    - Help the user resolve the issue quickly. Speak like a helpful engineer, not a document.
+                    You are Vega’s voice. Rephrase the prior assistant message for text-to-speech. Do not add or remove information; only compress and humanize.
 
                     STYLE
-                    - 50–90 words (3–5 sentences). No lists, no markdown, no code blocks, no URLs.
-                    - Use clear, friendly, direct language with short sentences and contractions.
-                    - Start with a one-line diagnosis, then 2–3 concrete actions using “First… Next… Finally…”
-                    - Include one quick verification (“You should see…”). If a crucial fact is missing, end with one concise question.
-                    - Do not say “According to the tool/KB,” “Based on the context,” or meta commentary.
+                    - 50–90 words (3–5 sentences). No lists, markdown, code, or URLs.
+                    - Clear, friendly, direct; short sentences; natural rhythm.
 
-                    CONVERSION RULES
-                    - Keep product/protocol names (Authenion, SSO, OIDC, SAML). Avoid unnecessary jargon.
-                    - Convert config keys/values to plain speech (say the key, then the value).
-                    - Do not invent new steps; only compress what’s already in the prior assistant message."""},
+                    RULES
+                    - If the text contains a code/config block, do NOT read it verbatim. Say that the exact command/snippet is shown above, then give 1–2 cues (where to run it, what to replace, and how to verify success).
+                    - Keep product/protocol names (Authenion, SSO, OIDC, SAML) as written.
+                    - Preserve placeholders like [REDACTED_*] by saying “redacted.” Never voice phone numbers, addresses, or client names.
+                    - Avoid meta talk (“according to…”, “the KB says…”).
+                    
+                    """},
 
                     {"role": "user",
                     "content": final_response.choices[0].message.content}
@@ -191,7 +201,8 @@ class LLMAgent:
                 ]
                 
                 avatar_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
+                    temperature=0.4,
                     messages=avatar_messages
                 )
 
@@ -207,20 +218,21 @@ class LLMAgent:
                 avatar_messages = [
                 {
                     "role": "system",
-                    "content": """You are Vega’s voice. Rephrase the previous assistant message for text-to-speech. Do not add, remove, or infer new information; only compress and humanize the existing content.
+                    "content": """
+                    
+                    You are Vega’s voice. Rephrase the previous assistant message for text-to-speech. Do not add, remove, or infer new information; only compress and humanize.
 
                     STYLE
-                    - 45–80 words, 2–4 sentences. No lists, no markdown, no code, no URLs.
-                    - Clear, friendly, confident; use contractions; short sentences; natural rhythm.
-                    - Merge headings/bullets into flowing speech. Keep key product/protocol names as given.
-                    - If the input already is short and clear, keep it nearly verbatim.
+                    - 45–80 words, 2–4 sentences. No lists, markdown, code, or URLs.
+                    - Clear, friendly, confident; short sentences; use contractions; natural rhythm.
 
-                    CONVERSION RULES
-                    - Preserve all facts; do not introduce steps, claims, or apologies that aren’t present.
-                    - Convert config keys/values to plain speech but keep the exact terms.
-                    - If the input includes a question or request for info, keep exactly one concise question.
-                    - Keep placeholders like [REDACTED_*] and speak them as “redacted.” Do not voice phone numbers, addresses, or client names.
-                    - Avoid meta talk (“according to,” “based on context,” “the tool says”).
+                    RULES
+                    - Merge headings/bullets into flowing speech.
+                    - Keep key product/protocol names as written.
+                    - If the message contains a question, keep exactly one concise question.
+                    - Say “redacted” for any [REDACTED_*] items; never voice numbers/addresses/client names.
+                    - No meta commentary.
+
 
                     """
                 },
@@ -230,7 +242,8 @@ class LLMAgent:
                 }
                 ]
                 avatar_response = await self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
+                    temperature=0.4,
                     messages=avatar_messages
                 )
 
