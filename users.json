@@ -1,20 +1,11 @@
 {
-  "test": {
-    "username": "test",
-    "email": null,
-    "role": "user",
-    "is_active": true,
-    "created_at": "2025-07-12T15:46:52.300020",
-    "last_login": "2025-07-12T16:04:28.570548",
-    "hashed_password": "$2b$12$C4DJDIM33F0BDbisjrAHj.CxfCohicBlWWpnjiAFex4qcaG0Y31iO"
-  },
   "admin": {
     "username": "admin",
     "email": null,
     "role": "admin",
     "is_active": true,
     "created_at": "2025-07-12T15:46:52.498151",
-    "last_login": "2025-08-18T17:31:19.813058",
+    "last_login": "2025-08-22T20:57:01.947800",
     "hashed_password": "$2b$12$egRc4WkkPg6tvQxpDvuv/u7EUk5QbZrAL0Z6iHNVRTHW2p6Bqllg6"
   },
   "swetha": {
@@ -34,5 +25,32 @@
     "created_at": "2025-07-24T01:11:30.096373",
     "last_login": null,
     "hashed_password": "$2b$12$5i/ACzogZII43BAGwxTyTOu0SFylxq5gVEbymEz0vMGjkNTMs5hn2"
+  },
+  "aishu99": {
+    "username": "aishu99",
+    "email": "aishujjane@gmail.com",
+    "role": "user",
+    "is_active": true,
+    "created_at": "2025-08-21T12:35:03.497648",
+    "last_login": null,
+    "hashed_password": "$2b$12$DhyahRXGwG6PYvxao5oOAuEE/5wyffTgkOupcbWVHrTCaj97Xmkoe"
+  },
+  "test": {
+    "username": "test",
+    "email": "test@vega.ai",
+    "role": "user",
+    "is_active": true,
+    "created_at": "2025-08-21T18:31:36.706129",
+    "last_login": null,
+    "hashed_password": "$2b$12$4KoCwHHoTrh/2aqNKBuXqOd/Ze5gBHzxPpYKkmBNs.mWriSyYvk/m"
+  },
+  "test2": {
+    "username": "test2",
+    "email": "",
+    "role": "user",
+    "is_active": true,
+    "created_at": "2025-08-21T18:31:52.112977",
+    "last_login": null,
+    "hashed_password": "$2b$12$8w2iTq/WDgJi3jo5N5DIde196J.V8yCZy7/J20KyaVDVM0popDzP2"
   }
 }

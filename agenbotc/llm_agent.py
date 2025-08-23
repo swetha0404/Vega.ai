@@ -74,7 +74,14 @@ class LLMAgent:
             messages = [
                 {
                     "role": "system",
-                    "content": """You are Vega, an IAM (Authenion) support assistant. In this turn you MUST call exactly ONE tool and nothing else.
+                    "content": """Your name is Vega, an expert IAM (Authenion) support assistant. 
+
+                    GREETING/CASUAL MESSAGE HANDLING:
+                    - If the user sends a greeting (hello, hi, thanks, etc.) or casual message unrelated to IAM/Authenion, DO NOT call any tools, just respond directly to the query with the best of your abilities.
+                    - Keep greeting responses brief (2-3 sentences) and professional.
+
+                    TECHNICAL QUERIES:
+                    - For technical IAM/Authenion questions, you MUST call exactly ONE tool and nothing else.
 
                     TESTING ASSUMPTION
                     - Assume the Tomcat server is healthy and reachable. Do not attempt status checks.
@@ -90,8 +97,8 @@ class LLMAgent:
                     - Privacy: do not include addresses, phone numbers, or client names; keep or introduce placeholders like [REDACTED_*] or <VALUE> if needed.
 
                     OUTPUT FOR THIS TURN
-                    - Your reply MUST be a single function call to search_knowledge_base with arguments: { "query": "<rewritten question (with optional mode tag)>", "limit": 5 }.
-                    - Do not include any free-form text.
+                    - For greetings/casual messages: Respond directly without tool calls
+                    - For technical queries: Your reply MUST be a single function call to search_knowledge_base with arguments: { "query": "<rewritten question (with optional mode tag)>", "limit": 5 }. Do not include any free-form text.
                         """
                 },
                 {
@@ -129,43 +136,64 @@ class LLMAgent:
                     tool_result = "Unknown function called"
                     print("\n#####################Unknown function called")
 
-                final_messages = [
-                        {"role": "system", "content": """You are Vega. Produce the final answer grounded ONLY in the tool/KB snippets provided in this thread.
+                FINALIZER_PROMPT = """
+                
+                You are Vega. Produce the final answer grounded ONLY in the tool/KB snippets provided in this thread.
 
-                    INTENT → OUTPUT MODE
-                    - If the latest user request explicitly asks for a command/script/config snippet/single value (phrases like “command”, “CLI”, “jar”, “curl”, “sqlplus”, “snippet”, “exact value”), choose a minimal mode:
-                    • COMMAND_ONLY → One fenced code block with the exact command(s); then ≤2 very short lines (run dir/prereq and placeholder note). Nothing else.
-                    • SNIPPET_ONLY → One fenced config block; then ≤1 short placement line.
-                    • VALUE_ONLY → The single value only.
-                    - Otherwise use RESOLUTION-FIRST (compact):
-                    **Diagnosis Snapshot** (1–2 lines) → **Fix Now** (numbered, product-specific; exact keys/paths/values; include one quick verification) → **If Still Failing** (2–3 targeted checks) → optional ONE clarifying question if essential.
+                    OUTPUT MODES (pick ONE using the function call’s arguments.query and/or the KB snippet style)
+                    - EXPLAIN → For conceptual requests (“what is/are…”, “explain…”, “overview…”, “how does X work…”, “why X…”, “use cases”).
+                    Output 1–2 short paragraphs (≤180 words). No headings, no lists, no code.
+                    - HOWTO → For procedural requests (“how to…”, “configure”, “set up”, “integrate”, “install”).
+                    Output:
+                        **Prerequisites** (optional, 1–3 bullets)
+                        **Steps** (numbered; exact keys/paths/values; UI/CLI as shown in snippets)
+                        **Verify** (one quick check)
+                        **Notes** (0–3 brief pitfalls)
+                    Do NOT include “Diagnosis Snapshot”.
+                    - COMMAND_ONLY → A single fenced code block with the exact command(s); then ≤2 very short lines (run dir/prereq + placeholder note). Nothing else.
+                    - SNIPPET_ONLY → A single fenced config block; then ≤1 short placement line.
+                    - VALUE_ONLY → The single requested value only.
+                    - RESOLUTION-FIRST (fallback for troubleshooting/error incidents only):
+                    **Diagnosis Snapshot** → **Fix Now** → **Verify** → **If Still Failing** → optional ONE clarifier.
+
+                    MODE SELECTION RULES
+                    - Prefer EXPLAIN if the query is conceptual; prefer HOWTO if it’s procedural.
+                    - If no clear signal in the query, infer from KB snippet style: step-by-step → HOWTO; conceptual article → EXPLAIN.
+                    - Use RESOLUTION-FIRST only for incident/troubleshooting language (e.g., “error/fails/timeout/500/redirect loop/not loading”).
+                    - If the KB/answer includes an explicit mode tag like [MODE: …], honor it.
 
                     GROUNDING
-                    - Use ONLY facts present in this conversation’s tool/KB content. No speculation. Mark placeholders like <…> clearly.
+                    - Use ONLY facts present in this conversation’s tool/KB content (including the function call arguments). No speculation. Mark placeholders like <…> clearly.
 
                     FORMAT
-                    - Markdown. Use fenced code blocks for commands/snippets. Keep it concise.
+                    - Keep it concise. Use fenced code blocks only for COMMAND/SNIPPET modes.
 
                     PRIVACY
                     - Never output addresses, phone numbers, or client names; replace with “[REDACTED_*]”.
-                    """
-                    },
-                        # Pass the tool call the router made:
-                        {
-                            "role": "assistant",
-                            "content": None,
-                            "tool_calls": Initialresponse.choices[0].message.tool_calls
-                        },
-                        # Provide the tool result WITH ITS NAME so the model grounds on it:
-                        {
-                            "role": "tool",
-                            "tool_call_id": tool_call.id,
-                            "name": function_name,                 # <-- critical patch
-                            "content": str(tool_result)
-                        }
-                    ]
+                """
+                
+                final_messages = [
+                    # 1) Finalizer system prompt (mode-aware; includes EXPLAIN/HOWTO)
+                    {"role": "system", "content": FINALIZER_PROMPT},
 
-                print(f"\n\n#################Final messages to model: {final_messages}")
+                    # 2) Pass through the assistant message that made the tool call
+                    {
+                        "role": "assistant",
+                        "content": None,
+                        "tool_calls": Initialresponse.choices[0].message.tool_calls
+                    },
+
+                    # 3) Provide the tool result with its NAME so the model grounds on it
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": function_name,       # <-- keep this; critical for grounding
+                        "content": str(tool_result)  # <-- the KB/RAG answer text
+                    }
+                ]
+
+
+                # print(f"\n\n#################Final messages to model: {final_messages}")
 
                 final_response = await self.client.chat.completions.create(
                     model="gpt-4o-mini",

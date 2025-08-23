@@ -15,7 +15,7 @@ Repo folder/
 
 ## Features
 - Modern FastAPI backend with authentication, RAG, file upload, and LLM agent endpoints
-- React/Vite frontend served via Nginx
+- React/Vite/TS frontend served via Nginx
 - Containerized for easy cloud deployment (Docker, Docker Compose)
 - Environment variables managed via `.env` files
 
@@ -58,7 +58,7 @@ Repo folder/
   ```
   npm run dev
   ```
-- App available at: [http://localhost:5173](http://localhost:5173) (default Vite port)
+- App available at: [http://localhost:8080](http://localhost:8080) (default Vite port)
 
 ---
 
@@ -71,7 +71,7 @@ Repo folder/
    docker-compose up --build
    ```
 4. Backend will be available at [http://localhost:8000](http://localhost:8000)
-5. Frontend will be available at [http://localhost:3000](http://localhost:3000)
+5. Frontend will be available at [http://localhost:8080](http://localhost:8080)
 
 ---
 
