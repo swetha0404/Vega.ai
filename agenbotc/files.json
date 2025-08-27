@@ -317,5 +317,16 @@
     "lastModified": "2025-08-22T18:34:00.460979",
     "uploadedBy": "admin",
     "url": null
+  },
+  "website_eef434f2fa43": {
+    "id": "website_eef434f2fa43",
+    "name": "https://docs.pingidentity.com/solution-guides/getting_started_guides/htg_get_started_with_pf_install_pf.html",
+    "type": "URL",
+    "size": "N/A",
+    "status": "indexed",
+    "uploadDate": "2025-08-25T16:00:33.839534",
+    "lastModified": "2025-08-25T16:00:33.839534",
+    "uploadedBy": "admin",
+    "url": "https://docs.pingidentity.com/solution-guides/getting_started_guides/htg_get_started_with_pf_install_pf.html"
   }
 }
