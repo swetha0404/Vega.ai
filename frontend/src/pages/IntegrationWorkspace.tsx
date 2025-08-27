@@ -11,7 +11,8 @@ import {
   Send,
   Coffee,
   ArrowLeft,
-  Trash2
+  Trash2,
+  Paperclip
 } from "lucide-react"
 import { Button } from "@/components/ui/button-variants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,8 +20,10 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import ChatSuggestions from "@/components/ui/ChatSuggestions"
 import VoiceToText from "@/components/ui/VoiceToText"
+import { useToast } from "@/hooks/use-toast"
 import { auth } from "@/utils/auth"
 import { api } from "@/utils/api"
 
@@ -43,6 +46,7 @@ interface Message {
 export default function IntegrationWorkspace() {
   const { app } = useParams()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const API_BASE = (import.meta as any).env?.VITE_BACKEND_URL || "http://localhost:8000"
   
   // Check authentication on component mount
@@ -64,6 +68,8 @@ export default function IntegrationWorkspace() {
   const [conversationStarted, setConversationStarted] = useState(false)
   const [avatarTextToSpeak, setAvatarTextToSpeak] = useState('')
   const [autoSendPending, setAutoSendPending] = useState(false)
+  const [isUploadingChatFile, setIsUploadingChatFile] = useState(false)
+  const [uploadedChatFile, setUploadedChatFile] = useState<{name: string, content: string} | null>(null)
   
   // Heygen Avatar State
   const [sessionInfo, setSessionInfo] = useState<any>(null)
@@ -109,6 +115,7 @@ export default function IntegrationWorkspace() {
   const [inputMessage, setInputMessage] = useState("")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const chatFileInputRef = useRef<HTMLInputElement>(null)
   const transcriptTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const recognitionRef = useRef<any>(null)
 
@@ -632,7 +639,7 @@ export default function IntegrationWorkspace() {
       // Send starter message as soon as avatar initializes
       setTimeout(() => {
         setAvatarTextToSpeak('Hello there!');
-      }, 1000); // Small delay to ensure avatar is fully ready
+      }, 7000); // Small delay to ensure avatar is fully ready
     } catch (error: any) {
       console.error('Error starting session:', error);
       updateStatus('❌ Error starting session: ' + error.message);
@@ -762,6 +769,13 @@ export default function IntegrationWorkspace() {
     if (!inputMessage.trim() || isLoading) return;
 
     const userMessage = inputMessage.trim();
+    
+    // Prepare the display message
+    let displayMessage = userMessage;
+    if (uploadedChatFile) {
+      displayMessage = `📎${userMessage}`;
+    }
+    
     setInputMessage('');
     setIsLoading(true);
 
@@ -775,7 +789,7 @@ export default function IntegrationWorkspace() {
     // Add user message to chat
     const newUserMessage: Message = {
       id: Date.now().toString(),
-      content: userMessage,
+      content: displayMessage,
       sender: "user",
       timestamp: new Date()
     };
@@ -802,12 +816,21 @@ export default function IntegrationWorkspace() {
       // Log current chat history for debugging
       console.log('IntegrationWorkspace - Chat History being sent to backend:', storedChatHistory);
 
+      // Prepare request body
+      const requestBody: any = {
+        question: userMessage,
+        history: storedChatHistory
+      };
+
+      // Include file data if file is uploaded
+      if (uploadedChatFile) {
+        requestBody.file_content = uploadedChatFile.content;
+        requestBody.file_name = uploadedChatFile.name;
+      }
+
       const response = await api.fetchWithAuth('/Agentchat', {
         method: 'POST',
-        body: JSON.stringify({
-          question: userMessage,
-          history: storedChatHistory // Send Chat_History object directly
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -828,7 +851,12 @@ export default function IntegrationWorkspace() {
       const userKey = `User_message_${nextMessageNumber}`;
       const aiKey = `AI_message_${nextMessageNumber}`;
       
-      updateChatHistory(userKey, userMessage);
+      // Include file info in chat history if file was sent
+      const historyUserMessage = uploadedChatFile 
+        ? `File: ${uploadedChatFile.name} - ${userMessage}`
+        : userMessage;
+      
+      updateChatHistory(userKey, historyUserMessage);
       updateChatHistory(aiKey, botResponse);
       
       // Add bot response to chat
@@ -839,6 +867,9 @@ export default function IntegrationWorkspace() {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, newBotMessage]);
+
+      // Clear the uploaded file after sending
+      setUploadedChatFile(null);
 
       // Send the avatar-specific text to the avatar to speak
       setAvatarTextToSpeak(avatarText);
@@ -997,6 +1028,57 @@ export default function IntegrationWorkspace() {
     }
     setRecording(false);
     console.log("Main mic: Speech recognition manually stopped");
+  };
+
+  // Handle text file upload for chat
+  const handleChatFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select a .txt file only.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingChatFile(true);
+
+    try {
+      // Read file content
+      const fileContent = await file.text();
+      
+      // Store file in state for later sending
+      setUploadedChatFile({
+        name: file.name,
+        content: fileContent
+      });
+
+      // toast({
+      //   title: "File uploaded",
+      //   description: `${file.name} is ready to send. Type your message and click send.`,
+      // });
+
+    } catch (error) {
+      console.error('Error reading file:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to read the file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingChatFile(false);
+      // Clear the input
+      event.target.value = '';
+    }
+  };
+
+  // Handle chat file upload button click
+  const handleChatFileUploadClick = () => {
+    chatFileInputRef.current?.click();
   };
 
   useEffect(() => {
@@ -1333,30 +1415,78 @@ export default function IntegrationWorkspace() {
           {avatarActive && (
             <div className="flex-shrink-0 p-6 pt-0 space-y-4 animate-slide-in">
               <div className="flex items-center justify-center gap-4">
-                <Button variant="outline" size="icon" onClick={handleMuteToggle}>
-                  {muted ? <VolumeX /> : <Volume2 />}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={handleMuteToggle}
+                      >
+                        {muted ? <VolumeX /> : <Volume2 />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{muted ? "Unmute avatar" : "Mute avatar"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 
                 {isSessionActive ? (
-                  <Button variant="destructive" size="icon" onClick={handleStopAvatar}>
-                    <Square />
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="destructive" 
+                          size="icon" 
+                          onClick={handleStopAvatar}
+                        >
+                          <Square />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Stop avatar session</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : (
-                  <Button variant="neural" size="icon" onClick={handleStartAvatar}>
-                    <Play />
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="neural" 
+                          size="icon" 
+                          onClick={handleStartAvatar}
+                        >
+                          <Play />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Start avatar session</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
                 
                 {/* Show Interrupt button only when Heygen session is active */}
                 {isSessionActive && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={interruptHandler}
-                    disabled={isInterrupting}
-                  >
-                    {isInterrupting ? 'Interrupting...' : 'Interrupt'}
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={interruptHandler}
+                          disabled={isInterrupting}
+                        >
+                          {isInterrupting ? 'Interrupting...' : 'Interrupt'}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Interrupt avatar speech</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
               
@@ -1482,14 +1612,63 @@ export default function IntegrationWorkspace() {
               />
             )}
             <div className="flex gap-2">
-              <Button
-                variant={recording ? "destructive" : "outline"}
-                size="icon"
-                onClick={handleMicToggle}
-                className={recording ? "bg-destructive text-destructive-foreground" : ""}
-              >
-                <Mic />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={recording ? "destructive" : "outline"}
+                      size="icon"
+                      onClick={handleMicToggle}
+                      className={recording ? "bg-destructive text-destructive-foreground" : ""}
+                    >
+                      <Mic />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{recording ? "Stop voice recording" : "Start voice recording"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleChatFileUploadClick}
+                        disabled={isUploadingChatFile}
+                      >
+                        {isUploadingChatFile ? (
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Paperclip className="w-4 h-4" />
+                        )}
+                      </Button>
+                      {uploadedChatFile && (
+                        <Badge 
+                          variant="default" 
+                          className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                          1
+                        </Badge>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{uploadedChatFile ? `File ready: ${uploadedChatFile.name}` : "Upload .txt file"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <input
+                ref={chatFileInputRef}
+                type="file"
+                accept=".txt"
+                onChange={handleChatFileUpload}
+                style={{ display: 'none' }}
+              />
               
               <div className="flex-1 flex gap-2">
                 <Input

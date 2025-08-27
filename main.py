@@ -55,6 +55,7 @@ from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 import yaml
 import json
+import tempfile
 from typing import List, Optional
 from datetime import timedelta, datetime
 import warnings
@@ -81,6 +82,7 @@ from ingestion import process_pdf, process_docx, process_ppt, process_website
 from llm_agent import LLMAgent
 from tomcat_monitor import TomcatMonitor
 from vector_store import delete_from_vector_store, get_document_count
+from readfile import read_file
 from auth import (
     user_manager, 
     create_access_token, 
@@ -579,6 +581,10 @@ async def process_web(
 class ChatRequest(BaseModel):
     question: str
     history: dict = {}
+    file_content: Optional[str] = None
+    file_name: Optional[str] = None
+    file_content: Optional[str] = None
+    file_name: Optional[str] = None
 
 # -------------------------------------------------------------------------------------------------------------
 # Handles advanced chat interactions using the LLM agent for more sophisticated query processing
@@ -590,7 +596,32 @@ async def Agentchat(
     """Main chat endpoint that routes queries through LLM agent with authentication"""
     print(f"\n@@@@@@@@@@@@@Processing query through LLM agent for user: {current_user.username}")
     try:
-        # Process query and get both verbose and avatar responses, passing history
+        # Check if file content is provided and call read_file function silently
+        if request.file_content and request.file_name:
+            print(f"\n@@@@@@@@@@@File upload detected: {request.file_name}")
+            
+            # Create a temporary file
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as temp_file:
+                temp_file.write(request.file_content)
+                temp_file_path = temp_file.name
+            
+            try:
+                # Call the read_file function silently for your workflow
+                print(f"\n@@@@@@@@@@@@Calling read_file function for: {request.file_name}")
+                read_file(temp_file_path)
+                
+                # Clean up the temporary file
+                os.unlink(temp_file_path)
+                print(f"\n@@@@@@@@@@@Temporary file cleaned up: {temp_file_path}")
+                
+            except Exception as file_error:
+                print(f"\n@@@@@@@@@@@Error in read_file function: {str(file_error)}")
+                # Clean up the temporary file in case of error
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
+                # Continue with normal processing even if file processing fails
+        
+        # Process query through LLM agent (same as before for all requests)
         response_data = await llm_agent.process_query(request.question, request.history)
         print(f"\n\n\n@@@@@@@@@@@@@ main.py LLM Agent response: {response_data}")
         
@@ -612,7 +643,7 @@ async def Agentchat(
         error_message = f"Error processing query: {str(e)}"
         return {
             "response": error_message,
-            "avatarText": "I encountered an error while processing your question. Please try again.",
+            "avatarText": "I encountered an error while processing your request. Please try again.",
             "status": "error"
         }
 

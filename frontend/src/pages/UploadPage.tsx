@@ -18,7 +18,8 @@ import {
   Link,
   Globe,
   Mic,
-  Send
+  Send,
+  Paperclip
 } from "lucide-react"
 import { Button } from "@/components/ui/button-variants"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -84,8 +85,11 @@ export default function UploadPage() {
   const [isChatLoading, setIsChatLoading] = useState(false)
   const [isRecordingUploadChat, setIsRecordingUploadChat] = useState(false)
   const [autoSendPendingUploadChat, setAutoSendPendingUploadChat] = useState(false)
+  const [isUploadingChatFile, setIsUploadingChatFile] = useState(false)
+  const [uploadedChatFile, setUploadedChatFile] = useState<{content: string, name: string} | null>(null)
   const chatMessagesEndRef = useRef<HTMLDivElement>(null)
   const chatInputRef = useRef<HTMLInputElement>(null)
+  const chatFileInputRef = useRef<HTMLInputElement>(null)
   const transcriptTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const recognitionRef = useRef<any>(null)
 
@@ -518,9 +522,16 @@ export default function UploadPage() {
     if (!chatMessage.trim()) return
 
     const userMessage = chatMessage.trim();
+    
+    // Prepare the message content
+    let displayMessage = userMessage;
+    if (uploadedChatFile) {
+      displayMessage = `📎${userMessage}`;
+    }
+    
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: userMessage,
+      content: displayMessage,
       sender: "user",
       timestamp: new Date(),
     }
@@ -535,12 +546,21 @@ export default function UploadPage() {
       
       console.log('UploadPage - Chat History being sent to backend:', storedChatHistory)
 
+      // Prepare request body
+      const requestBody: any = {
+        question: userMessage,
+        history: storedChatHistory
+      };
+
+      // Include file data if file is uploaded
+      if (uploadedChatFile) {
+        requestBody.file_content = uploadedChatFile.content;
+        requestBody.file_name = uploadedChatFile.name;
+      }
+
       const response = await api.fetchWithAuth('/Agentchat', {
         method: 'POST',
-        body: JSON.stringify({
-          question: userMessage,
-          history: storedChatHistory // Send Chat_History object directly
-        })
+        body: JSON.stringify(requestBody)
       })
 
       if (response.ok) {
@@ -565,8 +585,16 @@ export default function UploadPage() {
         const userKey = `User_message_${nextMessageNumber}`;
         const aiKey = `AI_message_${nextMessageNumber}`;
         
-        updateUploadPageChatHistory(userKey, userMessage);
+        // Include file info in chat history if file was sent
+        const historyUserMessage = uploadedChatFile 
+          ? `File: ${uploadedChatFile.name} - ${userMessage}`
+          : userMessage;
+        
+        updateUploadPageChatHistory(userKey, historyUserMessage);
         updateUploadPageChatHistory(aiKey, botResponse);
+        
+        // Clear the uploaded file after sending
+        setUploadedChatFile(null);
       } else {
         throw new Error('Failed to get response')
       }
@@ -710,6 +738,60 @@ export default function UploadPage() {
     setIsRecordingUploadChat(false)
     console.log("Upload page chat mic: Speech recognition manually stopped")
   }
+
+  // Handle text file upload for chat
+  const handleChatFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select a .txt file only.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingChatFile(true);
+
+    try {
+      // Read file content
+      const fileContent = await file.text();
+      
+      // Store the file content and name for later sending
+      setUploadedChatFile({
+        content: fileContent,
+        name: file.name
+      });
+
+      toast({
+        title: "File loaded",
+        description: `${file.name} is ready to send. Type your message and click send.`,
+      });
+
+    } catch (error) {
+      console.error('Chat file upload error:', error);
+      
+      toast({
+        title: "Upload failed",
+        description: "There was an error reading your file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingChatFile(false);
+      // Clear the file input
+      if (chatFileInputRef.current) {
+        chatFileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Handle chat file upload button click
+  const handleChatFileUploadClick = () => {
+    chatFileInputRef.current?.click();
+  };
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -1214,6 +1296,44 @@ export default function UploadPage() {
                   >
                     <Mic />
                   </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="relative">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={handleChatFileUploadClick}
+                            disabled={isUploadingChatFile}
+                          >
+                            {isUploadingChatFile ? (
+                              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <Paperclip className="w-4 h-4" />
+                            )}
+                          </Button>
+                          {uploadedChatFile && (
+                            <Badge 
+                              variant="default" 
+                              className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-blue-500 hover:bg-blue-600 text-white"
+                            >
+                              1
+                            </Badge>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{uploadedChatFile ? `File ready: ${uploadedChatFile.name}` : "Upload .txt file"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <input
+                    ref={chatFileInputRef}
+                    type="file"
+                    accept=".txt"
+                    onChange={handleChatFileUpload}
+                    style={{ display: 'none' }}
+                  />
                   <Input
                     ref={chatInputRef}
                     placeholder="Ask about your documents..."
