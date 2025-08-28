@@ -1,0 +1,21 @@
+instances:
+  - id: pf-prod-1
+    name: PF Admin Node 1
+    env: prod
+    base_url: http://localhost:8081/pf1
+  - id: pf-prod-2
+    name: PF Runtime Node 2
+    env: prod
+    base_url: http://localhost:8081/pf2
+  - id: pf-stage-1
+    name: PF Stage
+    env: stage
+    base_url: http://localhost:8081/pf3
+  - id: pf-dev-1
+    name: PF Dev 1
+    env: dev
+    base_url: http://localhost:8081/pf4
+  - id: pf-dev-2
+    name: PF Dev 2
+    env: dev
+    base_url: http://localhost:8081/pf5

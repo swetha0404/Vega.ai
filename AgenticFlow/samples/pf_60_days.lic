@@ -1,0 +1,16 @@
+ID=00759631
+WSTrustSTS=true
+OAuth=true
+SaasProvisioning=true
+Product=PingFederate
+Version=12.2
+EnforcementType=3
+Tier=Standard
+IssueDate=2025-08-27
+ExpirationDate=2025-10-27
+IssuedTo=Acme Corporation Test
+MaxConnections=unlimited
+ClusteringEnabled=true
+AdapterSDK=true
+LocalIdentityProfiles=true
+WebServices=true

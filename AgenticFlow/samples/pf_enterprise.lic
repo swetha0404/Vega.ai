@@ -1,0 +1,15 @@
+ID=00759626
+WSTrustSTS=true
+OAuth=true
+SaasProvisioning=true
+Product=PingFederate
+Version=12.2
+EnforcementType=3
+Tier=Enterprise
+IssueDate=2025-08-25
+ExpirationDate=2027-08-25
+GracePeriod=1
+DeploymentMethod=Traditional
+Organization=Acme Corporation
+SignCode=EE20
+Signature=2B90855BFD3C2436463F83572D4E7853G708B234HCC1312789745636474747474979474974974

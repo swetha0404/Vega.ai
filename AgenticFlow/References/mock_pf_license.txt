@@ -1,0 +1,15 @@
+ID=00759624
+WSTrustSTS=true
+OAuth=true
+SaasProvisioning=true
+Product=PingFederate
+Version=12.2
+EnforcementType=3
+Tier=Free
+IssueDate=2025-02-04
+ExpirationDate=2026-02-03
+GracePeriod=1
+DeploymentMethod=Traditional
+Organization=LikeMinds Consulting Inc
+SignCode=EE1E
+Signature=0F78633EFC1B0214241F61350B2C5631E586F012FAA9190567523414252525252757252752752

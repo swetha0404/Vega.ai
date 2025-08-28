@@ -328,5 +328,16 @@
     "lastModified": "2025-08-25T16:00:33.839534",
     "uploadedBy": "admin",
     "url": "https://docs.pingidentity.com/solution-guides/getting_started_guides/htg_get_started_with_pf_install_pf.html"
+  },
+  "pdf_849540f6cdad": {
+    "id": "pdf_849540f6cdad",
+    "name": "support_tickets_consolidated.pdf",
+    "type": "PDF",
+    "size": "0.6 MB",
+    "status": "indexed",
+    "uploadDate": "2025-08-28T14:56:32.546097",
+    "lastModified": "2025-08-28T14:56:32.546110",
+    "uploadedBy": "admin",
+    "url": null
   }
 }

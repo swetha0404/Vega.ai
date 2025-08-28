@@ -33,9 +33,7 @@ logs/
 *.tmp
 *.temp
 
-# Agenbotc folder contents
-agenbotc/vectorstore/
-agenbotc/uploads/
-agenbotc/.env
-
-AgenticFlow/
+# ChatFlow folder contents
+ChatFlow/vectorstore/
+ChatFlow/uploads/
+ChatFlow/.env

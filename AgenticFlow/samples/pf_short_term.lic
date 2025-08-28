@@ -1,0 +1,13 @@
+# PingFederate License File - Short Term
+# Test license with shorter validity for WARNING status testing
+
+LICENSE_TYPE=PingFederate
+ISSUED_TO=Test Corporation
+PRODUCT=PingFederate
+VERSION=12.0
+EXPIRY=2025-09-15
+FEATURES=SSO,SAML
+
+# License signature (simulated)
+SIGNATURE=SHORT123DEF456GHI789JKL012MNO345PQR678STU901VWX
+CHECKSUM=S9H8O7R6T5E3S2T1L0I9C8E7N6S5E4T3E2S1T0

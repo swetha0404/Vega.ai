@@ -4,7 +4,7 @@
 
 ```
 Repo folder/
-├── agenbotc/           # Backend Python code (FastAPI, chatbot, LLM agent, etc.)
+├── ChatFlow/           # Backend Python code (FastAPI, chatbot, LLM agent, etc.)
 ├── frontend/           # Frontend React/Vite app
 ├── Dockerfile          # Backend Dockerfile
 ├── docker-compose.yml  # Orchestrates backend and frontend containers
@@ -41,7 +41,7 @@ Repo folder/
   ```
   pip install -r requirements.txt
   ```
-- Copy your `.env` file to `agenbotc/.env` (must include `OPENAI_API_KEY` and `HEYGEN_API_KEY`)
+- Copy your `.env` file to the root folder (must include `OPENAI_API_KEY` and `HEYGEN_API_KEY`)
 - Run the backend server:
   ```
   uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -65,7 +65,7 @@ Repo folder/
 ## Production Deployment (Docker)
 
 1. Make sure you have Docker and Docker Compose installed.
-2. Place your `.env` file in `agenbotc/.env`.
+2. Place your `.env` file in the root folder.
 3. From the home directory, build and run both containers:
    ```
    docker-compose up --build

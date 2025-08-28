@@ -45,9 +45,9 @@ import uvicorn
 from datetime import datetime
 from dotenv import load_dotenv
 
-agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
-sys.path.append(os.path.abspath(agenbotc_dir))
-env_path = os.path.join(agenbotc_dir, ".env")
+ChatFlow_dir = os.path.join(os.path.dirname(__file__), "ChatFlow")
+sys.path.append(os.path.abspath(ChatFlow_dir))
+env_path = os.path.join(os.path.dirname(__file__), ".env")
 
 from fastapi import FastAPI, HTTPException, Request, File, Response, UploadFile, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -60,7 +60,7 @@ from typing import List, Optional
 from datetime import timedelta, datetime
 import warnings
 
-# === Load credentials from .env file (place it with content - OPENAI_API_KEY=<your-api-key> within the agenbotc folder)===
+# === Load credentials from .env file (place it with content - OPENAI_API_KEY=<your-api-key> in the root folder)===
 print(f"Loading .env file from: {env_path}")
 print(f"File exists: {os.path.exists(env_path)}")
 load_dotenv(env_path)
@@ -116,9 +116,9 @@ def load_config():
 app = FastAPI(title="Vega.ai Backend API", version="1.0.0")
 
 # File tracking functionality
-agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
-os.makedirs(agenbotc_dir, exist_ok=True)  # Ensure agenbotc directory exists
-FILES_JSON_PATH = os.path.join(agenbotc_dir, "files.json")
+ChatFlow_dir = os.path.join(os.path.dirname(__file__), "ChatFlow")
+os.makedirs(ChatFlow_dir, exist_ok=True)  # Ensure ChatFlow directory exists
+FILES_JSON_PATH = os.path.join(ChatFlow_dir, "files.json")
 
 def load_files_data():
     """Load files data from JSON file"""
@@ -396,8 +396,8 @@ async def upload_file(
         file_extension = file.filename.lower().split('.')[-1] if '.' in file.filename else ''
         
         # Save uploaded file temporarily
-        agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
-        upload_folder = os.path.join(agenbotc_dir, "uploads")
+        ChatFlow_dir = os.path.join(os.path.dirname(__file__), "ChatFlow")
+        upload_folder = os.path.join(ChatFlow_dir, "uploads")
         os.makedirs(upload_folder, exist_ok=True)
         file_path = os.path.join(upload_folder, file.filename)
         
@@ -451,9 +451,9 @@ async def upload_pdf(
 ):
     """Upload PDF file for RAG training (requires authentication)"""
     print(f"PDF upload by user: {current_user.username}")
-    # Ensure uploads go to agenbotc folder
-    agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
-    uploads_dir = os.path.join(agenbotc_dir, "uploads")
+    # Ensure uploads go to ChatFlow folder
+    ChatFlow_dir = os.path.join(os.path.dirname(__file__), "ChatFlow")
+    uploads_dir = os.path.join(ChatFlow_dir, "uploads")
     os.makedirs(uploads_dir, exist_ok=True)
     
     file_location = os.path.join(uploads_dir, file.filename)
@@ -483,9 +483,9 @@ async def upload_docx(
 ):
     """Upload DOCX file for RAG training (requires authentication)"""
     print(f"DOCX upload by user: {current_user.username}")
-    # Ensure uploads go to agenbotc folder
-    agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
-    uploads_dir = os.path.join(agenbotc_dir, "uploads")
+    # Ensure uploads go to ChatFlow folder
+    ChatFlow_dir = os.path.join(os.path.dirname(__file__), "ChatFlow")
+    uploads_dir = os.path.join(ChatFlow_dir, "uploads")
     os.makedirs(uploads_dir, exist_ok=True)
     
     file_location = os.path.join(uploads_dir, file.filename)
@@ -515,9 +515,9 @@ async def upload_ppt(
 ):
     """Upload PPT file for RAG training (requires authentication)"""
     print(f"PPT upload by user: {current_user.username}")
-    # Ensure uploads go to agenbotc folder
-    agenbotc_dir = os.path.join(os.path.dirname(__file__), "agenbotc")
-    uploads_dir = os.path.join(agenbotc_dir, "uploads")
+    # Ensure uploads go to ChatFlow folder
+    ChatFlow_dir = os.path.join(os.path.dirname(__file__), "ChatFlow")
+    uploads_dir = os.path.join(ChatFlow_dir, "uploads")
     os.makedirs(uploads_dir, exist_ok=True)
     
     file_location = os.path.join(uploads_dir, file.filename)

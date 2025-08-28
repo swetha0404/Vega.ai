@@ -6,6 +6,7 @@ import {
   MessageCircle, 
   Upload, 
   Users, 
+  Shield,
   ChevronLeft,
   ChevronRight,
   LogOut
@@ -30,6 +31,12 @@ const navigationItems = [
   //   icon: MessageCircle,
   //   roles: ["user", "admin"]
   // },
+  {
+    title: "IAM Dashboard",
+    url: "/iam-dashboard",
+    icon: Shield,
+    roles: ["user", "admin"]
+  },
   {
     title: "Data Uplink",
     url: "/upload", 

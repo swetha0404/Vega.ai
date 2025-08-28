@@ -4,6 +4,6 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py ./
 COPY users.json ./
-COPY agenbotc ./agenbotc
+COPY ChatFlow ./ChatFlow
 EXPOSE 8000
 CMD ["python", "main.py"]

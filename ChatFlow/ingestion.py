@@ -22,15 +22,24 @@ def calculate_content_hash(content):
     """Calculate MD5 hash of content string"""
     return hashlib.md5(content.encode('utf-8')).hexdigest()
 
-def generate_doc_id_from_source(source, doc_type):
-    """Generate a consistent document ID from source and type"""
-    # Create a consistent ID based on source and type
-    source_hash = hashlib.md5(f"{source}_{doc_type}".encode('utf-8')).hexdigest()
+def calculate_file_hash(file_path):
+    """Calculate MD5 hash of file content"""
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+def generate_doc_id_from_filename(filename, doc_type, content_hash):
+    """Generate a consistent document ID from filename, type, and content hash"""
+    # Use original filename and content hash for consistent ID generation
+    source_identifier = f"{filename}_{doc_type}_{content_hash}"
+    source_hash = hashlib.md5(source_identifier.encode('utf-8')).hexdigest()
     return f"{doc_type}_{source_hash[:12]}"
 
-def is_duplicate_document(source, doc_type):
-    """Check if a document already exists in the vector store"""
-    doc_id = generate_doc_id_from_source(source, doc_type)
+def is_duplicate_document(filename, doc_type, content_hash):
+    """Check if a document already exists in the vector store based on filename and content"""
+    doc_id = generate_doc_id_from_filename(filename, doc_type, content_hash)
     exists = check_document_exists(doc_id)
     return exists, doc_id if exists else None
 
@@ -183,13 +192,19 @@ def chunk_text(text):
 def process_pdf(pdf_path):
     """Process a PDF file and add its content to the vector store with duplicate check"""
     try:
-        # Check for duplicates using vector store
-        is_duplicate, existing_doc_id = is_duplicate_document(pdf_path, "pdf")
+        # Get original filename
+        filename = os.path.basename(pdf_path)
+        
+        # Calculate file content hash
+        file_hash = calculate_file_hash(pdf_path)
+        
+        # Check for duplicates using filename and content hash
+        is_duplicate, existing_doc_id = is_duplicate_document(filename, "pdf", file_hash)
         if is_duplicate:
             return {"doc_id": existing_doc_id, "message": "PDF already processed", "is_duplicate": True}
         
         # Generate consistent doc ID
-        doc_id = generate_doc_id_from_source(pdf_path, "pdf")
+        doc_id = generate_doc_id_from_filename(filename, "pdf", file_hash)
         
         # Extract text with error handling
         try:
@@ -208,7 +223,7 @@ def process_pdf(pdf_path):
             "source": pdf_path,
             "type": "pdf",
             "doc_id": doc_id,
-            "filename": os.path.basename(pdf_path)
+            "filename": filename
         }
         add_to_vector_store(chunks, metadata)
         
@@ -220,13 +235,19 @@ def process_pdf(pdf_path):
 def process_docx(docx_path):
     """Process a DOCX file and add its content to the vector store with duplicate check"""
     try:
-        # Check for duplicates using vector store
-        is_duplicate, existing_doc_id = is_duplicate_document(docx_path, "docx")
+        # Get original filename
+        filename = os.path.basename(docx_path)
+        
+        # Calculate file content hash
+        file_hash = calculate_file_hash(docx_path)
+        
+        # Check for duplicates using filename and content hash
+        is_duplicate, existing_doc_id = is_duplicate_document(filename, "docx", file_hash)
         if is_duplicate:
             return {"doc_id": existing_doc_id, "message": "DOCX already processed", "is_duplicate": True}
         
         # Generate consistent doc ID
-        doc_id = generate_doc_id_from_source(docx_path, "docx")
+        doc_id = generate_doc_id_from_filename(filename, "docx", file_hash)
         
         # Extract text with error handling
         try:
@@ -245,7 +266,7 @@ def process_docx(docx_path):
             "source": docx_path,
             "type": "docx",
             "doc_id": doc_id,
-            "filename": os.path.basename(docx_path)
+            "filename": filename
         }
         add_to_vector_store(chunks, metadata)
         
@@ -258,13 +279,17 @@ def process_docx(docx_path):
 def process_website(url):
     """Process a website and add its content to the vector store with duplicate check"""
     try:
-        # Check for duplicates using vector store
-        is_duplicate, existing_doc_id = is_duplicate_document(url, "website")
+        # For websites, use URL as the unique identifier
+        # Calculate content hash of URL for consistency
+        url_hash = hashlib.md5(url.encode('utf-8')).hexdigest()
+        
+        # Check for duplicates using URL and hash
+        is_duplicate, existing_doc_id = is_duplicate_document(url, "website", url_hash)
         if is_duplicate:
             return {"doc_id": existing_doc_id, "message": "Website already processed", "is_duplicate": True}
         
         # Generate consistent doc ID
-        doc_id = generate_doc_id_from_source(url, "website")
+        doc_id = generate_doc_id_from_filename(url, "website", url_hash)
         
         # Extract text with error handling
         try:
@@ -294,13 +319,19 @@ def process_ppt(ppt_path):
         if Presentation is None:
             return {"doc_id": None, "message": "PPT processing not available - python-pptx not installed", "is_duplicate": False, "error": True}
         
-        # Check for duplicates using vector store
-        is_duplicate, existing_doc_id = is_duplicate_document(ppt_path, "ppt")
+        # Get original filename
+        filename = os.path.basename(ppt_path)
+        
+        # Calculate file content hash
+        file_hash = calculate_file_hash(ppt_path)
+        
+        # Check for duplicates using filename and content hash
+        is_duplicate, existing_doc_id = is_duplicate_document(filename, "ppt", file_hash)
         if is_duplicate:
             return {"doc_id": existing_doc_id, "message": "PPT already processed", "is_duplicate": True}
         
         # Generate consistent doc ID
-        doc_id = generate_doc_id_from_source(ppt_path, "ppt")
+        doc_id = generate_doc_id_from_filename(filename, "ppt", file_hash)
         
         # Extract text with error handling
         try:
@@ -319,7 +350,7 @@ def process_ppt(ppt_path):
             "source": ppt_path,
             "type": "ppt",
             "doc_id": doc_id,
-            "filename": os.path.basename(ppt_path)
+            "filename": filename
         }
         add_to_vector_store(chunks, metadata)
         

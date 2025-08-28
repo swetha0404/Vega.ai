@@ -10,6 +10,7 @@ import Integrations from "./pages/Integrations";
 import IntegrationWorkspace from "./pages/IntegrationWorkspace";
 import NeuralConsole from "./pages/NeuralConsole";
 import UploadPage from "./pages/UploadPage";
+import IAMDashboard from "./pages/IAMDashboard";
 import UserManagement from "./pages/UserManagement";
 import NotFound from "./pages/NotFound";
 import { auth } from "./utils/auth";
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/integrations/:app" element={<IntegrationWorkspace />} />
             <Route path="/chat" element={<NeuralConsole />} />
+            <Route path="/iam-dashboard" element={<IAMDashboard />} />
             <Route path="/upload" element={
               <AdminRoute>
                 <UploadPage />
